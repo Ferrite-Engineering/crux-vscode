@@ -1,0 +1,7 @@
+# this is a comment
+// also a comment
+
+++ comp 0 file /src/cpu.v
+
+++ module top 0 1
++++ var clk 0 5

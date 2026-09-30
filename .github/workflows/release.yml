@@ -1,0 +1,513 @@
+name: release
+
+# Tag shape: vscode-v<semver>, e.g. vscode-v0.1.0. All five packages share one
+# version, read from VERSION (tool/version.mjs), because the pack names its
+# four members by id with no version pin: a pack published against a member
+# version that was never published is a broken listing. The `vscode-` prefix
+# keeps the tag unambiguous next to the desktop products' releases, which
+# version independently of this pack.
+#
+# workflow_dispatch exists so the pipeline can be exercised — including the
+# secrets-absent dry-run publish path — before any tag is pushed and before
+# the Open VSX publisher account exists. A dispatch run skips the
+# tag/VERSION assertion (there is no tag to assert against) but otherwise
+# does everything a tag push does, up to and including the dry-run publish
+# report.
+on:
+  push:
+    tags:
+      - "vscode-v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: "11.21.0"
+  NODE_VERSION: "22.14.0"
+
+jobs:
+  version:
+    name: Version (drift + tag check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: All five packages agree with VERSION
+        run: node tool/version.mjs --check
+      - name: Tag matches VERSION
+        if: startsWith(github.ref, 'refs/tags/')
+        run: node tool/version.mjs --assert-tag "${{ github.ref_name }}"
+
+  lint:
+    name: Lint (zero warnings)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r lint
+      - name: Verify l10n stubs (EN + zh-Hans + ja + ko)
+        run: node tool/verify-l10n.mjs
+      - name: Verify host-core strings are synced into every extension
+        run: node tool/sync-l10n.mjs --check
+      # A release is the one moment a broken listing becomes permanent, so the
+      # listing gate runs here too rather than only on the CI workflow.
+      - name: Verify Marketplace / Open VSX listing metadata
+        run: node tool/verify-listing.mjs
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r test
+
+  package:
+    name: Package (${{ matrix.dir }})
+    needs: [version, lint, typecheck, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        # wavecrux is deliberately absent — see the package-wavecrux job
+        # below, which handles that gap explicitly instead of by omission.
+        # The pack is packaged here with the others; it is *published* by its
+        # own job, publish-pack, which waits for wavecrux.
+        #
+        # `dir` is the packages/ directory and the artifact/publish-target
+        # name used elsewhere in this workflow. `pkg` is the pnpm workspace
+        # package name passed to `--filter`, which for the pack differs from
+        # its directory: packages/pack's package.json name (and therefore its
+        # extension ID, ferrite-engineering.edacrux) is "edacrux", not "pack".
+        # `build` is false for the pack because it is manifest-only — it has
+        # no "build" script, only "package".
+        include:
+          - dir: lintcrux
+            pkg: lintcrux
+            build: true
+          - dir: simcrux
+            pkg: simcrux
+            build: true
+          - dir: netcrux
+            pkg: netcrux
+            build: true
+          - dir: pack
+            pkg: edacrux
+            build: false
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter ${{ matrix.pkg }} run build
+        if: matrix.build
+      - run: pnpm --filter ${{ matrix.pkg }} run package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.dir }}.vsix
+          path: packages/${{ matrix.dir }}/dist/*.vsix
+          if-no-files-found: error
+
+  # wavecrux's VSIX embeds the WaveCrux Flutter web build
+  # (docs/webview-hosting.md). Producing it needs a Flutter toolchain and a
+  # checkout of Ferrite-Engineering/wavecrux, and this job provides neither
+  # yet. That is a standing limitation of *this* job, not a transient
+  # failure, but a release pipeline that silently skips the flagship
+  # extension is worse than one that fails loudly, so it must not be handled
+  # by quietly leaving wavecrux out of the matrix above and saying nothing
+  # else.
+  #
+  # So: this job always runs, fails loudly with a specific message when the
+  # payload cannot be built (true on every run until the job gains a Flutter
+  # toolchain and a WaveCrux checkout), and — because publish-wavecrux below
+  # `needs` it — its failure automatically skips (not silently omits)
+  # publishing a wavecrux VSIX that was never produced. lintcrux, simcrux and
+  # netcrux are independent jobs and are unaffected; the pack waits for
+  # wavecrux (see publish-pack).
+  #
+  # Until then, a maintainer packages and publishes wavecrux by hand from a
+  # machine with Flutter and a WaveCrux checkout — `pnpm --filter wavecrux run
+  # build:web`, `run build`, `run package`, then `vsce publish` / `ovsx
+  # publish` the VSIX — *before* pushing the tag, so publish-pack finds it.
+  # To make this job build for real: install Flutter (subosito/flutter-action),
+  # check out Ferrite-Engineering/wavecrux at the released WaveCrux tag (not
+  # main — the payload must be a known WaveCrux version), and set the
+  # CRUX_WAVECRUX_REPO repository variable to that checkout's path. No other
+  # job in this workflow needs to change.
+  package-wavecrux:
+    name: Package wavecrux (.vsix) — gated on the Flutter payload
+    needs: [version, lint, typecheck, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Repository variable (not a secret — it is a filesystem path, not
+    # sensitive) naming the WaveCrux checkout tool/build-wavecrux-web.mjs
+    # builds from. Unset today, which is exactly the state the gate below is
+    # written to fail loudly on.
+    env:
+      CRUX_WAVECRUX_REPO: ${{ vars.CRUX_WAVECRUX_REPO }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify the Flutter payload can actually be built here
+        run: |
+          ok=1
+          if ! command -v flutter >/dev/null 2>&1; then
+            echo "::error::wavecrux packaging needs a Flutter toolchain; this runner has none."
+            ok=0
+          fi
+          # Mirrors tool/build-wavecrux-web.mjs: CRUX_WAVECRUX_REPO, else a
+          # sibling ../wavecrux checkout.
+          if [ -z "${CRUX_WAVECRUX_REPO:-}" ] && [ ! -d "../wavecrux" ]; then
+            echo "::error::No WaveCrux checkout reachable (CRUX_WAVECRUX_REPO unset, no sibling ../wavecrux)."
+            echo "::error::This job does not check out Ferrite-Engineering/wavecrux yet."
+            ok=0
+          fi
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::Expected until this job installs Flutter and checks out WaveCrux (see the comment on package-wavecrux)."
+            echo "::error::Package and publish wavecrux manually in the meantime: pnpm --filter wavecrux run build:web && pnpm --filter wavecrux run build && pnpm --filter wavecrux run package, then vsce/ovsx publish the resulting .vsix — before pushing the tag."
+            exit 1
+          fi
+      # Stage a fresh payload from the checkout. `run package` only checks the
+      # staged payload is complete, not that it is current, so building it
+      # here is what keeps an old staging from shipping.
+      - run: pnpm --filter wavecrux run build:web
+      - run: pnpm --filter wavecrux run build
+      - run: pnpm --filter wavecrux run package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wavecrux.vsix
+          path: packages/wavecrux/dist/*.vsix
+          if-no-files-found: error
+
+  # Publishes (or, absent the registry tokens, dry-runs) lintcrux, simcrux
+  # and netcrux. Never fails for a missing token: a registry whose token is
+  # not configured is an expected state, and the workflow must be exercisable
+  # before every publisher account exists. It also never half-publishes: vsce
+  # and ovsx are invoked independently and each is skipped-with-report on its
+  # own missing token, so e.g. a Marketplace-only token still gets a real
+  # Marketplace publish and an honest Open VSX dry run in the same run.
+  #
+  # The pack is NOT in this matrix — it names wavecrux as a member, so it
+  # publishes from publish-pack, after wavecrux.
+  publish:
+    name: Publish (${{ matrix.dir }})
+    needs: [package]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        # pkg is the extension ID suffix (ferrite-engineering.<pkg>).
+        include:
+          - dir: lintcrux
+            pkg: lintcrux
+          - dir: simcrux
+            pkg: simcrux
+          - dir: netcrux
+            pkg: netcrux
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ matrix.dir }}.vsix
+          path: dist
+      - name: Resolve VSIX path
+        id: vsix
+        run: |
+          file=$(find dist -name '*.vsix' | head -1)
+          if [ -z "$file" ]; then
+            echo "::error::no .vsix found in downloaded artifact"
+            exit 1
+          fi
+          echo "path=$file" >> "$GITHUB_OUTPUT"
+      - name: Marketplace (vsce) — publish or dry run
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+        run: |
+          if [ -n "$VSCE_PAT" ]; then
+            echo "Publishing $VSIX to the Microsoft Marketplace as ferrite-engineering.${{ matrix.pkg }}"
+            pnpm exec vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+          else
+            echo "DRY RUN (VSCE_PAT not set): would run"
+            echo "  vsce publish --packagePath $VSIX --pat <redacted>"
+            echo "target: ferrite-engineering.${{ matrix.pkg }}"
+            echo "The .vsix above already passed 'vsce package' validation in the package job."
+            {
+              echo "### Marketplace — ${{ matrix.pkg }} (DRY RUN)"
+              echo "VSCE_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.${{ matrix.pkg }}\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Open VSX (ovsx) — publish or dry run
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+        run: |
+          if [ -n "$OVSX_PAT" ]; then
+            echo "Publishing $VSIX to Open VSX as ferrite-engineering.${{ matrix.pkg }}"
+            pnpm exec ovsx publish "$VSIX" --pat "$OVSX_PAT"
+          else
+            echo "DRY RUN (OVSX_PAT not set): would run"
+            echo "  ovsx publish $VSIX --pat <redacted>"
+            echo "target: ferrite-engineering.${{ matrix.pkg }}"
+            pnpm exec ovsx --help >/dev/null
+            echo "ovsx CLI resolved and ran (--help) successfully; the tool itself is not the gap."
+            {
+              echo "### Open VSX — ${{ matrix.pkg }} (DRY RUN)"
+              echo "OVSX_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.${{ matrix.pkg }}\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # Only reached if package-wavecrux actually produced a VSIX — see that
+  # job's comment. Absent that (true today), this job is skipped by GitHub
+  # Actions' normal `needs` semantics, which is the explicit, visible-in-the-
+  # UI signal this design relies on instead of a silent no-op.
+  publish-wavecrux:
+    name: Publish (wavecrux)
+    needs: [package-wavecrux]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: wavecrux.vsix
+          path: dist
+      - name: Resolve VSIX path
+        id: vsix
+        run: |
+          file=$(find dist -name '*.vsix' | head -1)
+          if [ -z "$file" ]; then
+            echo "::error::no .vsix found in downloaded artifact"
+            exit 1
+          fi
+          echo "path=$file" >> "$GITHUB_OUTPUT"
+      - name: Marketplace (vsce) — publish or dry run
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+        run: |
+          if [ -n "$VSCE_PAT" ]; then
+            echo "Publishing $VSIX to the Microsoft Marketplace as ferrite-engineering.wavecrux"
+            pnpm exec vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+          else
+            echo "DRY RUN (VSCE_PAT not set): would run vsce publish --packagePath $VSIX --pat <redacted>"
+            {
+              echo "### Marketplace — wavecrux (DRY RUN)"
+              echo "VSCE_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.wavecrux\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Open VSX (ovsx) — publish or dry run
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+        run: |
+          if [ -n "$OVSX_PAT" ]; then
+            echo "Publishing $VSIX to Open VSX as ferrite-engineering.wavecrux"
+            pnpm exec ovsx publish "$VSIX" --pat "$OVSX_PAT"
+          else
+            echo "DRY RUN (OVSX_PAT not set): would run ovsx publish $VSIX --pat <redacted>"
+            pnpm exec ovsx --help >/dev/null
+            {
+              echo "### Open VSX — wavecrux (DRY RUN)"
+              echo "OVSX_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.wavecrux\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # The pack (ferrite-engineering.edacrux) is an extensionPack naming its four
+  # members by id with no version pin. Published while
+  # ferrite-engineering.wavecrux is missing from a registry, it is a broken
+  # listing there — so it publishes to a registry only once wavecrux at this
+  # VERSION is known to be on it:
+  #
+  #   - publish-wavecrux succeeded in this run (it uses the same tokens, so it
+  #     published exactly where this job would, or dry-ran exactly where this
+  #     job will); or
+  #   - wavecrux at exactly VERSION already resolves on that registry, because
+  #     a maintainer published it by hand before pushing the tag — the only
+  #     way it ships while package-wavecrux cannot build (see that job).
+  #
+  # Otherwise the pack is held back from that registry and this job fails
+  # saying so: skipped loudly, never published against a missing member.
+  # Publish wavecrux, then re-run this job. Each registry is decided and
+  # published independently, as in the publish job.
+  #
+  # `!cancelled()` so the job still runs when publish-wavecrux was skipped
+  # (its dependency fails on every run today), without running for a
+  # cancelled workflow; and only when every package leg succeeded, the pack's
+  # VSIX included.
+  publish-pack:
+    name: Publish (pack)
+    needs: [package, publish-wavecrux]
+    if: ${{ !cancelled() && needs.package.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: pack.vsix
+          path: dist
+      - name: Resolve VSIX path
+        id: vsix
+        run: |
+          file=$(find dist -name '*.vsix' | head -1)
+          if [ -z "$file" ]; then
+            echo "::error::no .vsix found in downloaded artifact"
+            exit 1
+          fi
+          echo "path=$file" >> "$GITHUB_OUTPUT"
+      - name: Is wavecrux on each registry at this version?
+        id: wavecrux
+        env:
+          PUBLISHED_IN_THIS_RUN: ${{ needs.publish-wavecrux.result == 'success' }}
+        run: |
+          version=$(tr -d '[:space:]' < VERSION)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$PUBLISHED_IN_THIS_RUN" = "true" ]; then
+            echo "publish-wavecrux succeeded in this run."
+            echo "marketplace=true" >> "$GITHUB_OUTPUT"
+            echo "openvsx=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Both are public, unauthenticated reads.
+          if pnpm exec vsce show ferrite-engineering.wavecrux --json 2>/dev/null \
+            | node -e 'let s="";process.stdin.on("data",(d)=>{s+=d}).on("end",()=>{let v=[];try{v=(JSON.parse(s)||{}).versions||[]}catch{}process.exit(v.some((x)=>x.version===process.argv[1])?0:1)})' "$version"; then
+            echo "marketplace=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "marketplace=false" >> "$GITHUB_OUTPUT"
+          fi
+          if curl -fsS -o /dev/null "https://open-vsx.org/api/ferrite-engineering/wavecrux/$version"; then
+            echo "openvsx=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "openvsx=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Marketplace (vsce) — publish, hold back, or dry run
+        id: marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+          VERSION: ${{ steps.wavecrux.outputs.version }}
+          WAVECRUX_PRESENT: ${{ steps.wavecrux.outputs.marketplace }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "DRY RUN (VSCE_PAT not set): would run"
+            echo "  vsce publish --packagePath $VSIX --pat <redacted>"
+            {
+              echo "### Marketplace — edacrux (DRY RUN)"
+              echo "VSCE_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.edacrux\` (wavecrux $VERSION present: $WAVECRUX_PRESENT)."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$WAVECRUX_PRESENT" != "true" ]; then
+            echo "::error::Pack held back from the Marketplace: ferrite-engineering.wavecrux $VERSION is not published there, and the pack would name a missing member. Publish wavecrux, then re-run this job."
+            {
+              echo "### Marketplace — edacrux (HELD BACK)"
+              echo "ferrite-engineering.wavecrux $VERSION is not on the Marketplace, so the pack was not published."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "held=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publishing $VSIX to the Microsoft Marketplace as ferrite-engineering.edacrux"
+            pnpm exec vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+          fi
+      - name: Open VSX (ovsx) — publish, hold back, or dry run
+        id: openvsx
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+          VSIX: ${{ steps.vsix.outputs.path }}
+          VERSION: ${{ steps.wavecrux.outputs.version }}
+          WAVECRUX_PRESENT: ${{ steps.wavecrux.outputs.openvsx }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "DRY RUN (OVSX_PAT not set): would run"
+            echo "  ovsx publish $VSIX --pat <redacted>"
+            pnpm exec ovsx --help >/dev/null
+            {
+              echo "### Open VSX — edacrux (DRY RUN)"
+              echo "OVSX_PAT is not set. Would have published \`$VSIX\` as \`ferrite-engineering.edacrux\` (wavecrux $VERSION present: $WAVECRUX_PRESENT)."
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$WAVECRUX_PRESENT" != "true" ]; then
+            echo "::error::Pack held back from Open VSX: ferrite-engineering.wavecrux $VERSION is not published there, and the pack would name a missing member. Publish wavecrux, then re-run this job."
+            {
+              echo "### Open VSX — edacrux (HELD BACK)"
+              echo "ferrite-engineering.wavecrux $VERSION is not on Open VSX, so the pack was not published."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "held=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publishing $VSIX to Open VSX as ferrite-engineering.edacrux"
+            pnpm exec ovsx publish "$VSIX" --pat "$OVSX_PAT"
+          fi
+      - name: Fail if the pack was held back from a registry
+        if: steps.marketplace.outputs.held == 'true' || steps.openvsx.outputs.held == 'true'
+        run: |
+          echo "::error::The pack was not published everywhere its token allows, because wavecrux was missing. See the step summary."
+          exit 1

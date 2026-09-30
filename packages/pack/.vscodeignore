@@ -1,0 +1,15 @@
+.vscode/**
+node_modules/**
+**/.gitignore
+
+# The pack's "package" script omits --no-dependencies (it is manifest-only, so
+# there is nothing to prune), which makes vsce stage *in place*: it writes
+# extension/, [Content_Types].xml and extension.vsixmanifest into this
+# directory and leaves them behind. Without these three lines the next
+# `vsce package` sweeps the previous run's staging tree into the new VSIX,
+# shipping a nested extension/extension/package.json inside the artifact.
+# They are gitignored too (see the repo .gitignore); this is the packaging
+# half of the same fact.
+extension/**
+[[]Content_Types[]].xml
+extension.vsixmanifest

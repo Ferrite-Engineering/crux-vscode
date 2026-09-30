@@ -1,0 +1,19 @@
+{
+  "extension.displayName": "LintCrux — RTL 静态检查与豁免",
+  "extension.description": "把 LintCrux 的 SARIF 或 JSON 结果读成你自己 RTL 中的问题面板诊断，并用快速修复直接把违规写入 .lintcrux-waivers.json 豁免。",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "将所选内容发送到 Crux 应用",
+  "crux.command.highlightSelectionInPeer.title": "在 Crux 应用中高亮所选内容",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "当已连接的 Crux 应用通知其所选内容时,将对应的编辑器标签页置于前台。键盘焦点保持不变,且不会激活窗口。",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "当已连接的 Crux 应用请求打开源代码位置时,将光标移入编辑器。窗口本身不会被激活。",
+  "crux.command.openCapabilitiesPanel.title": "打开功能面板",
+  "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",
+  "crux.configuration.rtlAnnotation.enabled.description": "将已连接波形中的信号值以内联批注的形式显示在你的 Verilog/VHDL 源码中，并跟随波形游标。默认关闭；仅批注 stems 精确匹配的信号，名称有歧义时会显示为歧义而不会擅自猜测。",
+  "crux.command.lintcrux.refresh.title": "刷新 Lint 诊断",
+  "crux.command.lintcrux.triage.title": "在 LintCrux Desktop 中分诊此设计",
+  "crux.configuration.lint.resultsPath.description": "LintCrux 结果文件的位置，相对于每个工作区文件夹（也可使用绝对路径）。可用 `lintcrux <sources> --sarif lintcrux.sarif` 或 `--export json --out <path>` 生成该文件。两种格式均可读取，且格式由文件内容判定，而非扩展名。",
+  "crux.configuration.lint.waiverAuthor.description": "从编辑器提交 waiver 时记录的作者。留空则使用操作系统用户名，与 LintCrux 应用的默认填充值一致。",
+  "crux.untrustedWorkspaces.description": "在受限工作区中，lint 结果仍会显示为诊断信息，也仍可登记豁免：本扩展只读写文件，从不执行任何程序。由工作区提供的结果文件路径会被忽略——该设置接受绝对路径，不受信任的文件夹不应决定读取哪个文件；请在你自己的设置中指定，或信任该文件夹。",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。"
+}

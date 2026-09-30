@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "verible"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "startTimeUtc": "2026-08-03T17:56:00.722979Z",
+          "endTimeUtc": "2026-08-03T17:56:00.722979Z"
+        }
+      ],
+      "automationDetails": {
+        "id": "getting-started/verible"
+      },
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "./"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "explicit-parameter-storage-type",
+          "level": "warning",
+          "message": {
+            "text": "Explicitly define a storage type for every parameter and localparam, (WIDTH)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 15
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "case-missing-default",
+          "level": "warning",
+          "message": {
+            "text": "Explicitly define a default case for every case statement or add `unique` qualifier to the case statement."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "verilator"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "startTimeUtc": "2026-08-03T17:56:00.722979Z",
+          "endTimeUtc": "2026-08-03T17:56:00.722979Z"
+        }
+      ],
+      "automationDetails": {
+        "id": "getting-started/verilator"
+      },
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "./"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "WIDTHTRUNC",
+          "level": "warning",
+          "message": {
+            "text": "Operator ASSIGNW expects 4 bits on the Assign RHS, but Assign RHS's VARREF 'a' generates 8 bits."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 58,
+                  "startColumn": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "UNUSEDSIGNAL",
+          "level": "warning",
+          "message": {
+            "text": "Signal is not used: 'carry_scratch'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "UNDRIVEN",
+          "level": "warning",
+          "message": {
+            "text": "Signal is not driven: 'overflow_flag'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 27,
+                  "startColumn": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CASEINCOMPLETE",
+          "level": "warning",
+          "message": {
+            "text": "Case values incompletely covered (example pattern 0x5)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "LATCH",
+          "level": "warning",
+          "message": {
+            "text": "Latch inferred for signal 'alu.next_result' (not all control paths of combinational always assign a value)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "alu.sv",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 3
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

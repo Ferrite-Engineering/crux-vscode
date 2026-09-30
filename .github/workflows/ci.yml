@@ -1,0 +1,133 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: "11.21.0"
+  NODE_VERSION: "22.14.0"
+
+jobs:
+  version:
+    name: Version (drift check)
+    runs-on: ubuntu-latest
+    # No install needed: tool/version.mjs has no dependencies beyond node:fs.
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: All five packages agree with VERSION
+        run: node tool/version.mjs --check
+
+  lint:
+    name: Lint (zero warnings)
+    runs-on: ubuntu-latest
+    # Cost guardrail: every job carries a cap, no exceptions — a hung job
+    # has drained a month's Actions budget before.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r lint
+      - name: Verify l10n stubs (EN + zh-Hans + ja + ko)
+        run: node tool/verify-l10n.mjs
+      # host-core's strings are emitted from code that esbuild bundles into
+      # each extension, so they must be present in each extension's own
+      # bundle or they fall back to English for every non-English user.
+      - name: Verify host-core strings are synced into every extension
+        run: node tool/sync-l10n.mjs --check
+      # The listing is a first-class deliverable, so it gets a gate rather
+      # than a review habit: icon present and 128x128,
+      # gallery banner, valid categories/keywords, absolute-linked README, and
+      # displayName/description actually translated in all four locales.
+      - name: Verify Marketplace / Open VSX listing metadata
+        run: node tool/verify-listing.mjs
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r test
+      # Repository-wide static guard, so it runs once here rather than once
+      # per package. This repository goes public at the open-core flip, and
+      # from then on a comment citing an unpublished plan or naming a closed
+      # repository is a dead end for every reader. node:test and node:assert
+      # are built in, so it needs nothing from the lockfile.
+      - name: No references to anything a reader cannot open
+        run: node --test tool/no-private-references.test.mjs
+
+  package:
+    name: Package (.vsix)
+    needs: [lint, typecheck, test, version]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        # wavecrux is deliberately absent. Its VSIX embeds the WaveCrux Flutter
+        # web build (docs/webview-hosting.md §6), which this job cannot
+        # produce: it needs a Flutter toolchain and a checkout of the
+        # open-core `Ferrite-Engineering/wavecrux` repo, and installs neither.
+        # `pnpm --filter wavecrux run package` refuses to build without that
+        # payload rather than emitting a VSIX with an empty media/ directory, so
+        # adding it here would fail the job, not cover it. Re-add once the job
+        # installs Flutter and checks out WaveCrux, so the payload can be
+        # staged here (`pnpm --filter wavecrux run build:web`).
+        extension: [lintcrux, simcrux, netcrux]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter ${{ matrix.extension }} run build
+      - run: pnpm --filter ${{ matrix.extension }} run package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.extension }}.vsix
+          path: packages/${{ matrix.extension }}/dist/*.vsix
+          if-no-files-found: error

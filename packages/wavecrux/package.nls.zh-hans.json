@@ -1,0 +1,17 @@
+{
+  "extension.displayName": "WaveCrux — RTL 波形分析",
+  "extension.description": "在编辑器标签页中对 VCD/FST/GHW 做九种协议解码、X 追踪、波形对比、状态机视图与翻转活动分析，并通过 CXP 与 LintCrux、SimCrux、NetCrux 交叉探测。",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "将所选内容发送到 Crux 应用",
+  "crux.command.highlightSelectionInPeer.title": "在 Crux 应用中高亮所选内容",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "当已连接的 Crux 应用通知其所选内容时,将对应的编辑器标签页置于前台。键盘焦点保持不变,且不会激活窗口。",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "当已连接的 Crux 应用请求打开源代码位置时,将光标移入编辑器。窗口本身不会被激活。",
+  "crux.command.wavecrux.openPanel.title": "打开波形面板",
+  "crux.editor.wavecrux.waveform.displayName": "WaveCrux 波形查看器",
+  "crux.command.openCapabilitiesPanel.title": "打开功能面板",
+  "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",
+  "crux.configuration.rtlAnnotation.enabled.description": "将已连接波形中的信号值以内联批注的形式显示在你的 Verilog/VHDL 源码中，并跟随波形游标。默认关闭；仅批注 stems 精确匹配的信号，名称有歧义时会显示为歧义而不会擅自猜测。",
+  "crux.untrustedWorkspaces.description": "在受限工作区中，波形仍可正常打开、解码并进行交叉探测：本扩展只读取你打开的文件，从不执行任何程序。由工作区提供的“内联 RTL 值注释”开关会被忽略——不受信任的文件夹不应向你的源代码中插入文本；请在你自己的设置中开启，或信任该文件夹。",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。"
+}

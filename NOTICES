@@ -1,0 +1,39 @@
+crux-vscode — third-party attributions
+=======================================
+
+Copyright 2026 Ferrite Engineering LLC
+
+This repository is licensed under the Apache License, Version 2.0. See
+LICENSE for the full text. The notice below records the third-party
+projects whose code this repository depends on.
+
+VSCode extension API
+---------------------
+The `host-core` package and every product surface depend on `@types/vscode`
+and the `vscode` extension API contract published by Microsoft as part of
+Visual Studio Code. VSCode itself is not bundled or redistributed by this
+repository; extensions built here run inside a user's own VSCode (or
+VSCode-compatible, e.g. Open VSX-served) installation.
+
+  Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+
+Build and test tooling
+-----------------------
+This workspace depends on a standard TypeScript toolchain. Each package's
+own license is the canonical text; the summary below is for convenience
+only.
+
+  typescript          — Apache-2.0
+  eslint               — MIT
+  typescript-eslint     — MIT
+  esbuild               — MIT
+  vitest                 — MIT
+  @vscode/l10n            — MIT
+  @vscode/l10n-dev         — MIT
+
+Trademark notice
+-----------------
+"WaveCrux", "LintCrux", "SimCrux", "NetCrux", and "EDACrux" are trademarks
+of Ferrite Engineering LLC. "Visual Studio Code" and "VSCode" are
+trademarks of Microsoft Corporation; this project is not affiliated with,
+endorsed by, or sponsored by Microsoft.

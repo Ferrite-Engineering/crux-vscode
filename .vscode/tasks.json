@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build: wavecrux",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "wavecrux", "run", "build"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "build: lintcrux",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "lintcrux", "run", "build"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "build: simcrux",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "simcrux", "run", "build"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "build: netcrux",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "netcrux", "run", "build"],
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "build:all-extensions",
+      "dependsOn": [
+        "build: wavecrux",
+        "build: lintcrux",
+        "build: simcrux",
+        "build: netcrux"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

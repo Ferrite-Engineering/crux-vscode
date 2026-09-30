@@ -1,0 +1,6 @@
+++ comp 0 file /src/cpu.v
+++ comp 1 file /src/alu.v
+++ module top.cpu 0 10
++++ var clk 0 12
+++ module top.cpu.alu 1 5
++++ var add_o 1 20

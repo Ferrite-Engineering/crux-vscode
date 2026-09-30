@@ -1,0 +1,4 @@
+++ comp 0 file "/src/with spaces/cpu.v"
+++ module "top.quoted" 0 2
++++ var "clk" 0 7
+++ var top.inline "/src/other dir/alu.v" 33

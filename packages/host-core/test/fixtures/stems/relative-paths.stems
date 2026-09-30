@@ -1,0 +1,4 @@
+++ comp 0 file rtl/alu.sv
+++ module top.alu 0 12
++++ var result 0 21
+++ var top.alu.carry rtl/alu.sv 27

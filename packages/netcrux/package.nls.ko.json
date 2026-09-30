@@ -1,0 +1,16 @@
+{
+  "extension.displayName": "NetCrux — 넷리스트 드라이버 추적",
+  "extension.description": "Verilog, SystemVerilog 또는 VHDL에서 신호를 선택해 무엇이 구동하는지 물으면, NetCrux가 stems 인덱스로 이름을 확인하고 NetCrux 데스크톱 회로도에서 강조합니다.",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "선택 항목을 Crux 앱으로 보내기",
+  "crux.command.highlightSelectionInPeer.title": "Crux 앱에서 선택 항목 강조",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "연결된 Crux 앱이 선택 항목을 알릴 때 해당 편집기 탭을 앞으로 가져옵니다. 키보드 포커스는 그대로 유지되며 창이 앞으로 나오지 않습니다.",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "연결된 Crux 앱이 소스 위치를 열도록 요청할 때 커서를 편집기로 이동합니다. 창 자체는 앞으로 나오지 않습니다.",
+  "crux.command.openCapabilitiesPanel.title": "기능 패널 열기",
+  "crux.command.toggleRtlAnnotation.title": "RTL 값 주석 전환",
+  "crux.configuration.rtlAnnotation.enabled.description": "연결된 파형의 신호 값을 Verilog/VHDL 소스에 인라인 주석으로 표시하고 파형 커서를 따라갑니다. 기본값은 꺼짐입니다. stems 파일과 정확히 일치하는 신호만 주석하며, 이름이 모호하면 추측하지 않고 모호함을 표시합니다.",
+  "crux.command.netcrux.whatDrivesThis.title": "이것을 구동하는 것은? (NetCrux)",
+  "crux.untrustedWorkspaces.description": "제한된 작업 영역에서도 크로스 프로빙을 사용할 수 있습니다. 이 확장은 사용자가 열은 소스 파일과 stems 파일을 읽고, 이 컴퓨터에서 이미 실행 중인 NetCrux 앱으로 선택 영역을 보냅니다. 작업 영역 내용이 지정한 프로그램을 실행하지 않으므로 여기서 제한되는 기능은 없습니다.",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "이 창의 WaveCrux 파형 패널에서 신호를 선택하면 해당 RTL 선언을 편집기에 표시합니다. 기본값은 꺼짐입니다. 파형에서의 클릭은 대부분 이동 요청이 아니라 읽기 위한 것입니다. stems 인덱스를 통해 해석하므로 도구가 기록한 선언에만 도달하며, 키보드 포커스는 파형에 남습니다."
+}

@@ -1,0 +1,19 @@
+{
+  "extension.displayName": "LintCrux — RTL Lint and Waivers",
+  "extension.description": "Read LintCrux's SARIF or JSON results as Problems-panel diagnostics in your own RTL, and waive a violation from a quick fix straight into .lintcrux-waivers.json.",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "Send Selection to Crux App",
+  "crux.command.highlightSelectionInPeer.title": "Highlight Selection in Crux App",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "Bring the matching editor tab forward when a connected Crux app announces a selection. Keyboard focus stays where it is and the window is never raised.",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "Move the cursor into the editor when a connected Crux app asks to open a source location. The window itself is never raised.",
+  "crux.command.openCapabilitiesPanel.title": "Open Capabilities Panel",
+  "crux.command.toggleRtlAnnotation.title": "Toggle RTL Value Annotation",
+  "crux.configuration.rtlAnnotation.enabled.description": "Render signal values from the connected waveform as inline decorations in your Verilog/VHDL source, following the waveform cursor. Off by default; only stems-exact matches are annotated, and an ambiguous name is shown as ambiguous rather than guessed.",
+  "crux.command.lintcrux.refresh.title": "Refresh Lint Diagnostics",
+  "crux.command.lintcrux.triage.title": "Triage This Design in LintCrux Desktop",
+  "crux.configuration.lint.resultsPath.description": "Where to read LintCrux results from, relative to each workspace folder (or an absolute path). Produce the file with `lintcrux <sources> --sarif lintcrux.sarif`, or with `--export json --out <path>`. Both formats are accepted and the format is detected from the file's contents, not its extension.",
+  "crux.configuration.lint.waiverAuthor.description": "Author recorded on waivers filed from the editor. Leave empty to use the operating-system user name, which is what the LintCrux app fills in by default.",
+  "crux.untrustedWorkspaces.description": "Lint results become diagnostics in a restricted workspace and waivers can still be filed: this extension only reads and writes files, and never runs a program. A workspace-provided results path is ignored, because that setting accepts an absolute path and an untrusted folder must not choose what gets read — set it in your own settings, or trust the folder.",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "Reveal a signal's RTL declaration in the editor when you select it in a WaveCrux waveform panel in this window. Off by default: most clicks in a waveform are reading, not a request to navigate. Resolved through the stems index, so it lands only on declarations a tool wrote down; keyboard focus stays in the waveform."
+}

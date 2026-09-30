@@ -1,0 +1,157 @@
+{
+  "name": "wavecrux",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "publisher": "ferrite-engineering",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "homepage": "https://wavecrux.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ferrite-Engineering/crux-vscode.git",
+    "directory": "packages/wavecrux"
+  },
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#2B2E3C",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "Education"
+  ],
+  "keywords": [
+    "waveform",
+    "vcd",
+    "fst",
+    "ghw",
+    "gtkwave",
+    "rtl",
+    "verilog",
+    "systemverilog",
+    "vhdl",
+    "hdl",
+    "fpga",
+    "asic",
+    "simulation",
+    "protocol-decoder",
+    "verification"
+  ],
+  "main": "./dist/extension.js",
+  "l10n": "./l10n",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "%crux.untrustedWorkspaces.description%",
+      "restrictedConfigurations": [
+        "edacrux.rtlAnnotation.enabled"
+      ]
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "wavecrux.openPanel",
+        "title": "%crux.command.wavecrux.openPanel.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.openCapabilitiesPanel",
+        "title": "%crux.command.openCapabilitiesPanel.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.toggleRtlAnnotation",
+        "title": "%crux.command.toggleRtlAnnotation.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.sendSelectionToPeer",
+        "title": "%crux.command.sendSelectionToPeer.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.highlightSelectionInPeer",
+        "title": "%crux.command.highlightSelectionInPeer.title%",
+        "category": "%crux.command.category%"
+      }
+    ],
+    "configuration": {
+      "title": "%crux.configuration.title%",
+      "properties": {
+        "edacrux.rtlAnnotation.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%crux.configuration.rtlAnnotation.enabled.description%"
+        },
+        "edacrux.crossProbe.revealSelection": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.crossProbe.revealSelection.description%"
+        },
+        "edacrux.crossProbe.openSourceFocusesEditor": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
+        },
+        "edacrux.crossProbe.followWaveformSelection": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%crux.configuration.crossProbe.followWaveformSelection.description%"
+        }
+      }
+    },
+    "customEditors": [
+      {
+        "viewType": "wavecrux.waveform",
+        "displayName": "%crux.editor.wavecrux.waveform.displayName%",
+        "selector": [
+          {
+            "filenamePattern": "*.vcd"
+          },
+          {
+            "filenamePattern": "*.fst"
+          },
+          {
+            "filenamePattern": "*.ghw"
+          },
+          {
+            "filenamePattern": "*.lxt"
+          },
+          {
+            "filenamePattern": "*.lxt2"
+          },
+          {
+            "filenamePattern": "*.fsdb"
+          }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node ../../tool/build-extension.mjs",
+    "build:web": "node ../../tool/build-wavecrux-web.mjs",
+    "watch": "node ../../tool/build-extension.mjs --watch",
+    "package": "node ../../tool/build-wavecrux-web.mjs --check && mkdir -p dist && vsce package --no-dependencies --out ./dist/",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf dist coverage .vitest-cache"
+  },
+  "dependencies": {
+    "@crux-vscode/host-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

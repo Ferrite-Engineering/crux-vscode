@@ -1,0 +1,16 @@
+{
+  "extension.displayName": "NetCrux — ネットリストのドライバー追跡",
+  "extension.description": "Verilog / SystemVerilog / VHDL で信号を選択して「何が駆動しているか」を尋ねると、NetCrux が stems インデックスで名前を解決し、NetCrux デスクトップの回路図でハイライトします。",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "選択内容を Crux アプリに送信",
+  "crux.command.highlightSelectionInPeer.title": "選択内容を Crux アプリでハイライト",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "接続中の Crux アプリが選択内容を通知したときに、該当するエディタータブを前面に表示します。キーボードフォーカスは移動せず、ウィンドウが前面に出ることもありません。",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "接続中の Crux アプリがソース位置を開くよう要求したときに、カーソルをエディターへ移動します。ウィンドウ自体が前面に出ることはありません。",
+  "crux.command.openCapabilitiesPanel.title": "機能パネルを開く",
+  "crux.command.toggleRtlAnnotation.title": "RTL 値注釈の切り替え",
+  "crux.configuration.rtlAnnotation.enabled.description": "接続中の波形の信号値を、Verilog/VHDL ソース内にインライン注釈として表示し、波形カーソルに追従させます。既定はオフです。stems ファイルで厳密に一致した信号のみを注釈し、名前が曖昧な場合は推測せず曖昧であることを示します。",
+  "crux.command.netcrux.whatDrivesThis.title": "これを駆動しているのは?(NetCrux)",
+  "crux.untrustedWorkspaces.description": "制限付きワークスペースでもクロスプローブは利用できます。本拡張機能は開いたソースファイルと stems ファイルを読み取り、このマシンですでに実行中の NetCrux アプリへ選択内容を送信します。ワークスペースの内容が指定したプログラムを実行することはないため、ここで制限される機能はありません。",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。"
+}

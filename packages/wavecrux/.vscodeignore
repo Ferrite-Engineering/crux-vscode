@@ -1,0 +1,15 @@
+# What stays out of the VSIX. `media/wavecrux-web/` is deliberately NOT here:
+# it is the Flutter payload the webview loads, staged by
+# tool/build-wavecrux-web.mjs, and the "package" script refuses to run without it.
+.vscode/**
+src/**
+test/**
+node_modules/**
+tsconfig.json
+vitest.config.ts
+.vitest-cache/**
+coverage/**
+**/*.ts
+**/*.map
+**/.gitignore
+**/.DS_Store

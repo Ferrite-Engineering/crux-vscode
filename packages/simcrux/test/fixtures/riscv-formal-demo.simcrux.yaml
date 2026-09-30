@@ -1,0 +1,105 @@
+# Provenance: the suite/test skeleton of the SimCrux product repository's
+# `simcrux/examples/riscv-formal-demo/simcrux.yaml`, a shipped, working demo
+# project. Trimmed to the keys this extension's shallow reader looks at
+# (`suites: → <suite>: → tests: → - name:`) plus a representative sample of
+# the keys it must step over without being confused by them — nested `riscv:`
+# and `formal:` sub-maps, a `pass_fail:` block, a quoted scalar containing a
+# `#`, and the comment prose the real file is full of.
+#
+# Six suites, seven tests, one verdict each. That is the point of the demo
+# and the reason it is the fixture: PASS / FAIL / UNKNOWN / TIMEOUT / ERROR /
+# NO_OUTCOME are exactly the distinction a test tree driven by TestStatus
+# alone would erase, and `results.ndjson` beside this file is what a run of
+# it produces.
+
+version: '1'
+
+defaults:
+  simulator: riscv_formal
+  timeout: 30s
+
+  # A quoted scalar whose value contains a `#` — the comment stripper has to
+  # be quote-aware or this line corrupts.
+  pass_fail:
+    type: string_match
+    pass_string: 'DONE (PASS'
+
+  riscv:
+    isa: rv32imc_zicsr
+    mode: demo
+    formal:
+      demo_outputs: ../../verification/fixtures/riscv_formal
+
+suites:
+  insn:
+    description: Per-instruction RVFI checks — one clean proof and one counterexample with a trace.
+    tests:
+      - name: insn_add_pass
+        top: insn_add_pass
+        riscv:
+          demo_case: insn_add_pass
+          formal:
+            check: insn_add_ch0
+            group: insn
+      - name: insn_sub_counterexample
+        top: insn_sub_counterexample
+        riscv:
+          demo_case: insn_sub_counterexample
+          formal:
+            check: insn_sub_ch0
+            group: insn
+
+  pc_fwd:
+    description: Program-counter forward check — the engine could not decide.
+    tests:
+      - name: pc_fwd_unknown
+        top: pc_fwd_unknown
+        riscv:
+          demo_case: pc_fwd_unknown
+          formal:
+            check: pc_fwd_ch0
+            group: pc_fwd
+
+  reg:
+    description: Register-file check — SymbiYosys's own solver budget expired.
+    tests:
+      - name: reg_timeout
+        top: reg_timeout
+        riscv:
+          demo_case: reg_timeout
+          formal:
+            check: reg_ch0
+            group: reg
+
+  causal:
+    description: Causality check — the proof never ran because Yosys errored out.
+    tests:
+      - name: causal_error
+        top: causal_error
+        riscv:
+          demo_case: causal_error
+          formal:
+            check: causal_ch0
+            group: causal
+
+  liveness:
+    description: Liveness check — the no-verdict-on-exit-0 trap.
+    tests:
+      - name: liveness_no_outcome
+        top: liveness_no_outcome
+        riscv:
+          demo_case: liveness_no_outcome
+          formal:
+            check: liveness_ch0
+            group: liveness
+
+  cover:
+    description: Cover run — two cover statements reached, one trace written for each.
+    tests:
+      - name: cover_multi_trace
+        top: cover_multi_trace
+        riscv:
+          demo_case: cover_multi_trace
+          formal:
+            check: cover_ch0
+            group: cover

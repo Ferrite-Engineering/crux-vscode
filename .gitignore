@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+*.tsbuildinfo
+
+# Packaged extensions
+*.vsix
+
+# vsce's staging layout, left in the package directory by `vsce package`
+# (the pack's script omits --no-dependencies, so it stages in place).
+# (the brackets are a glob character class, hence the escapes)
+packages/*/\[Content_Types\].xml
+packages/*/extension.vsixmanifest
+packages/pack/extension/
+
+# Staged Flutter web payload (tens of MB of build artifact).
+# Produced by tool/build-wavecrux-web.mjs; the "package" script requires it.
+packages/*/media/
+
+# Test / coverage
+coverage/
+.vitest-cache/
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode-test/
+
+# Local credentials, in every spelling the suite's tooling uses. `.env.local`
+# alone was not enough: a publisher PAT for `vsce`/`ovsx` is as likely to be
+# written to `.dev.vars` (wrangler's name for it) or `.envrc` (direnv's) by
+# someone moving between repositories. The gitleaks job scans the working tree
+# as well as the history — `gitleaks dir` ignores .gitignore — so these lines
+# stop a credential being committed without hiding it from the scan.
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+.envrc

@@ -1,0 +1,11 @@
+# Two instantiations of one module: the ambiguity the quick-pick exists for.
+++ comp 0 file /ws/rtl/top.sv
+++ comp 1 file /ws/rtl/alu.sv
+++ module top 0 1
++++ var clk 0 4
+++ module top.alu_a 1 12
++++ var result 1 21
++++ var clk 1 18
+++ module top.alu_b 1 12
++++ var result 1 21
++++ var clk 1 18

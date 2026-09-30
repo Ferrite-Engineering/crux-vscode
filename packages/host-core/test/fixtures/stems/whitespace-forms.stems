@@ -1,0 +1,4 @@
+++ comp 0 file /src/cpu.v
+++	module	top.tabbed	0	9
++++	var	clk	0	14
+   ++ module   top.spaced   0   20

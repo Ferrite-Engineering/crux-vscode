@@ -1,0 +1,4 @@
+++ comp 0 file /ws/rtl/Regfile.SV
+++ module Top.RegFile 0 3
++++ var data[7:0] 0 11
++++ var WE 0 12

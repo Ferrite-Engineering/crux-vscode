@@ -1,0 +1,132 @@
+{
+  "name": "lintcrux",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "publisher": "ferrite-engineering",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "homepage": "https://lintcrux.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ferrite-Engineering/crux-vscode.git",
+    "directory": "packages/lintcrux"
+  },
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#18182F",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "lint",
+    "rtl",
+    "verilog",
+    "systemverilog",
+    "vhdl",
+    "hdl",
+    "fpga",
+    "asic",
+    "verilator",
+    "sarif",
+    "diagnostics",
+    "static-analysis",
+    "verification"
+  ],
+  "main": "./dist/extension.js",
+  "l10n": "./l10n",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "%crux.untrustedWorkspaces.description%",
+      "restrictedConfigurations": [
+        "edacrux.lint.resultsPath"
+      ]
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "lintcrux.refreshDiagnostics",
+        "title": "%crux.command.lintcrux.refresh.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "lintcrux.openTriageInDesktop",
+        "title": "%crux.command.lintcrux.triage.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.openCapabilitiesPanel",
+        "title": "%crux.command.openCapabilitiesPanel.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.sendSelectionToPeer",
+        "title": "%crux.command.sendSelectionToPeer.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "edacrux.highlightSelectionInPeer",
+        "title": "%crux.command.highlightSelectionInPeer.title%",
+        "category": "%crux.command.category%"
+      }
+    ],
+    "configuration": {
+      "title": "%crux.configuration.title%",
+      "properties": {
+        "edacrux.lint.resultsPath": {
+          "type": "string",
+          "default": "lintcrux.sarif",
+          "markdownDescription": "%crux.configuration.lint.resultsPath.description%"
+        },
+        "edacrux.lint.waiverAuthor": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "%crux.configuration.lint.waiverAuthor.description%"
+        },
+        "edacrux.crossProbe.revealSelection": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.crossProbe.revealSelection.description%"
+        },
+        "edacrux.crossProbe.openSourceFocusesEditor": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
+        },
+        "edacrux.crossProbe.followWaveformSelection": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%crux.configuration.crossProbe.followWaveformSelection.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node ../../tool/build-extension.mjs",
+    "watch": "node ../../tool/build-extension.mjs --watch",
+    "package": "mkdir -p dist && vsce package --no-dependencies --out ./dist/",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf dist coverage .vitest-cache"
+  },
+  "dependencies": {
+    "@crux-vscode/host-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

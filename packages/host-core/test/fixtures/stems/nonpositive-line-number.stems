@@ -1,0 +1,5 @@
+++ comp 0 file /src/cpu.v
+++ module top 0 1
++++ var clk 0 -3
++++ var zero 0 0
++++ var rst 0 5

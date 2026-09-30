@@ -1,0 +1,63 @@
+{
+  "name": "edacrux",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "publisher": "ferrite-engineering",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "homepage": "https://edacrux.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ferrite-Engineering/crux-vscode.git",
+    "directory": "packages/pack"
+  },
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1E2232",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Extension Packs",
+    "Visualization",
+    "Testing",
+    "Linters"
+  ],
+  "keywords": [
+    "eda",
+    "rtl",
+    "verilog",
+    "systemverilog",
+    "vhdl",
+    "hdl",
+    "fpga",
+    "asic",
+    "waveform",
+    "vcd",
+    "fst",
+    "lint",
+    "regression",
+    "netlist",
+    "verification"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "extensionPack": [
+    "ferrite-engineering.wavecrux",
+    "ferrite-engineering.lintcrux",
+    "ferrite-engineering.simcrux",
+    "ferrite-engineering.netcrux"
+  ],
+  "scripts": {
+    "package": "mkdir -p dist && vsce package --out ./dist/",
+    "lint": "eslint . --max-warnings=0 --no-error-on-unmatched-pattern",
+    "typecheck": "node -e \"console.log('pack: manifest-only, no TypeScript to typecheck')\"",
+    "test": "node -e \"console.log('pack: manifest-only, no tests')\"",
+    "clean": "rm -rf dist"
+  }
+}

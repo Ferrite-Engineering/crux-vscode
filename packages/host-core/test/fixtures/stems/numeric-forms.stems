@@ -1,0 +1,11 @@
+++ comp +1 file /src/plus.v
+++ comp 007 file /src/padded.v
+++ comp -2 file /src/negative.v
+++ comp 0x10 file /src/hex.v
+++ var top.plus 1 3
+++ var top.padded 7 4
+++ var top.negative -2 5
+++ var top.hexref 0x10 6
+++ var top.hexdec 16 7
+++ var top.plusline 1 +5
+++ var top.paddedline 1 007

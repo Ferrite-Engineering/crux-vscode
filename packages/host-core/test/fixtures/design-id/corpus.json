@@ -1,0 +1,89 @@
+{
+  "$provenance": "The shared design_id conformance corpus. ONE list of paths, exercised through BOTH implementations — crux_cxp's Dart cxpDesignIdForPath (via tool/dart-conformance/design_id_tokens.dart) and the TypeScript port in src/cxp/design-id.ts — with the two token sets asserted byte-identical by test/cxp/design-id-conformance.test.ts. Add a case here, not in the test. The 'lexical' cases name paths under a directory that cannot exist, so their tokens are machine-independent on POSIX and are committed in expected.json; the 'filesystem' cases are materialised in a fresh temp tree whose absolute path differs per run, so their tokens cannot be committed and are checked by the live cross-run plus the relational invariants the test states.",
+  "lexical": [
+    {
+      "name": "file-under-missing-dir",
+      "input": "/crux-conformance-nonexistent/design/top.v",
+      "note": "The not-yet-created design. Nothing on the path exists, so both sides take the pure-path fallback and hash the parent directory."
+    },
+    {
+      "name": "missing-dir-itself",
+      "input": "/crux-conformance-nonexistent/design",
+      "note": "A directory that does not exist cannot be identified as one, so the derivation takes its PARENT. This case must therefore NOT equal file-under-missing-dir — the two agree only once the directory exists. Both implementations have this property; a port that 'helpfully' guessed directory-ness from a missing trailing extension would break the join."
+    },
+    {
+      "name": "missing-dir-trailing-separator",
+      "input": "/crux-conformance-nonexistent/design/",
+      "note": "Trailing separator stripped before anything else, so identical to missing-dir-itself. This is the case Node's path.normalize gets wrong on its own: it preserves the trailing slash where Dart's p.normalize removes it."
+    },
+    {
+      "name": "missing-double-separator",
+      "input": "/crux-conformance-nonexistent//design//top.v",
+      "note": "Repeated separators collapse in normalize on both sides."
+    },
+    {
+      "name": "missing-dot-segments",
+      "input": "/crux-conformance-nonexistent/design/./nested/../top.v",
+      "note": "`.` and `..` are collapsed lexically before the containing directory is taken."
+    },
+    {
+      "name": "missing-parent-escape",
+      "input": "/crux-conformance-nonexistent/design/../other/top.v",
+      "note": "`..` escapes the design folder: the token is `other`'s, not `design`'s."
+    },
+    {
+      "name": "missing-lowercase",
+      "input": "/crux-conformance-nonexistent/design/alu.sv",
+      "note": "Paired with missing-uppercase. On POSIX the two are DIFFERENT designs, because package:path folds case only under the Windows style — not on macOS, whose volume is usually case-insensitive but whose path style is posix. A port that folded case on darwin would silently merge two designs."
+    },
+    {
+      "name": "missing-uppercase",
+      "input": "/crux-conformance-nonexistent/DESIGN/alu.sv",
+      "note": "See missing-lowercase."
+    },
+    {
+      "name": "missing-spaces-and-unicode",
+      "input": "/crux-conformance-nonexistent/my design ⏱/top.v",
+      "note": "The digest is over UTF-8 bytes on both sides; a non-ASCII folder name is where a UTF-16-vs-UTF-8 slip would show."
+    },
+    {
+      "name": "root-file",
+      "input": "/crux-conformance-nonexistent.v",
+      "note": "A file directly under the filesystem root: the containing directory is `/`, whose trailing separator must survive because it IS the root."
+    }
+  ],
+  "filesystem": {
+    "tree": {
+      "directories": ["design", "design/nested", "other"],
+      "files": ["design/top.v", "design/sim.vcd", "design/nested/alu.sv", "other/top.v"],
+      "symlinks": [
+        { "link": "link-to-design", "target": "design" },
+        { "link": "design/link-to-top.v", "target": "top.v" },
+        { "link": "link-to-other", "target": "other" }
+      ]
+    },
+    "cases": [
+      { "name": "dir", "input": "{root}/design", "note": "The design folder itself." },
+      { "name": "dir-trailing-separator", "input": "{root}/design/", "note": "Same design." },
+      { "name": "dir-double-trailing-separator", "input": "{root}/design//", "note": "Same design." },
+      { "name": "file-in-dir", "input": "{root}/design/top.v", "note": "A file names its folder's design — the property the whole scheme rests on." },
+      { "name": "other-file-in-dir", "input": "{root}/design/sim.vcd", "note": "Any file in the folder, not one privileged file." },
+      { "name": "nested-dir", "input": "{root}/design/nested", "note": "A nested folder is its OWN design; the scheme does not walk up looking for a project marker." },
+      { "name": "nested-file", "input": "{root}/design/nested/alu.sv", "note": "Belongs to the nested design, not to `design`." },
+      { "name": "sibling-file", "input": "{root}/other/top.v", "note": "Same leaf name, different folder, different design." },
+      { "name": "dot-segments", "input": "{root}/design/./nested/../top.v", "note": "Collapses to the file in `design`." },
+      { "name": "parent-escape", "input": "{root}/design/../other/top.v", "note": "Collapses to the file in `other`." },
+      { "name": "symlinked-dir", "input": "{root}/link-to-design", "note": "A symlink to the design folder resolves to the folder — statSync and Dart's typeSync both follow links, so this is identified as a directory rather than as a file." },
+      { "name": "file-through-symlinked-dir", "input": "{root}/link-to-design/top.v", "note": "Reached through the link, resolved to the real folder." },
+      { "name": "symlinked-file", "input": "{root}/design/link-to-top.v", "note": "A symlink to a file: not a directory, so the parent is taken and the link is never followed." },
+      { "name": "missing-file-in-existing-dir", "input": "{root}/design/never-created.vcd", "note": "The artifact a producer is about to write. Same design as `dir` — this is what makes the function total for a design mid-creation." },
+      { "name": "missing-dir-in-existing-dir", "input": "{root}/design/never-created", "note": "Indistinguishable from a missing file, so it resolves to `design`. Documented, not accidental." },
+      { "name": "missing-deep", "input": "{root}/no/such/place/dump.vcd", "note": "No existing ancestor for the containing directory, so the pure-path fallback runs even though the corpus root exists." },
+      { "name": "case-variant-dir", "input": "{root}/DESIGN/top.v", "note": "Deliberately platform-dependent: on a case-insensitive volume this IS `design` and realpath(3) returns the casing as given, so the token differs from `dir`; on Linux the path does not exist at all and the token is the root's. Whatever the platform does, the two implementations must do the same thing — which is exactly what this case measures and no committed golden could." },
+      { "name": "root-itself", "input": "{root}", "note": "The corpus root, reached through whatever symlinks the OS puts in a temp path (on macOS /var -> /private/var), which is the symlink resolution the derivation relies on." },
+      { "name": "relative-dot", "input": ".", "note": "A relative input canonicalizes against the process working directory. The harness runs the Dart child with the same cwd, so a divergence here would be a real one." },
+      { "name": "relative-parent", "input": "..", "note": "As above, one level up." },
+      { "name": "empty", "input": "", "note": "Normalizes to `.` on both sides — an empty path is the working directory, not an error." }
+    ]
+  }
+}

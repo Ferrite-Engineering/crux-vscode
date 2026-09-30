@@ -1,0 +1,22 @@
+{
+  "name": "@crux-vscode/host-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared behaviour for the EDACrux VSCode extensions: CXP protocol, editor integration, name resolution, telemetry, status, desktop-peer detection. Not itself an extension.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "clean": "rm -rf coverage .vitest-cache"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

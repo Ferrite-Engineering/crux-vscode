@@ -1,0 +1,2 @@
+++ var top.cpu.clk /src/cpu.v 5
+++ var top.cpu.rst /src/cpu.v 6

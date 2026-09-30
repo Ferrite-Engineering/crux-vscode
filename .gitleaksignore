@@ -1,0 +1,16 @@
+# gitleaks findings that are known not to be secrets, keyed by fingerprint
+# (commit:file:rule:line). Every entry names what the value really is.
+#
+# 43cdba2 — CXP wire-1.2 test fixtures. Fixed 32-hex-digit strings shaped
+# like a peer-authentication token (`0123…cdef`, `fedc…3210`), used as test
+# inputs to the token comparison, the manifest round trip and the hello
+# codec. They authenticate nothing: the real token is minted per process
+# from crypto.randomBytes and never written to the repository. The tests now
+# build their fixtures by repetition (`'ab'.repeat(16)`), so these lines exist
+# only in that commit's history.
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/auth.test.ts:generic-api-key:46
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/auth.test.ts:generic-api-key:47
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/discovery.test.ts:generic-api-key:415
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/discovery.test.ts:generic-api-key:440
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/messages.test.ts:generic-api-key:33
+43cdba2081171112f2296d6f74f396ec08d6f24e:packages/host-core/test/cxp/messages.test.ts:generic-api-key:104

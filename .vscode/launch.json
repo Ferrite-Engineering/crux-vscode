@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "WaveCrux: Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/wavecrux"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/wavecrux/dist/**/*.js"
+      ],
+      "preLaunchTask": "build: wavecrux"
+    },
+    {
+      "name": "LintCrux: Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/lintcrux"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/lintcrux/dist/**/*.js"
+      ],
+      "preLaunchTask": "build: lintcrux"
+    },
+    {
+      "name": "SimCrux: Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/simcrux"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/simcrux/dist/**/*.js"
+      ],
+      "preLaunchTask": "build: simcrux"
+    },
+    {
+      "name": "NetCrux: Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/netcrux"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/netcrux/dist/**/*.js"
+      ],
+      "preLaunchTask": "build: netcrux"
+    },
+    {
+      "name": "EDACrux Suite: Run All Four Extensions",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/wavecrux",
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/lintcrux",
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/simcrux",
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/netcrux"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js"
+      ],
+      "preLaunchTask": "build:all-extensions"
+    }
+  ]
+}

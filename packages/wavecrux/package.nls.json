@@ -1,0 +1,17 @@
+{
+  "extension.displayName": "WaveCrux — Waveform Analysis for RTL",
+  "extension.description": "Nine protocol decoders, X-trace, waveform diff, FSM views and switching activity on VCD/FST/GHW — in an editor tab, cross-probing LintCrux, SimCrux and NetCrux over CXP.",
+  "crux.command.category": "EDACrux",
+  "crux.command.sendSelectionToPeer.title": "Send Selection to Crux App",
+  "crux.command.highlightSelectionInPeer.title": "Highlight Selection in Crux App",
+  "crux.configuration.title": "EDACrux",
+  "crux.configuration.crossProbe.revealSelection.description": "Bring the matching editor tab forward when a connected Crux app announces a selection. Keyboard focus stays where it is and the window is never raised.",
+  "crux.configuration.crossProbe.openSourceFocusesEditor.description": "Move the cursor into the editor when a connected Crux app asks to open a source location. The window itself is never raised.",
+  "crux.command.wavecrux.openPanel.title": "Open Waveform Panel",
+  "crux.editor.wavecrux.waveform.displayName": "WaveCrux Waveform Viewer",
+  "crux.command.openCapabilitiesPanel.title": "Open Capabilities Panel",
+  "crux.command.toggleRtlAnnotation.title": "Toggle RTL Value Annotation",
+  "crux.configuration.rtlAnnotation.enabled.description": "Render signal values from the connected waveform as inline decorations in your Verilog/VHDL source, following the waveform cursor. Off by default; only stems-exact matches are annotated, and an ambiguous name is shown as ambiguous rather than guessed.",
+  "crux.untrustedWorkspaces.description": "Waveforms open, decode and cross-probe normally here: this extension only reads the files you open and never runs a program. A workspace setting that switches on inline RTL value annotation is ignored, because an untrusted folder should not put text into your source — switch it on in your own settings, or trust the folder.",
+  "crux.configuration.crossProbe.followWaveformSelection.description": "Reveal a signal's RTL declaration in the editor when you select it in a WaveCrux waveform panel in this window. Off by default: most clicks in a waveform are reading, not a request to navigate. Resolved through the stems index, so it lands only on declarations a tool wrote down; keyboard focus stays in the waveform."
+}

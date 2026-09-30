@@ -1,0 +1,38 @@
+# crux-vscode is a Node/pnpm repo, not a Dart one — it has no pubspec and no
+# package config. It nonetheless contains three Dart files, and this file
+# exists to stop the Dart analysis server reporting permanent errors against
+# them.
+#
+# All live in `tool/dart-conformance/` and are the Dart halves of
+# cross-language tests: `design_id_tokens.dart` for `cxpDesignIdForPath`
+# (`packages/host-core/test/cxp/design-id-conformance.test.ts`); `cxp_peer.dart`,
+# a live crux_cxp peer the wire-1.2 interop test dials and is dialled by; and
+# `cxp_rules.dart`, which runs crux_cxp's loopback and `design_id` containment
+# rules over a shared corpus (both `packages/host-core/test/cxp/dart-interop.test.ts`).
+# Each imports
+# `package:crux_cxp/crux_cxp.dart` — the real reference implementation in the
+# sibling `crux-shared` checkout — deliberately, because a harness that
+# restated the implementation would agree with itself forever.
+#
+# Each resolves that import at RUN time, via
+# `dart run --packages=<crux-shared>/.dart_tool/package_config.json`, which is
+# what lets it need no pubspec here and add no file to crux-shared. Static
+# analysis has no equivalent: the analysis server takes no `--packages`, and
+# with no package config to find it can only ever answer
+# `uri_does_not_exist` + `undefined_function`. Those two errors are not a
+# defect in the harness — they are the analyser being asked a question this
+# repo cannot answer.
+#
+# Excluding them is safe because each is verified by EXECUTION rather than by
+# analysis: its test spawns it on every run that has Dart and the crux-shared
+# checkout, and fails if it does not compile, so neither can silently rot on a
+# development machine. The alternatives were considered and
+# rejected — a `pubspec.yaml` here would hard-code a `../../../crux-shared`
+# path as a second, more brittle copy of the sibling-checkout assumption the
+# test already resolves dynamically (and would put a `.dart_tool/` inside a
+# Node repo that `crux-sync` deliberately keeps free of Dart steps), and moving
+# the harness into crux-shared would put a crux-vscode test fixture in a
+# package published to pub.dev.
+analyzer:
+  exclude:
+    - tool/dart-conformance/**

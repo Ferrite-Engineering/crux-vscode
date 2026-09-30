@@ -1,0 +1,9 @@
+++ comp 0 file /src/cpu.v
+++ vendor_extension foo bar baz
+++ module top 0 1
+++ unrelated 1 2 3 4 5
++++ var clk 0 5
++++ also_unrelated stuff 1 2
+++ param WIDTH 0 3
+++ arch rtl 0 4
++++ module nested_module 0 9
