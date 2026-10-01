@@ -68,6 +68,7 @@ export class CxpManifestWriter {
   private published: { identity: PeerIdentity; host: string; port: number } | undefined;
   private path: string | undefined;
   private heartbeat: NodeJS.Timeout | undefined;
+  private readonly writing = new Set<Promise<void>>();
 
   constructor(options: CxpManifestWriterOptions) {
     this.manifestDirectory = options.manifestDirectory;
@@ -136,11 +137,16 @@ export class CxpManifestWriter {
    * lingers for peers to re-dial after the window is gone. A crash that
    * skips it is still handled — peers reap by pid liveness the moment they
    * next scan — but a clean exit must not lean on that. Idempotent.
+   *
+   * Writes already in flight are waited out before the delete: otherwise a
+   * heartbeat's rename lands after it and republishes the manifest of a peer
+   * that has gone.
    */
   async remove(): Promise<void> {
     if (this.heartbeat !== undefined) clearInterval(this.heartbeat);
     this.heartbeat = undefined;
     this.published = undefined;
+    await Promise.allSettled([...this.writing]);
     const path = this.path;
     this.path = undefined;
     if (path === undefined) return;
@@ -157,6 +163,16 @@ export class CxpManifestWriter {
   }
 
   private async writeOnce(): Promise<void> {
+    const write = this.writeManifest();
+    this.writing.add(write);
+    try {
+      await write;
+    } finally {
+      this.writing.delete(write);
+    }
+  }
+
+  private async writeManifest(): Promise<void> {
     const published = this.published;
     if (published === undefined) return;
     const path = join(this.manifestDirectory, `${published.identity.peerId}.json`);

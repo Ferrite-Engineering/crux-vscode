@@ -494,6 +494,17 @@ describe('CxpManifestWriter', () => {
     await new Promise((resolve) => setTimeout(resolve, 40));
     expect(await entries()).toEqual([]);
   });
+
+  it('waits out a write in flight, so its rename cannot republish after remove', async () => {
+    const writer = new CxpManifestWriter({ manifestDirectory: dir, heartbeatIntervalMs: null });
+    await writer.write({ identity: identity('vscode-a-1-1'), host: '127.0.0.1', port: 1 });
+    // What the heartbeat timer does: a refresh nobody awaits.
+    const inFlight = writer.refresh();
+    await writer.remove();
+    await inFlight;
+    expect(await entries()).toEqual([]);
+    expect(writer.manifestPath).toBeUndefined();
+  });
 });
 
 describe('CXP discovery defaults', () => {
