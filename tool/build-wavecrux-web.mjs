@@ -217,6 +217,22 @@ if (checkOnly) {
     process.exit(1);
   }
 
+  // The payload compiles kBetaPeriod from the crux-shared the WaveCrux
+  // checkout pins. Refuse a payload whose version disagrees with that flag
+  // (a 1.x payload with the beta still on would ship every paid feature
+  // free), using WaveCrux's own release gate. A checkout too old to carry the
+  // gate fails closed.
+  const gate = path.join(sourceRepo, 'scripts', 'check_beta_period.sh');
+  if (!existsSync(gate)) {
+    console.error(`[wavecrux-web] ${gate} is missing; the WaveCrux checkout predates the beta-flag gate.`);
+    process.exit(1);
+  }
+  const gateResult = spawnSync('bash', [gate], { cwd: sourceRepo, stdio: 'inherit' });
+  if (gateResult.status !== 0) {
+    console.error('[wavecrux-web] beta-flag gate refused this WaveCrux checkout');
+    process.exit(gateResult.status ?? 1);
+  }
+
   if (!skipFlutter) {
     const flags = [
       'build',
