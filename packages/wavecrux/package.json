@@ -107,6 +107,28 @@
         }
       }
     },
+    "colors": [
+      {
+        "id": "edacrux.rtlAnnotationForeground",
+        "description": "%crux.color.rtlAnnotationForeground.description%",
+        "defaults": {
+          "dark": "editorCodeLens.foreground",
+          "light": "editorCodeLens.foreground",
+          "highContrast": "editorCodeLens.foreground",
+          "highContrastLight": "editorCodeLens.foreground"
+        }
+      },
+      {
+        "id": "edacrux.rtlAnnotationAmbiguousForeground",
+        "description": "%crux.color.rtlAnnotationAmbiguousForeground.description%",
+        "defaults": {
+          "dark": "editorWarning.foreground",
+          "light": "editorWarning.foreground",
+          "highContrast": "editorWarning.foreground",
+          "highContrastLight": "editorWarning.foreground"
+        }
+      }
+    ],
     "customEditors": [
       {
         "viewType": "wavecrux.waveform",

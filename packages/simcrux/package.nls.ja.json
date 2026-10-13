@@ -20,5 +20,7 @@
   "crux.configuration.sim.resultsPath.description": "実行結果を読み取る場所です。空欄の場合は自動的に決定されます。設定ファイルが `output.results_path` を宣言していればそれを、なければ設定ファイルと同じ場所の `results.ndjson` を使います (これは `simcrux <config> --ci` が書き出すパスです)。相対パスは設定ファイルのディレクトリを基準に解決されます。",
   "crux.configuration.sim.executable.description": "リグレッションタスクが実行する SimCrux のバイナリです。絶対パスを指定しない限り PATH 上で解決されます。",
   "crux.untrustedWorkspaces.description": "制限付きワークスペースでは SimCrux は無効になります。回帰実行は edacrux.sim.executable で指定されたシミュレーターを、ワークスペース内の設定ファイルとともに起動するためです。信頼されていないフォルダーが実行対象を決めるべきではありません。テストエクスプローラーと回帰タスクを使うには、フォルダーを信頼してください。",
-  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。"
+  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。",
+  "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
 }

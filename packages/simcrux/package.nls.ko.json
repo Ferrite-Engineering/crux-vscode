@@ -20,5 +20,7 @@
   "crux.configuration.sim.resultsPath.description": "실행 결과를 읽어올 위치입니다. 비워 두면 자동으로 결정됩니다. 설정 파일이 `output.results_path`를 선언했으면 그것을, 아니면 설정 파일 옆의 `results.ndjson`을 사용합니다(이는 `simcrux <config> --ci`가 기록하는 경로입니다). 상대 경로는 설정 파일의 디렉터리를 기준으로 해석됩니다.",
   "crux.configuration.sim.executable.description": "리그레션 작업이 실행하는 SimCrux 바이너리입니다. 절대 경로를 지정하지 않으면 PATH에서 찾습니다.",
   "crux.untrustedWorkspaces.description": "제한된 작업 영역에서는 SimCrux가 비활성화됩니다. 회귀 실행은 edacrux.sim.executable에 지정된 시뮬레이터를 작업 영역의 구성 파일과 함께 실행하며, 신뢰할 수 없는 폴더가 실행 대상을 정해서는 안 되기 때문입니다. 테스트 탐색기와 회귀 작업을 사용하려면 폴더를 신뢰하십시오.",
-  "crux.configuration.crossProbe.followWaveformSelection.description": "이 창의 WaveCrux 파형 패널에서 신호를 선택하면 해당 RTL 선언을 편집기에 표시합니다. 기본값은 꺼짐입니다. 파형에서의 클릭은 대부분 이동 요청이 아니라 읽기 위한 것입니다. stems 인덱스를 통해 해석하므로 도구가 기록한 선언에만 도달하며, 키보드 포커스는 파형에 남습니다."
+  "crux.configuration.crossProbe.followWaveformSelection.description": "이 창의 WaveCrux 파형 패널에서 신호를 선택하면 해당 RTL 선언을 편집기에 표시합니다. 기본값은 꺼짐입니다. 파형에서의 클릭은 대부분 이동 요청이 아니라 읽기 위한 것입니다. stems 인덱스를 통해 해석하므로 도구가 기록한 선언에만 도달하며, 키보드 포커스는 파형에 남습니다.",
+  "crux.color.rtlAnnotationForeground.description": "RTL 값 주석(소스 줄 끝에 표시되는 신호 값)의 색상입니다. 기본값은 CodeLens 전경색이라 테마에 자연스럽게 묻힙니다. 여기서 바꾸면 CodeLens 색상을 바꾸지 않고도 더 잘 보이게 할 수 있습니다.",
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "둘 이상의 신호와 일치하여 추측하지 않고 모호함으로 표시되는 이름의 RTL 주석 색상입니다. 기본값은 편집기 경고 전경색입니다."
 }

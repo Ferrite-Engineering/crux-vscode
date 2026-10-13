@@ -10,5 +10,7 @@
   "crux.command.openCapabilitiesPanel.title": "打开功能面板",
   "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",
   "crux.configuration.rtlAnnotation.enabled.description": "将已连接波形中的信号值以内联批注的形式显示在你的 Verilog/VHDL 源码中，并跟随波形游标。默认关闭；仅批注 stems 精确匹配的信号，名称有歧义时会显示为歧义而不会擅自猜测。",
-  "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。"
+  "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。",
+  "crux.color.rtlAnnotationForeground.description": "RTL 值注释（显示在源代码行末的信号值）的颜色。默认使用 CodeLens 前景色，以融入主题；在此处调整即可提高可见度，而不会改变 CodeLens 的颜色。",
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。"
 }

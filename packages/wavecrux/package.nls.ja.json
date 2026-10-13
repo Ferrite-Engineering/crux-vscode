@@ -13,5 +13,7 @@
   "crux.command.toggleRtlAnnotation.title": "RTL 値注釈の切り替え",
   "crux.configuration.rtlAnnotation.enabled.description": "接続中の波形の信号値を、Verilog/VHDL ソース内にインライン注釈として表示し、波形カーソルに追従させます。既定はオフです。stems ファイルで厳密に一致した信号のみを注釈し、名前が曖昧な場合は推測せず曖昧であることを示します。",
   "crux.untrustedWorkspaces.description": "制限付きワークスペースでも、波形の表示・デコード・クロスプローブは通常どおり動作します。本拡張機能は開いたファイルを読み取るだけで、プログラムを実行することはありません。ワークスペース側で指定された「RTL 値のインライン注釈」の有効化設定は無視されます。信頼されていないフォルダーがソースコードに文字を挿入すべきではないためです。有効にする場合はユーザー設定で指定するか、フォルダーを信頼してください。",
-  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。"
+  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。",
+  "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
 }

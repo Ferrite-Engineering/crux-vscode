@@ -87,6 +87,24 @@ pack to get all four at once.
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
 | `edacrux.crossProbe.followWaveformSelection` | `false` | Reveal a signal's RTL declaration in the editor when you select it in a waveform tab in this window |
 
+## Colours
+
+The annotations take their colour from your theme and stay muted by default.
+Each has its own colour id, so a theme can style it, and you can raise the
+contrast (for a projector or a screen recording, say) in
+`workbench.colorCustomizations` without recolouring CodeLenses:
+
+| Colour id | Default | Used for |
+|---|---|---|
+| `edacrux.rtlAnnotationForeground` | `editorCodeLens.foreground` | A signal value at the end of a source line |
+| `edacrux.rtlAnnotationAmbiguousForeground` | `editorWarning.foreground` | A name that matches more than one signal |
+
+```jsonc
+"workbench.colorCustomizations": {
+  "edacrux.rtlAnnotationForeground": "#4fc1ff"
+}
+```
+
 ## Commands
 
 | Command | Id |

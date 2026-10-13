@@ -15,5 +15,7 @@
   "crux.configuration.lint.resultsPath.description": "LintCrux の結果ファイルの場所を、各ワークスペースフォルダーからの相対パス (または絶対パス) で指定します。ファイルは `lintcrux <sources> --sarif lintcrux.sarif` または `--export json --out <path>` で生成します。どちらの形式も読み込め、形式は拡張子ではなくファイルの内容から判別されます。",
   "crux.configuration.lint.waiverAuthor.description": "エディターから登録した waiver に記録される作成者です。空欄の場合は OS のユーザー名を使用します。これは LintCrux アプリが既定で入力する値と同じです。",
   "crux.untrustedWorkspaces.description": "制限付きワークスペースでも、lint 結果は診断として表示され、ウェイバーの登録も行えます。本拡張機能はファイルの読み書きのみを行い、プログラムを実行することはありません。ワークスペース側で指定された結果ファイルのパスは無視されます。この設定は絶対パスを受け付けるため、信頼されていないフォルダーが読み取り先を決めるべきではないからです。ユーザー設定で指定するか、フォルダーを信頼してください。",
-  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。"
+  "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。",
+  "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
 }

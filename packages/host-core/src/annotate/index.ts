@@ -87,6 +87,8 @@ export {
 } from './controller';
 
 export {
+  RTL_ANNOTATION_AMBIGUOUS_COLOR_ID,
+  RTL_ANNOTATION_COLOR_ID,
   RTL_ANNOTATION_COMMAND_IDS,
   VscodeAnnotatableEditor,
   VscodeAnnotationRenderer,

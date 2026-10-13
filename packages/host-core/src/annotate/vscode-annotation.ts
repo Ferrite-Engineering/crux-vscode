@@ -88,12 +88,29 @@ export class VscodeAnnotatableEditor implements AnnotatableEditor {
   }
 }
 
+/**
+ * The themable colour of a resolved value annotation. Contributed by the
+ * WaveCrux extension's manifest (`contributes.colors`), the one extension
+ * that registers the annotator, defaulting to `editorCodeLens.foreground` in
+ * every theme kind, so the text recedes into the user's theme exactly as it
+ * did before the id existed. Its own id is what lets a theme or
+ * `workbench.colorCustomizations` raise the contrast, for a projector or a
+ * screen recording, without recolouring every CodeLens in the editor.
+ */
+export const RTL_ANNOTATION_COLOR_ID = 'edacrux.rtlAnnotationForeground';
+
+/**
+ * The themable colour of an ambiguous-name annotation. Same arrangement as
+ * [RTL_ANNOTATION_COLOR_ID], defaulting to `editorWarning.foreground`.
+ */
+export const RTL_ANNOTATION_AMBIGUOUS_COLOR_ID = 'edacrux.rtlAnnotationAmbiguousForeground';
+
 /** Paints annotations with two `TextEditorDecorationType`s. */
 export class VscodeAnnotationRenderer implements AnnotationRenderer {
   private readonly value = vscode.window.createTextEditorDecorationType({
     after: {
       margin: '0 0 0 2em',
-      color: new vscode.ThemeColor('editorCodeLens.foreground'),
+      color: new vscode.ThemeColor(RTL_ANNOTATION_COLOR_ID),
       fontStyle: 'italic',
     },
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
@@ -102,7 +119,7 @@ export class VscodeAnnotationRenderer implements AnnotationRenderer {
   private readonly ambiguous = vscode.window.createTextEditorDecorationType({
     after: {
       margin: '0 0 0 2em',
-      color: new vscode.ThemeColor('editorWarning.foreground'),
+      color: new vscode.ThemeColor(RTL_ANNOTATION_AMBIGUOUS_COLOR_ID),
       fontStyle: 'italic',
     },
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
