@@ -126,8 +126,12 @@ Send and Highlight take the identifier under your cursor to a running Crux app: 
   advertises *no* highlight capability rather than accepting the request and
   dropping it. When the webview command lands, the capability is advertised in
   the same change.
-- **Restricted workspaces.** This extension declares no untrusted-workspace
-  support, so it stays inert until you trust the folder.
+- **Restricted workspaces.** It runs with limited support in a folder you
+  have not trusted. Waveforms open, decode and cross-probe normally: the
+  extension only reads the files you open and never runs a program. One
+  setting is held back: a workspace value for `edacrux.rtlAnnotation.enabled`
+  is ignored, because an untrusted folder should not put text into your
+  source. Switch it on in your own user settings, or trust the folder.
 - **Pro and Enterprise features are not bundled.** No AI debug advisor, no SV
   assertion visualization, no collaborative viewing, no Stage Pro custom widget
   SDK. Those live in [WaveCrux Desktop](https://wavecrux.app/) and are linked,

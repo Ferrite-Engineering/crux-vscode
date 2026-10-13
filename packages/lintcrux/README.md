@@ -86,8 +86,14 @@ pack to get all four at once.
   history — that is [LintCrux Desktop](https://lintcrux.app/)'s job, and the
   **Triage This Design in LintCrux Desktop** command is the honest handoff
   rather than a shrunken dashboard in a sidebar.
-- **Restricted workspaces.** This extension declares no untrusted-workspace
-  support, so it stays inert until you trust the folder.
+- **Restricted workspaces.** It runs with limited support in a folder you
+  have not trusted. Lint results still become diagnostics and waivers can
+  still be filed: the extension only reads and writes files and never runs a
+  program. One setting is held back: a workspace value for
+  `edacrux.lint.resultsPath` is ignored, so your user setting or the default
+  (`lintcrux.sarif`) applies instead, because that setting accepts an absolute path and an
+  untrusted folder must not choose what gets read. Set it in your own user
+  settings, or trust the folder.
 
 ## Telemetry
 
