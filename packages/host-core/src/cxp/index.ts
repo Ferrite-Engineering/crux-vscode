@@ -3,8 +3,8 @@
  *
  * Owns: the loopback socket, newline framing with the 1 MiB inbound and
  * 8 MiB outbound caps, the envelope, all thirteen typed message kinds, the
- * `hello` / `hello_ack` / `goodbye` handshake and its wire-1.2 token
- * (`auth-token.ts`), peer and element identity, and major/minor version
+ * `hello` / `hello_ack` / `goodbye` handshake and its token (wire 1.2)
+ * and mutual proof (wire 1.3) (`auth-token.ts`), peer and element identity, and major/minor version
  * negotiation with the forward-compatibility rule.
  *
  * Authority is the specification (https://edacrux.app/cxp, §§4–9);
@@ -14,10 +14,12 @@
  * rather than resolved silently — grep for "DIVERGENCE" across this
  * module. Two points worth knowing up front:
  *
- * - the wire version is **1.2** (`version.ts`), as crux_cxp ships it. 1.2
- *   authenticates the handshake with a token published in the manifest,
+ * - the wire version is **1.3** (`version.ts`), as crux_cxp ships it. 1.2
+ *   authenticated the handshake with a token published in the manifest,
  *   and a 1.2 server refuses a pre-1.2 dialler — the one place the
- *   minor-compatibility rule bends, recorded there;
+ *   minor-compatibility rule bends, recorded there. 1.3 makes it mutual:
+ *   a dialler that reads a 1.3 manifest proves the token instead of
+ *   sending it, and the listener proves it back;
  * - an empty `notify_selection.elements` is legal per §9.3 and *was*
  *   rejected by the reference implementation; both now accept it, and
  *   §9.1.2 makes it a retraction that bypasses element filters
@@ -40,7 +42,16 @@ export {
 
 export { CXP_PROTOCOL_VERSION, isCompatibleCxpVersion } from './version';
 
-export { cxpAuthTokensMatch, cxpProcessAuthToken, generateCxpAuthToken } from './auth-token';
+export {
+  CXP_HELLO_ACK_PROOF_LABEL,
+  CXP_HELLO_PROOF_LABEL,
+  cxpAuthProof,
+  cxpAuthTokensMatch,
+  cxpProcessAuthToken,
+  cxpVersionHasMutualAuth,
+  generateCxpAuthNonce,
+  generateCxpAuthToken,
+} from './auth-token';
 
 export {
   CxpDialRefusedError,

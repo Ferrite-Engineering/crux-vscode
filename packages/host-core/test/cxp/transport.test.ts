@@ -331,12 +331,12 @@ describe('version negotiation', () => {
     );
   });
 
-  it('sends 1.2 on the wire', async () => {
+  it('sends 1.3 on the wire', async () => {
     const server = await startServer();
     const raw = await connectRaw(server);
     raw.sendEnvelope(rawHello());
     await pollUntil(() => raw.ofKind(CxpMessageKind.helloAck).length > 0, 'hello_ack must arrive');
-    expect(raw.ofKind(CxpMessageKind.helloAck)[0]?.['cxp_version']).toBe('1.2');
+    expect(raw.ofKind(CxpMessageKind.helloAck)[0]?.['cxp_version']).toBe('1.3');
   });
 
   it('fails the client handshake on a major mismatch in hello_ack', async () => {

@@ -16,6 +16,10 @@
  * unreachable peer. The wire shape pinned here — `token` on the manifest,
  * `token` on the `hello` payload, `unauthorized` in reply — is the Dart
  * one, field names and message text included.
+ *
+ * The 1.3 proof handshake that replaces sending the token is in
+ * `mutual-auth.test.ts`; every case here is the 1.2 path, which a 1.3 peer
+ * keeps for diallers that read a pre-1.3 manifest.
  */
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -52,7 +56,7 @@ const TOKEN_B = 'cd'.repeat(16);
 
 /** crux_cxp's refusal text, verbatim — it lands in the other side's log. */
 const UNAUTHORIZED_MESSAGE =
-  'A hello to this peer must carry the token published in its manifest.';
+  'A hello to this peer must carry the token published in its manifest, or a proof of it.';
 
 const serverIdentity = testIdentity('wavecrux', 1);
 const dialerIdentity = testIdentity('netcrux', 2);

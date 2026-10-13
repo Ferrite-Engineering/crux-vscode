@@ -5,6 +5,7 @@ import { CXP_DEFAULT_MANIFEST_HEARTBEAT_MS } from './discovery';
 import type { PeerIdentity } from './identity';
 import { encodeCxpPeerManifest, type CxpPeerManifest } from './manifest';
 import { ensureCxpPrivateDirectory, writeJsonPrivateAtomic } from './private-files';
+import { CXP_PROTOCOL_VERSION } from './version';
 
 /** Construction options for [CxpManifestWriter]. */
 export interface CxpManifestWriterOptions {
@@ -183,6 +184,9 @@ export class CxpManifestWriter {
       startedAt: this.now(),
       manifestPath: path,
       token: this.authToken,
+      // Wire 1.3: diallers choose the proof handshake from this, so it
+      // names the version this peer's listener speaks (CXP §10.2).
+      cxpVersion: CXP_PROTOCOL_VERSION,
     };
     await ensureCxpPrivateDirectory(this.manifestDirectory);
     await writeJsonPrivateAtomic(path, encodeCxpPeerManifest(manifest));

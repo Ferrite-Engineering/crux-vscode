@@ -1,6 +1,6 @@
 import { CxpFormatError } from './errors';
 import { decodePeerIdentity, encodePeerIdentity, type PeerIdentity } from './identity';
-import { asInteger, asString, isJsonObject, type JsonObject } from './json';
+import { asInteger, asString, isJsonObject, type JsonObject, type JsonValue } from './json';
 
 /**
  * A CXP peer recovered from — or about to be written to — its manifest
@@ -12,11 +12,14 @@ import { asInteger, asString, isJsonObject, type JsonObject } from './json';
  *   "host": "127.0.0.1",
  *   "port": 51734,
  *   "started_at": 1784742061000,
- *   "token": "<32 lowercase hex digits>"
+ *   "token": "<32 lowercase hex digits>",
+ *   "cxp_version": "1.3"
  * }
  * ```
  *
- * `token` is wire 1.2 and optional: a pre-1.2 peer publishes none. **Never
+ * `token` is wire 1.2 and optional: a pre-1.2 peer publishes none.
+ * `cxp_version` is wire 1.3 and optional: a pre-1.3 peer publishes none, and
+ * a dialler then presents the token verbatim instead of proving it. **Never
  * log or render a manifest whole** — it carries the secret a dialler needs to
  * be accepted. Surface `identity`, `host` and `port` instead.
  */
@@ -43,6 +46,14 @@ export interface CxpPeerManifest {
    * peer. See `auth-token.ts`.
    */
   readonly token?: string;
+  /**
+   * The protocol version the peer's listener speaks (wire 1.3), or absent
+   * when the manifest carries none — a pre-1.3 peer. A dialler reads it to
+   * choose between proving the token and presenting it
+   * (`cxpVersionHasMutualAuth`). A value that is not a non-empty string, or
+   * does not parse as `major.minor`, reads as absent (CXP §10.2).
+   */
+  readonly cxpVersion?: string;
 }
 
 /**
@@ -73,6 +84,7 @@ export function decodeCxpPeerManifest(json: JsonObject, manifestPath: string): C
   // presents none, which a receiver that requires one refuses. Anything but
   // a non-empty string is no token, as in crux_cxp's fromJson.
   const token = asString(json['token']);
+  const cxpVersion = decodeManifestCxpVersion(json['cxp_version']);
   return {
     identity: decodePeerIdentity(identity),
     host,
@@ -80,6 +92,7 @@ export function decodeCxpPeerManifest(json: JsonObject, manifestPath: string): C
     startedAt,
     manifestPath,
     ...(token !== undefined && token.length > 0 ? { token } : {}),
+    ...(cxpVersion !== undefined ? { cxpVersion } : {}),
   };
 }
 
@@ -91,7 +104,19 @@ export function encodeCxpPeerManifest(manifest: CxpPeerManifest): JsonObject {
     port: manifest.port,
     started_at: manifest.startedAt,
     ...(manifest.token !== undefined ? { token: manifest.token } : {}),
+    ...(manifest.cxpVersion !== undefined ? { cxp_version: manifest.cxpVersion } : {}),
   };
+}
+
+/**
+ * `cxp_version` as CXP §10.2 reads it: a non-empty string of the form
+ * `major.minor`, or absent. A pre-1.3 manifest has none; a malformed one is
+ * read as none, so the dialler falls back to the 1.2 handshake.
+ */
+function decodeManifestCxpVersion(raw: JsonValue | undefined): string | undefined {
+  const value = asString(raw);
+  if (value === undefined || !/^\d+\.\d+$/.test(value)) return undefined;
+  return value;
 }
 
 /**

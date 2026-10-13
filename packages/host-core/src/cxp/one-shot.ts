@@ -28,6 +28,7 @@
  * handoff. A second copy of "dial, handshake, send, await, hang up" is
  * exactly the duplication host-core exists to hold.
  */
+import { cxpVersionHasMutualAuth } from './auth-token';
 import { LocalCxpClient } from './client';
 import { CxpDialRefusedError } from './errors';
 import type { PeerIdentity } from './identity';
@@ -113,9 +114,16 @@ export async function sendOneShotRequest(
   const client = clientFactory(options.selfIdentity);
 
   try {
-    // The peer's token, from its manifest (wire 1.2). A 1.2 peer refuses a
-    // hello without it, and that refusal lands in `unreachable` below.
-    await client.connect({ host: address, port: manifest.port, token: manifest.token });
+    // The peer's token, from its manifest (wire 1.2), proved rather than
+    // sent when the manifest announces 1.3 or later (CXP §7.4). A 1.2 peer
+    // refuses a hello without it, and that refusal lands in `unreachable`
+    // below.
+    await client.connect({
+      host: address,
+      port: manifest.port,
+      token: manifest.token,
+      mutualAuth: cxpVersionHasMutualAuth(manifest.cxpVersion),
+    });
   } catch (error) {
     await client.dispose();
     return { kind: 'unreachable', error };

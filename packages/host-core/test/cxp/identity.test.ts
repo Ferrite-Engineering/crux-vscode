@@ -127,8 +127,8 @@ describe('ElementId', () => {
 });
 
 describe('version negotiation', () => {
-  it('speaks 1.2 — the version crux_cxp ships, with the authenticated handshake', () => {
-    expect(CXP_PROTOCOL_VERSION).toBe('1.2');
+  it('speaks 1.3 — the version crux_cxp ships, with the mutually authenticated handshake', () => {
+    expect(CXP_PROTOCOL_VERSION).toBe('1.3');
   });
 
   it('accepts any 1.x, including a bare "1"', () => {

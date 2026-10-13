@@ -106,11 +106,20 @@ export class LocalCxpClient {
    * that requires one and is not given it rejects the handshake with
    * `unauthorized`, which rejects this call with a [CxpHandshakeError].
    * Absent presents none — the pre-1.2 `hello`, which an older peer accepts.
+   *
+   * With [mutualAuth] (wire 1.3, CXP §7.4) the token is not sent: the `hello`
+   * carries a nonce and a proof that this client holds it, and the handshake
+   * completes only if the `hello_ack` carries the peer's proof that it holds
+   * the token too; otherwise this call rejects with a [CxpHandshakeError]
+   * (`unauthorized`) and the socket is closed. Pass it when the peer's
+   * manifest says it speaks 1.3 or later (`cxpVersionHasMutualAuth`), never
+   * from anything the socket says. Ignored without a token.
    */
   async connect(options: {
     readonly host: string;
     readonly port: number;
     readonly token?: string | undefined;
+    readonly mutualAuth?: boolean | undefined;
   }): Promise<void> {
     if (this.disposed) throw new Error('LocalCxpClient already disposed.');
     if (this.connection !== undefined) throw new Error('LocalCxpClient is already connected.');
@@ -150,6 +159,7 @@ export class LocalCxpClient {
         maxLineLength: this.maxLineLength,
         maxPendingWriteBytes: this.maxPendingWriteBytes,
         helloToken: options.token,
+        helloMutualAuth: options.mutualAuth ?? false,
         handlers: {
           onHandshake: (identity) => {
             this.remote = identity;

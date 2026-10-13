@@ -1,5 +1,5 @@
 /**
- * Wire-1.2 interoperability against the REAL crux_cxp — both directions.
+ * Wire-1.3 interoperability against the REAL crux_cxp — both directions.
  *
  * Every other test in this directory drives the TypeScript transport against
  * itself, which cannot catch the failure that matters most here: two
@@ -15,10 +15,12 @@
  *
  * - TypeScript → Dart: the Dart manifest's `token` decodes; a `hello` without
  *   it, or with a wrong one, is refused `unauthorized`; with it, the handshake
- *   completes on wire `1.2`, and a one-shot request through the manifest is
+ *   completes on wire `1.3`; the Dart manifest announces `cxp_version` 1.3,
+ *   our proof `hello` is accepted and the Dart `hello_ack` proof matches the
+ *   one we compute; and a one-shot request through the manifest is
  *   acknowledged by the Dart handler;
- * - Dart → TypeScript: the Dart connector reads OUR manifest's token and our
- *   strict server accepts it; and when our manifest names the wrong token,
+ * - Dart → TypeScript: the Dart connector reads OUR 1.3 manifest, proves its
+ *   token, verifies our proof back, and our strict server accepts it; and when our manifest names the wrong token,
  *   the Dart side receives our refusal as `CxpHandshakeException` with code
  *   `unauthorized` — the error frame is understood, not just sent;
  * - both at once: a planted manifest naming a routable host is refused by
@@ -47,6 +49,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { LocalCxpClient } from '../../src/cxp/client';
+import {
+  CXP_HELLO_ACK_PROOF_LABEL,
+  CXP_HELLO_PROOF_LABEL,
+  cxpAuthProof,
+  cxpVersionHasMutualAuth,
+  generateCxpAuthNonce,
+} from '../../src/cxp/auth-token';
 import { CxpPeerConnector } from '../../src/cxp/connector';
 import { CxpDiscovery } from '../../src/cxp/discovery';
 import { CxpDialRefusedError, CxpHandshakeError } from '../../src/cxp/errors';
@@ -79,7 +88,7 @@ const CRUX_SHARED_PACKAGE_CONFIG = path.join(
 
 /** crux_cxp's refusal text — asserted verbatim, since the two must agree. */
 const DART_UNAUTHORIZED_MESSAGE =
-  'A hello to this peer must carry the token published in its manifest.';
+  'A hello to this peer must carry the token published in its manifest, or a proof of it.';
 
 /** Whether the live cross-run can happen here. See design-id-conformance.test.ts. */
 function dartPeerAvailable(): boolean {
@@ -97,7 +106,7 @@ const canRun = dartPeerAvailable();
 if (!canRun) {
   console.warn(
     '[cxp dart-interop] SKIPPED: needs a Dart toolchain and a crux-shared checkout at ' +
-      `${CRUX_SHARED_PACKAGE_CONFIG}. Nothing has checked wire 1.2 against crux_cxp on this run.`,
+      `${CRUX_SHARED_PACKAGE_CONFIG}. Nothing has checked wire 1.3 against crux_cxp on this run.`,
   );
 }
 
@@ -117,7 +126,7 @@ interface DartEvent {
   readonly floor_refusal?: string | null;
 }
 
-describe.skipIf(!canRun)('wire 1.2 against a live crux_cxp peer', () => {
+describe.skipIf(!canRun)('wire 1.3 against a live crux_cxp peer', () => {
   let dir: string;
   /** The Dart peer's shared workspace: where it looks up a `design_id`. */
   let workspaceDir: string;
@@ -244,7 +253,7 @@ describe.skipIf(!canRun)('wire 1.2 against a live crux_cxp peer', () => {
       expect(client.remotePeer?.peerId).toBe(dartPeerId);
     });
 
-    it('the Dart hello_ack speaks 1.2, and the raw token field is what it reads', async () => {
+    it('the Dart hello_ack speaks 1.3, and the raw token field is still what it reads', async () => {
       const raw = await RawPeer.connectTo(dartManifest.port);
       cleanups.push(() => raw.close());
       raw.sendEnvelope({
@@ -261,7 +270,71 @@ describe.skipIf(!canRun)('wire 1.2 against a live crux_cxp peer', () => {
         },
       });
       await pollUntil(() => raw.ofKind(CxpMessageKind.helloAck).length > 0, 'hello_ack');
-      expect(raw.ofKind(CxpMessageKind.helloAck)[0]?.['cxp_version']).toBe('1.2');
+      const ack = raw.ofKind(CxpMessageKind.helloAck)[0];
+      expect(ack?.['cxp_version']).toBe('1.3');
+      // A hello that presented the token verbatim is owed no proof (§7.4).
+      const payload = ack?.['payload'];
+      expect(isJsonObject(payload) ? Object.keys(payload) : []).not.toContain('proof');
+    });
+
+    it('the Dart manifest announces cxp_version 1.3, so we prove the token instead of sending it', () => {
+      expect(dartManifest.cxpVersion).toBe('1.3');
+      expect(cxpVersionHasMutualAuth(dartManifest.cxpVersion)).toBe(true);
+    });
+
+    it('a raw proof hello is accepted, and the Dart hello_ack proof matches ours byte for byte', async () => {
+      const token = dartManifest.token ?? '';
+      const nonce = generateCxpAuthNonce();
+      const raw = await RawPeer.connectTo(dartManifest.port);
+      cleanups.push(() => raw.close());
+      raw.sendEnvelope({
+        kind: CxpMessageKind.hello,
+        from: 'vscode-rawproof-1-1',
+        payload: {
+          identity: {
+            peer_id: 'vscode-rawproof-1-1',
+            product_name: 'VSCode',
+            product_version: '0.0.0-interop',
+            capabilities: [],
+          },
+          nonce,
+          proof: cxpAuthProof(token, nonce, CXP_HELLO_PROOF_LABEL),
+        },
+      });
+      await pollUntil(() => raw.ofKind(CxpMessageKind.helloAck).length > 0, 'hello_ack');
+      const payload = raw.ofKind(CxpMessageKind.helloAck)[0]?.['payload'];
+      expect(isJsonObject(payload) ? payload['proof'] : undefined).toBe(
+        cxpAuthProof(token, nonce, CXP_HELLO_ACK_PROOF_LABEL),
+      );
+      expect(JSON.stringify(raw.envelopes), 'the token never crosses the wire').not.toContain(token);
+    });
+
+    it('our client proves the Dart token and verifies the Dart proof', async () => {
+      const client = newClient();
+      await client.connect({
+        host: dartManifest.host,
+        port: dartManifest.port,
+        token: dartManifest.token,
+        mutualAuth: true,
+      });
+      expect(client.isConnected).toBe(true);
+      expect(client.remotePeer?.peerId).toBe(dartPeerId);
+    });
+
+    it('a proof of the wrong token is refused unauthorized by the Dart server', async () => {
+      const error = await newClient()
+        .connect({
+          host: dartManifest.host,
+          port: dartManifest.port,
+          token: '0'.repeat(32),
+          mutualAuth: true,
+        })
+        .then(
+          () => undefined,
+          (e: unknown) => e,
+        );
+      expect(error).toBeInstanceOf(CxpHandshakeError);
+      expect((error as CxpHandshakeError).code).toBe(CxpErrorCode.unauthorized);
     });
 
     it('a one-shot request through the manifest reaches the Dart handler and is acked', async () => {
@@ -325,7 +398,7 @@ describe.skipIf(!canRun)('wire 1.2 against a live crux_cxp peer', () => {
       return { server, peerId: identity.peerId };
     }
 
-    it('the Dart connector presents our manifest token and our strict server accepts it', async () => {
+    it('the Dart connector proves our 1.3 manifest token, verifies our proof, and our strict server accepts it', async () => {
       const token = 'c3'.repeat(16);
       const { server, peerId } = await publishTypeScriptPeer('accepted', {
         serverToken: token,

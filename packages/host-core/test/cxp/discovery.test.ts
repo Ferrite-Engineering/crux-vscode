@@ -407,7 +407,7 @@ describe('CxpDiscovery — dedupe by identity', () => {
 });
 
 describe('CxpManifestWriter', () => {
-  it('publishes <peer_id>.json with the manifest fields §10.2 requires, and the 1.2 token', async () => {
+  it('publishes <peer_id>.json with the manifest fields §10.2 requires, the 1.2 token and the 1.3 cxp_version', async () => {
     const writer = new CxpManifestWriter({
       manifestDirectory: dir,
       heartbeatIntervalMs: null,
@@ -438,6 +438,7 @@ describe('CxpManifestWriter', () => {
       port: 51999,
       started_at: NOW,
       token: 'ab'.repeat(16),
+      cxp_version: '1.3',
     });
     await writer.remove();
   });

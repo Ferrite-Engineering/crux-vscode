@@ -1,5 +1,5 @@
 /**
- * Protocol version this implementation speaks on the wire — `1.2`, matching
+ * Protocol version this implementation speaks on the wire — `1.3`, matching
  * `cxpProtocolVersion` in crux_cxp, the reference implementation and the peer
  * on the other end of every real link.
  *
@@ -10,6 +10,12 @@
  * - **1.2** — peer authentication: an optional `token` on the peer manifest
  *   and on the `hello` payload, and the `unauthorized` error code
  *   (`auth-token.ts`).
+ * - **1.3** — mutual authentication: an optional `nonce` and `proof` on
+ *   `hello`, an optional `proof` on `hello_ack`, and an optional
+ *   `cxp_version` on the peer manifest. A dialler that reads a 1.3 manifest
+ *   proves the token instead of sending it and checks the listener's proof
+ *   back; an older manifest gets the token verbatim, and this listener
+ *   accepts both forms (`auth-token.ts`, `cxpAuthProof`).
  *
  * Compatibility policy (CXP §6):
  *
@@ -26,7 +32,7 @@
  *   this implementation mirrors it; `requireAuthToken: false` on
  *   `LocalCxpServer` is the opt-out.
  */
-export const CXP_PROTOCOL_VERSION = '1.2';
+export const CXP_PROTOCOL_VERSION = '1.3';
 
 /**
  * Whether [version]'s major component matches ours — the acceptance test

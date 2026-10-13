@@ -36,7 +36,7 @@ Extension IDs are permanent: `ferrite-engineering.wavecrux`, `.lintcrux`,
 | `cxp/framing` | newline framing, 1 MiB inbound cap, 8 MiB pending-write cap, `\r` strip |
 | `cxp/envelope` | envelope encode/decode, required-field validation, unknown-field tolerance |
 | `cxp/messages` | typed payloads for all 13 kinds + error codes |
-| `cxp/auth-token` | the wire-1.2 token: CSPRNG mint, per-process default, constant-time compare (§4.4) |
+| `cxp/auth-token` | the wire-1.2 token and the wire-1.3 proof: CSPRNG mint, per-process default, constant-time compare, nonce, HMAC proof, manifest-version check (§4.4) |
 | `cxp/loopback` | the host rule every dial is held to — loopback only, checked before a socket exists (§4.9) |
 | `cxp/server` | TCP listener on 127.0.0.1:0, per-connection handshake gate (token required by default), dispatch |
 | `cxp/client` | outbound dial, hello (with the peer's manifest token)/hello_ack, goodbye |
@@ -98,12 +98,13 @@ Dart implementation's choice wins (two conforming implementations that disagree
 in practice is the outcome to avoid). The dialling tie-break in §4.9 is the one
 deliberate exception.
 
-### 4.1 Version — send `1.2`
+### 4.1 Version — send `1.3`
 
-`CXP_PROTOCOL_VERSION = '1.2'` in `cxp/version.ts`, matching `crux_cxp`'s
-`cxpProtocolVersion` in `messages/cxp_message.dart` (0.7.0 and later). 1.1
+`CXP_PROTOCOL_VERSION = '1.3'` in `cxp/version.ts`, matching `crux_cxp`'s
+`cxpProtocolVersion` in `messages/cxp_message.dart` (0.10.0 and later). 1.1
 added `request_open_artifact` / `request_open_artifact_ack` and reserved the
-`crux.design_id` metadata key; 1.2 added peer authentication (§4.4). Version
+`crux.design_id` metadata key; 1.2 added peer authentication (§4.4); 1.3 made
+it mutual and added `cxp_version` to the manifest (§4.4, §4.8). Version
 compatibility is major-only: `version.split('.').first === '1'`. A string with
 no `.` compares whole.
 
@@ -142,8 +143,8 @@ the connection open.
 
 ### 4.4 Handshake
 
-`hello` MUST be first. `hello.payload = {identity, token?}`.
-`hello_ack.payload = {identity, in_reply_to}`. Non-hello before handshake ⇒
+`hello` MUST be first. `hello.payload = {identity, token?, nonce?, proof?}`.
+`hello_ack.payload = {identity, in_reply_to, proof?}`. Non-hello before handshake ⇒
 `handshake_required`. Major mismatch ⇒ `unsupported_version` + close; a dialling
 peer fails its pending handshake. `goodbye.payload = {reason?}`; receiver closes
 and does **not** redial.
@@ -161,13 +162,34 @@ another local user, a sandboxed app, a container. So a server publishes a
   `sendOneShotRequest` pass `manifest.token` to `LocalCxpClient.connect`. No
   token ⇒ no `token` key at all, so the `hello` is the pre-1.2 frame.
 - A `hello` whose token does not match (`crypto.timingSafeEqual` over UTF-16
-  code units, after a length check) is answered `error_response` code
-  `unauthorized`, message `A hello to this peer must carry the token published
-  in its manifest.` (crux_cxp's text), `in_reply_to` the hello's `message_id`,
-  and the connection is closed — before identity, presence or dispatch.
+  code units, after a length check), and that carries no valid proof either,
+  is answered `error_response` code `unauthorized`, message `A hello to this
+  peer must carry the token published in its manifest, or a proof of it.`
+  (crux_cxp's text), `in_reply_to` the hello's `message_id`, and the
+  connection is closed — before identity, presence or dispatch.
 - An empty or non-string `token` on the wire is no token.
 - The token never appears in an error message, a log line, or a reply. Never
   log a manifest or a decoded `hello` whole.
+
+**Mutual authentication (wire 1.3).** Under 1.2 the token went to whatever
+answered the port, so a process that bound a peer's well-known port after the
+peer exited was handed it. In 1.3 neither side sends it:
+
+- `cxpAuthProof(token, nonce, label)` is `HMAC-SHA256(key = token, message =
+  label + ':' + nonce)` as 64 lowercase hex, with labels `cxp-hello` and
+  `cxp-hello-ack`; `test/cxp/mutual-auth.test.ts` pins the spec's vectors.
+- The dialler chooses from the **manifest**, never the socket:
+  `cxpVersionHasMutualAuth(manifest.cxpVersion)` (1.3 or later) makes the
+  connector and `sendOneShotRequest` pass `mutualAuth: true`, and the `hello`
+  carries a fresh `nonce` and `proof` and no `token`. An older manifest, or
+  none, gets the token verbatim.
+- The client then requires the `hello_ack` `proof` for its nonce; missing or
+  wrong, it closes without dispatching anything or sending anything more, and
+  `connect` rejects with `CxpHandshakeError(unauthorized)` — a dial failure
+  like any refused handshake.
+- The listener accepts a valid proof as it accepts a valid token, and adds its
+  own `proof` to the `hello_ack` only in reply to a proof that verified
+  (including when `requireAuthToken` is `false`).
 
 Interop with the real `crux_cxp` is tested by `test/cxp/dart-interop.test.ts`
 against `tool/dart-conformance/cxp_peer.dart`, in both directions. It needs
@@ -215,9 +237,10 @@ macOS `$HOME/Library/Application Support/crux/cxp/peers`;
 Windows `%APPDATA%\crux\cxp\peers`;
 POSIX `${XDG_DATA_HOME:-$HOME/.local/share}/crux/cxp/peers`. Create if absent.
 
-Manifest `<peer_id>.json` = `{identity, host, port, started_at, token?}`
-(`started_at` in epoch ms; `token` since wire 1.2, absent from a pre-1.2 peer's
-manifest — §4.4).
+Manifest `<peer_id>.json` = `{identity, host, port, started_at, token?,
+cxp_version?}` (`started_at` in epoch ms; `token` since wire 1.2, absent from a
+pre-1.2 peer's manifest; `cxp_version` since wire 1.3, which `CxpManifestWriter`
+always writes and which reads as absent unless it is `major.minor` — §4.4).
 
 - **Atomic write**: temp then rename. `crux_io`'s scratch name is
   `<peer>.json.<micros>-<counter>.tmp` — a real orphan therefore does **not** end

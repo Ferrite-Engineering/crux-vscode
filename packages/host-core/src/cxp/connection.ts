@@ -1,5 +1,11 @@
 import type { Socket } from 'node:net';
-import { cxpAuthTokensMatch } from './auth-token';
+import {
+  CXP_HELLO_ACK_PROOF_LABEL,
+  CXP_HELLO_PROOF_LABEL,
+  cxpAuthProof,
+  cxpAuthTokensMatch,
+  generateCxpAuthNonce,
+} from './auth-token';
 import {
   encodeEnvelopeLine,
   envelopeFor,
@@ -62,19 +68,35 @@ export interface CxpConnectionOptions {
   readonly maxLineLength?: number;
   readonly maxPendingWriteBytes?: number;
   /**
-   * `outbound` only: the token to present in our `hello` — the remote
-   * peer's manifest `token` (wire 1.2). Absent sends a `hello` with no
-   * token field at all, which is the pre-1.2 frame.
+   * `outbound` only: the remote peer's manifest `token` (wire 1.2). Absent
+   * sends a `hello` with no credential at all, which is the pre-1.2 frame.
    */
   readonly helloToken?: string | undefined;
   /**
-   * `inbound` only: the token every `hello` must carry. A `hello` without
-   * it is answered `unauthorized` and the connection closed before the
-   * dialler becomes a peer. Absent accepts any `hello` — the pre-1.2
-   * behaviour, and what `LocalCxpServerOptions.requireAuthToken: false`
-   * selects.
+   * `outbound` only: prove [helloToken] instead of sending it (wire 1.3,
+   * CXP §7.4). Set it when the remote peer's manifest announces 1.3 or later
+   * (`cxpVersionHasMutualAuth`), and only then: an older listener refuses a
+   * `hello` without the token. With it, the `hello` carries a fresh nonce
+   * and `proof_hello`, and the handshake completes only if the `hello_ack`
+   * carries the listener's `proof_hello_ack`. Ignored without a token.
    */
-  readonly requiredToken?: string | undefined;
+  readonly helloMutualAuth?: boolean | undefined;
+  /**
+   * `inbound` only: the token this listener publishes in its manifest. A
+   * `hello` is accepted when it carries it verbatim (wire 1.2) or a valid
+   * proof of it (wire 1.3), and a verified proof is answered with this
+   * listener's own proof. Absent accepts any `hello` and proves nothing —
+   * the pre-1.2 behaviour.
+   */
+  readonly authToken?: string | undefined;
+  /**
+   * `inbound` only: whether a `hello` that neither carries nor proves
+   * [authToken] is refused `unauthorized` and the connection closed before
+   * the dialler becomes a peer. Defaults to `true` when [authToken] is set;
+   * `false` is `LocalCxpServerOptions.requireAuthToken: false`, under which
+   * a proof that verifies is still answered with one.
+   */
+  readonly requireAuthToken?: boolean | undefined;
 }
 
 /**
@@ -120,7 +142,15 @@ export class CxpConnection {
   private readonly maxPendingWriteBytes: number;
   private readonly splitter: CappedLineSplitter;
   private readonly helloToken: string | undefined;
-  private readonly requiredToken: string | undefined;
+  private readonly helloMutualAuth: boolean;
+  private readonly authToken: string | undefined;
+  private readonly requireAuthToken: boolean;
+  /**
+   * `outbound` only: the `proof` the `hello_ack` must carry, or `undefined`
+   * when our `hello` presented the token verbatim (or none) and the ack is
+   * taken as it comes.
+   */
+  private expectedAckProof: string | undefined;
 
   private remote: PeerIdentity | undefined;
   private subs: readonly CxpSubscription[] = [];
@@ -135,7 +165,9 @@ export class CxpConnection {
     this.handlers = options.handlers ?? {};
     this.maxPendingWriteBytes = options.maxPendingWriteBytes ?? DEFAULT_CXP_MAX_PENDING_WRITE_BYTES;
     this.helloToken = options.helloToken;
-    this.requiredToken = options.requiredToken;
+    this.helloMutualAuth = options.helloMutualAuth ?? false;
+    this.authToken = options.authToken;
+    this.requireAuthToken = options.requireAuthToken ?? options.authToken !== undefined;
     this.splitter = new CappedLineSplitter(
       {
         onLine: (line) => {
@@ -197,11 +229,27 @@ export class CxpConnection {
     });
     if (this.role === 'outbound') {
       const token = this.helloToken;
-      this.sendMessage({
-        kind: CxpMessageKind.hello,
-        identity: this.selfIdentity,
-        ...(token !== undefined ? { token } : {}),
-      });
+      if (token !== undefined && this.helloMutualAuth) {
+        // CXP §7.4 (1.3): the token stays here. What crosses the wire is a
+        // fresh nonce and an HMAC over it keyed with the token, and what
+        // must come back is the listener's HMAC under the other label,
+        // which only a process holding the token can produce.
+        const nonce = generateCxpAuthNonce();
+        this.expectedAckProof = cxpAuthProof(token, nonce, CXP_HELLO_ACK_PROOF_LABEL);
+        this.sendMessage({
+          kind: CxpMessageKind.hello,
+          identity: this.selfIdentity,
+          nonce,
+          proof: cxpAuthProof(token, nonce, CXP_HELLO_PROOF_LABEL),
+        });
+      } else {
+        this.expectedAckProof = undefined;
+        this.sendMessage({
+          kind: CxpMessageKind.hello,
+          identity: this.selfIdentity,
+          ...(token !== undefined ? { token } : {}),
+        });
+      }
     }
   }
 
@@ -356,8 +404,17 @@ export class CxpConnection {
     switch (message.kind) {
       case CxpMessageKind.hello:
         if (this.role === 'inbound') {
-          const required = this.requiredToken;
-          if (required !== undefined && !cxpAuthTokensMatch(message.token, required)) {
+          // Two ways to show the dialler can read the manifest (CXP §7.4):
+          // present the token (1.2), or prove it with a nonce and an HMAC
+          // over it (1.3). The proof is recomputed from the token held here.
+          const held = this.authToken;
+          const nonce = message.nonce;
+          const proved =
+            held !== undefined &&
+            nonce !== undefined &&
+            cxpAuthTokensMatch(message.proof, cxpAuthProof(held, nonce, CXP_HELLO_PROOF_LABEL));
+          const presented = held !== undefined && cxpAuthTokensMatch(message.token, held);
+          if (this.requireAuthToken && !proved && !presented) {
             // The dialler could reach the port but not the manifest that
             // names it — or read a stale one. Either way it has not shown
             // what this server requires, so it is told which requirement
@@ -367,7 +424,8 @@ export class CxpConnection {
             // the other implementation's log.
             this.sendError(
               CxpErrorCode.unauthorized,
-              'A hello to this peer must carry the token published in its manifest.',
+              'A hello to this peer must carry the token published in its ' +
+                'manifest, or a proof of it.',
               envelope.messageId,
               envelope.kind,
             );
@@ -380,10 +438,19 @@ export class CxpConnection {
             return;
           }
           this.remote = message.identity;
+          // The listener's half of mutual authentication: prove this
+          // process holds the token its manifest publishes, so the dialler
+          // can tell it from a process that merely bound the port. Only in
+          // reply to a proof that verified: a dialler that sent the token
+          // verbatim checks nothing, and one that proved nothing (admitted
+          // by a lenient listener) is owed nothing derived from the secret.
           this.sendMessage({
             kind: CxpMessageKind.helloAck,
             identity: this.selfIdentity,
             inReplyTo: envelope.messageId,
+            ...(proved && held !== undefined && nonce !== undefined
+              ? { proof: cxpAuthProof(held, nonce, CXP_HELLO_ACK_PROOF_LABEL) }
+              : {}),
           });
           this.handlers.onHandshake?.(message.identity);
           return;
@@ -391,6 +458,23 @@ export class CxpConnection {
         break;
       case CxpMessageKind.helloAck:
         if (this.role === 'outbound') {
+          const expected = this.expectedAckProof;
+          if (this.remote === undefined && expected !== undefined && !cxpAuthTokensMatch(message.proof, expected)) {
+            // Whatever answered the port did not prove it holds the token
+            // the manifest publishes (CXP §7.4): a process that bound a
+            // well-known port after the real peer exited, or a listener
+            // whose manifest has gone stale. It is not a peer, so nothing
+            // it sent is dispatched and nothing more is sent to it. No
+            // error_response either, which would only tell a squatter what
+            // it got wrong. The dial fails like any refused handshake.
+            this.disconnect(
+              new CxpHandshakeError(
+                CxpErrorCode.unauthorized,
+                'The peer did not prove it holds the token published in its manifest.',
+              ),
+            );
+            return;
+          }
           this.remote = message.identity;
           this.handlers.onHandshake?.(message.identity);
           return;

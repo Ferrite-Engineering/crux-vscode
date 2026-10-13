@@ -1,3 +1,4 @@
+import { cxpVersionHasMutualAuth } from './auth-token';
 import { LocalCxpClient, type CxpConnectionEvent } from './client';
 import type { CxpDiscovery, CxpDiscoveryEvent } from './discovery';
 import { Emitter, type Disposable } from './emitter';
@@ -431,12 +432,16 @@ export class CxpPeerConnector {
       this.attempts += 1;
       // The manifest is where the peer's token lives (wire 1.2); presenting
       // it is what a 1.2 receiver requires, and a pre-1.2 manifest carries
-      // none, which a pre-1.2 receiver does not ask for. The address is the
-      // literal that passed the loopback check, never a respelling of it.
+      // none, which a pre-1.2 receiver does not ask for. A manifest that
+      // announces 1.3 or later gets a proof instead of the token, and the
+      // peer must prove it back (CXP §7.4); the choice is the manifest's,
+      // never the socket's. The address is the literal that passed the
+      // loopback check, never a respelling of it.
       await link.client.connect({
         host: address,
         port: link.manifest.port,
         token: link.manifest.token,
+        mutualAuth: cxpVersionHasMutualAuth(link.manifest.cxpVersion),
       });
       link.consecutiveFailures = 0;
       link.skipTicks = 0;

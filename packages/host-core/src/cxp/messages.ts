@@ -133,6 +133,11 @@ export const CXP_DESIGN_ID_METADATA_KEY = 'crux.design_id';
  * its manifest; a recipient that requires one answers a `hello` without it
  * `unauthorized` and closes. See `auth-token.ts` for what the token is and is
  * not.
+ *
+ * Since wire 1.3 a dialler MAY instead present a [nonce] and a [proof] that it
+ * holds the token, without sending it (`cxpAuthProof`), and the recipient then
+ * proves in its [HelloAck] that it holds the token too. A dialler presents one
+ * or the other, never both.
  */
 export interface Hello {
   readonly kind: typeof CxpMessageKind.hello;
@@ -140,18 +145,37 @@ export interface Hello {
   /**
    * The recipient's authentication token, as read from the recipient's
    * manifest. Absent when the dialler has none to present — a pre-1.2
-   * manifest, or a pre-1.2 dialler. An empty string on the wire decodes as
-   * absent, as it does in crux_cxp. Never log a decoded `hello` whole.
+   * manifest, or a pre-1.2 dialler — or presents a [proof] instead. An empty
+   * string on the wire decodes as absent, as it does in crux_cxp. Never log a
+   * decoded `hello` whole.
    */
   readonly token?: string;
+  /** The dialler's fresh nonce for this handshake, paired with [proof]. Wire 1.3. */
+  readonly nonce?: string;
+  /**
+   * `cxpAuthProof(token, nonce, CXP_HELLO_PROOF_LABEL)`: the dialler's proof
+   * that it holds the recipient's token, sent in place of the token. Wire 1.3.
+   */
+  readonly proof?: string;
 }
 
-/** Reply to a [Hello] — the receiver echoes its own identity. */
+/**
+ * Reply to a [Hello] — the receiver echoes its own identity.
+ *
+ * Since wire 1.3 the reply to a [Hello] that presented a proof carries the
+ * receiver's own [proof] that it holds the token its manifest publishes; the
+ * dialler verifies it before treating the handshake as complete.
+ */
 export interface HelloAck {
   readonly kind: typeof CxpMessageKind.helloAck;
   readonly identity: PeerIdentity;
   /** The `message_id` of the `hello` this acknowledges. */
   readonly inReplyTo: string;
+  /**
+   * `cxpAuthProof(token, hello.nonce, CXP_HELLO_ACK_PROOF_LABEL)`: set only
+   * in reply to a [Hello] whose own proof verified; absent otherwise. Wire 1.3.
+   */
+  readonly proof?: string;
 }
 
 /**
@@ -412,6 +436,12 @@ export function subscriptionMatches(
   return true;
 }
 
+/** A string that is present and non-empty, or `undefined` — `_nonEmptyString` in crux_cxp. */
+function nonEmptyString(raw: JsonValue | undefined): string | undefined {
+  const value = asString(raw);
+  return value !== undefined && value.length > 0 ? value : undefined;
+}
+
 function decodeMetadata(raw: JsonValue | undefined): JsonObject {
   return asJsonObject(raw) ?? {};
 }
@@ -496,11 +526,21 @@ export function decodeCxpMessage(kind: string, payload: JsonObject): CxpMessage 
       // Optional (wire 1.2). Anything but a non-empty string is no token —
       // `token is String && token.isNotEmpty` in crux_cxp's Hello.fromJson —
       // so a mistyped token is refused as missing, not as malformed.
-      const token = asString(payload['token']);
+      const token = nonEmptyString(payload['token']);
+      // Wire 1.3. A nonce without a proof, or a proof without a nonce, is no
+      // proof at all and both read as absent, as in crux_cxp: a receiver
+      // never has to reason about half a credential.
+      let nonce = nonEmptyString(payload['nonce']);
+      let proof = nonEmptyString(payload['proof']);
+      if (nonce === undefined || proof === undefined) {
+        nonce = undefined;
+        proof = undefined;
+      }
       return {
         kind: CxpMessageKind.hello,
         identity,
-        ...(token !== undefined && token.length > 0 ? { token } : {}),
+        ...(token !== undefined ? { token } : {}),
+        ...(nonce !== undefined && proof !== undefined ? { nonce, proof } : {}),
       };
     }
     case CxpMessageKind.helloAck: {
@@ -512,10 +552,12 @@ export function decodeCxpMessage(kind: string, payload: JsonObject): CxpMessage 
       if (inReplyTo === undefined) {
         throw new CxpFormatError('HelloAck.fromJson: missing "in_reply_to"');
       }
+      const proof = nonEmptyString(payload['proof']);
       return {
         kind: CxpMessageKind.helloAck,
         identity: decodeIdentityField(identityValue, 'HelloAck.fromJson'),
         inReplyTo,
+        ...(proof !== undefined ? { proof } : {}),
       };
     }
     case CxpMessageKind.goodbye: {
@@ -654,11 +696,14 @@ export function encodeCxpMessage(message: CxpMessage): JsonObject {
       return {
         identity: encodePeerIdentity(message.identity),
         ...(message.token !== undefined ? { token: message.token } : {}),
+        ...(message.nonce !== undefined ? { nonce: message.nonce } : {}),
+        ...(message.proof !== undefined ? { proof: message.proof } : {}),
       };
     case CxpMessageKind.helloAck:
       return {
         identity: encodePeerIdentity(message.identity),
         in_reply_to: message.inReplyTo,
+        ...(message.proof !== undefined ? { proof: message.proof } : {}),
       };
     case CxpMessageKind.goodbye:
       return message.reason !== undefined ? { reason: message.reason } : {};

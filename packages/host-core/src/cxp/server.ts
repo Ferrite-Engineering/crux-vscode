@@ -48,7 +48,8 @@ export interface LocalCxpServerOptions {
   readonly maxLineLength?: number;
   readonly maxPendingWriteBytes?: number;
   /**
-   * The token a dialling peer must present in its `hello` (wire 1.2). See
+   * The token a dialling peer must present (wire 1.2) or prove (wire 1.3)
+   * in its `hello`. See
    * `auth-token.ts` for what it is and is not. Defaults to
    * [cxpProcessAuthToken], which [CxpManifestWriter] publishes by default,
    * so the two agree without wiring. **A caller that passes one here must
@@ -56,11 +57,13 @@ export interface LocalCxpServerOptions {
    */
   readonly authToken?: string;
   /**
-   * Whether a `hello` that does not carry [authToken] is refused. `true` —
+   * Whether a `hello` that neither carries nor proves [authToken] is
+   * refused. `true` —
    * the default, as in crux_cxp — answers it `unauthorized` and closes
    * before the dialler becomes a peer (no identity, no presence, no
    * dispatch). `false` accepts any `hello`: the pre-1.2 behaviour, for a
-   * receiver that must accept pre-1.2 diallers.
+   * receiver that must accept pre-1.2 diallers. A proof that verifies is
+   * still answered with this listener's proof either way.
    */
   readonly requireAuthToken?: boolean;
 }
@@ -80,8 +83,9 @@ interface LinkedPeer {
  * full-duplex CXP channel; [CxpConnection] owns those rules.
  *
  * Since wire 1.2 the handshake is authenticated: a `hello` must carry
- * [authToken], the token this peer publishes in its manifest, or it is
- * answered `unauthorized` and closed. **This is the one place the
+ * [authToken], the token this peer publishes in its manifest, or since wire
+ * 1.3 a proof of it, or it is answered `unauthorized` and closed. A `hello`
+ * whose proof verified is answered with this listener's own proof (CXP §7.4). **This is the one place the
  * minor-compatibility rule bends**, deliberately and as crux_cxp bends it: a
  * pre-1.2 dialler sends no token and is refused. Over CXP's symmetric
  * topology a mixed pair still keeps one working route — our own connector
@@ -337,7 +341,8 @@ export class LocalCxpServer {
       role: 'inbound',
       maxLineLength: this.maxLineLength,
       maxPendingWriteBytes: this.maxPendingWriteBytes,
-      requiredToken: this.requireAuthToken ? this.authToken : undefined,
+      authToken: this.authToken,
+      requireAuthToken: this.requireAuthToken,
       handlers: {
         onHandshake: (identity) => {
           // Presence is per-peer reachability, not per-socket: suppress a
