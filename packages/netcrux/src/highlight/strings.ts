@@ -49,11 +49,14 @@ export function netCruxUnreachableMessage(): string {
 
 /**
  * No peer, but NetCrux is installed locally. This states
- * the outcome plainly rather than apologising for the missing peer.
+ * the outcome plainly rather than apologising for the missing peer, and
+ * says what the user has to do: launching NetCrux does not load a design
+ * or highlight anything, so the design has to be opened there and the
+ * command run again.
  */
 export function netCruxInstalledOfferLaunchMessage(path: string): string {
   return vscode.l10n.t(
-    'NetCrux Desktop is installed but not running. Launch it and {0} opens straight on the canvas.',
+    'NetCrux Desktop is installed but not running. Launch it, open the design that contains {0}, then run this command again to highlight it.',
     path,
   );
 }
@@ -66,7 +69,7 @@ export function launchNetCruxLabel(): string {
 /** Shown after the user asks to launch NetCrux. */
 export function launchingNetCruxMessage(): string {
   return vscode.l10n.t(
-    'Launching NetCrux — run this again once it is up to jump straight to the cone of influence.',
+    'Launching NetCrux. Open your design there, then run this command again to highlight the net.',
   );
 }
 
@@ -77,7 +80,7 @@ export function launchingNetCruxMessage(): string {
  */
 export function netCruxNotInstalledBoundaryMessage(path: string): string {
   return vscode.l10n.t(
-    'NetCrux Desktop draws the schematic and traces the cone of influence. Install it and {0} opens straight on the canvas.',
+    'NetCrux Desktop draws the schematic and traces the cone of influence. Install it and open the design that contains {0}, and this command highlights it on the canvas.',
     path,
   );
 }

@@ -77,8 +77,10 @@ pack to get all four at once.
 - **It advertises no inbound capabilities**, because a NetCrux-only VSCode
   window genuinely has nothing to highlight. It will not accept a request it
   cannot honour just to look well-connected.
-- **Restricted workspaces.** This extension declares no untrusted-workspace
-  support, so it stays inert until you trust the folder.
+- **Restricted workspaces.** It runs with limited support in a folder you
+  have not trusted, and nothing is held back: it reads the source and stems
+  files you open and sends selections to a NetCrux app already running on this
+  machine. It never runs a program named by workspace content.
 
 ## Telemetry
 

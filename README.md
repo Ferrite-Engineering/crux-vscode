@@ -10,11 +10,14 @@ below):
 
 | Package | Extension ID | Displayed as |
 |---|---|---|
-| `packages/wavecrux` | `ferrite-engineering.wavecrux` | WaveCrux Waveform Viewer |
-| `packages/lintcrux` | `ferrite-engineering.lintcrux` | LintCrux RTL Lint |
-| `packages/simcrux` | `ferrite-engineering.simcrux` | SimCrux Regression Manager |
-| `packages/netcrux` | `ferrite-engineering.netcrux` | NetCrux Schematic Browser |
-| `packages/pack` | `ferrite-engineering.edacrux` | EDACrux Suite |
+| `packages/wavecrux` | `ferrite-engineering.wavecrux` | WaveCrux — Waveform Analysis for RTL |
+| `packages/lintcrux` | `ferrite-engineering.lintcrux` | LintCrux — RTL Lint and Waivers |
+| `packages/simcrux` | `ferrite-engineering.simcrux` | SimCrux — RTL Regressions in the Test Explorer |
+| `packages/netcrux` | `ferrite-engineering.netcrux` | NetCrux — Netlist Driver Tracing |
+| `packages/pack` | `ferrite-engineering.edacrux` | EDACrux Suite — RTL Verification Workbench |
+
+The display names are the `extension.displayName` entries in each package's
+`package.nls.json`; this table quotes them.
 
 ## The host-core / surface split
 
