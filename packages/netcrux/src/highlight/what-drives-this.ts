@@ -32,6 +32,7 @@ import {
   netCruxDeclinedMessage,
   netCruxInstalledOfferLaunchMessage,
   netCruxNotInstalledBoundaryMessage,
+  netCruxUnauthorizedMessage,
   netCruxUnreachableMessage,
   noEditorSelectionMessage,
   pickElementPlaceholder,
@@ -51,6 +52,8 @@ export type WhatDrivesThisOutcome =
   | { readonly kind: 'ack-timeout'; readonly path: string }
   /** A peer's manifest was found but the socket could not be reached. */
   | { readonly kind: 'unreachable'; readonly path: string }
+  /** A peer answered and refused the handshake, even after a fresh manifest. */
+  | { readonly kind: 'unauthorized'; readonly path: string }
   /** No peer; NetCrux is installed locally. [launched] is whether the user asked to launch it. */
   | { readonly kind: 'offered-launch'; readonly launched: boolean }
   /** No peer and NetCrux is not installed. [followed] is whether the install link was taken. */
@@ -164,6 +167,12 @@ async function sendTo(
       deps.log(`   what drives this: ${path} → NetCrux (no ack)`);
       deps.ui.showInformationMessage(netCruxAckTimeoutMessage());
       return { kind: 'ack-timeout', path };
+    case 'unauthorized':
+      deps.log(
+        `   what drives this: ${path} → NetCrux refused the handshake: ${String(result.error)}`,
+      );
+      deps.ui.showInformationMessage(netCruxUnauthorizedMessage());
+      return { kind: 'unauthorized', path };
     case 'unreachable':
       deps.log(`   what drives this: ${path} → NetCrux unreachable: ${String(result.error)}`);
       deps.ui.showInformationMessage(netCruxUnreachableMessage());

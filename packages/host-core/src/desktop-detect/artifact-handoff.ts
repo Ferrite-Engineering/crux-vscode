@@ -39,13 +39,14 @@
  * | ack `honored: false` | report the refusal | the app is running and has just said no; handing the file to the OS *then* would launch whatever owns the extension, which is the exact defect this change removes |
  * | `error_response` | fall back to `openExternal` | the peer did not understand the request — a build older than wire minor 1.1 answers `unknown_kind` here |
  * | no ack in time | fall back to `openExternal` | no answer is not an answer |
+ * | handshake refused `unauthorized` (after one re-read of the manifest and one retry) | report it | something answered on the peer's port and refused this window's credentials; it is running, so handing the file to the OS would open a second, possibly different, app |
  * | no peer / unreachable | fall back to `openExternal` | launching the app is still the right thing when it is not running |
  *
  * The UI says which of those happened (`strings.ts`), because "nothing
  * appeared" and "something else appeared" are the two failure reports this
  * feature will actually generate.
  *
- * Every dependency is injected, so all five rows are exercised without a
+ * Every dependency is injected, so all six rows are exercised without a
  * socket, a filesystem or an extension host.
  */
 import { cxpDesignIdForPath } from '../cxp/design-id';
@@ -63,6 +64,7 @@ import {
 import type { CruxDesktopProduct } from './detector';
 import {
   handoffFailedMessage,
+  handoffHandshakeRefusedMessage,
   handoffLaunchedExternallyMessage,
   handoffOpenedInDesktopMessage,
   handoffRefusedByDesktopMessage,
@@ -74,6 +76,8 @@ export type ArtifactHandoffOutcome =
   | { readonly kind: 'opened-in-peer'; readonly designId: string; readonly path: string }
   /** The peer answered, and refused. [reason] is its words, for the log only. */
   | { readonly kind: 'refused-by-peer'; readonly reason?: string }
+  /** The peer was reached and refused the handshake, even after a fresh manifest. */
+  | { readonly kind: 'refused-handshake' }
   /** Handed to the OS. [why] records which rung of the ladder we fell to. */
   | {
       readonly kind: 'launched-externally';
@@ -176,6 +180,15 @@ export async function openArtifactInDesktop(
     case 'ack-timeout':
       deps.log(`   handoff: ${deps.product} peer did not answer`);
       return await launchExternally(deps, 'no-answer');
+    case 'unauthorized':
+      // Reached, and refused: the manifest's credentials did not match the
+      // process on the port, even after one fresh read. Not "unreachable",
+      // which would send the user to check that a running app is running.
+      deps.log(
+        `   handoff: ${deps.product} peer refused the handshake: ${String(result.error)}`,
+      );
+      deps.showMessage(handoffHandshakeRefusedMessage(deps.product));
+      return { kind: 'refused-handshake' };
     case 'unreachable':
       deps.log(`   handoff: ${deps.product} peer unreachable: ${String(result.error)}`);
       return await launchExternally(deps, 'unreachable');
@@ -201,6 +214,9 @@ async function sendRequest(
     {
       selfIdentity: deps.selfIdentity,
       ackKind: CxpMessageKind.requestOpenArtifactAck,
+      // A refused handshake re-runs the same scan once: a restarted app
+      // writes a new manifest under a new peer id, not over the old file.
+      rediscover: deps.discoverPeer,
       ...(deps.ackTimeoutMs !== undefined ? { ackTimeoutMs: deps.ackTimeoutMs } : {}),
     },
   );

@@ -67,5 +67,6 @@
   "This file could not be opened.": "이 파일을 열 수 없습니다.",
   "This window has no live connection to that app right now.": "이 창은 지금 해당 앱과 연결되어 있지 않습니다.",
   "That app is no longer running.": "해당 앱이 더 이상 실행되고 있지 않습니다.",
-  "Cross-probing is unavailable in this window.": "이 창에서는 교차 프로브를 사용할 수 없습니다."
+  "Cross-probing is unavailable in this window.": "이 창에서는 교차 프로브를 사용할 수 없습니다.",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요."
 }

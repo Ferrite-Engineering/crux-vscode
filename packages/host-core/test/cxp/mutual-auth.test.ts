@@ -539,8 +539,8 @@ describe('the dialler chooses the handshake from the manifest', () => {
       selfIdentity: dialerIdentity,
       ackKind: CxpMessageKind.requestHighlightAck,
     });
-    expect(result.kind).toBe('unreachable');
-    expect(result.kind === 'unreachable' && isUnauthorized(result.error)).toBe(true);
+    expect(result.kind).toBe('unauthorized');
+    expect(result.kind === 'unauthorized' && isUnauthorized(result.error)).toBe(true);
     expect(JSON.stringify(squatter.received)).not.toContain(TOKEN_A);
     expect(squatter.received.some((e) => e['kind'] === CxpMessageKind.requestHighlight)).toBe(
       false,

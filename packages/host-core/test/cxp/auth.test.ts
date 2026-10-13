@@ -552,7 +552,8 @@ describe('sendOneShotRequest presents the manifest token', () => {
       selfIdentity: dialerIdentity,
       ackKind: CxpMessageKind.requestHighlightAck,
     });
-    expect(result.kind).toBe('unreachable');
-    expect(result.kind === 'unreachable' && isUnauthorized(result.error)).toBe(true);
+    // Reached and refused: reported as such, never as unreachable.
+    expect(result.kind).toBe('unauthorized');
+    expect(result.kind === 'unauthorized' && isUnauthorized(result.error)).toBe(true);
   });
 });

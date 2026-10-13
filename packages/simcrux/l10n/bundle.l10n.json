@@ -101,5 +101,6 @@
   "This file could not be opened.": "This file could not be opened.",
   "This window has no live connection to that app right now.": "This window has no live connection to that app right now.",
   "That app is no longer running.": "That app is no longer running.",
-  "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window."
+  "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again."
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { cxp, editor } from '@crux-vscode/host-core';
 import type { SendHighlightResult } from '../../src/highlight/send-request';
+import { netCruxUnauthorizedMessage, netCruxUnreachableMessage } from '../../src/highlight/strings';
 import { whatDrivesThis, type WhatDrivesThisDeps } from '../../src/highlight/what-drives-this';
 
 const SNAPSHOT: editor.EditorSelectionSnapshot = {
@@ -211,6 +212,21 @@ describe('whatDrivesThis — a peer is present', () => {
     const outcome = await whatDrivesThis(deps);
     expect(outcome).toEqual({ kind: 'unreachable', path: 'alarm_r' });
     expect(ui.infoMessages).toHaveLength(1);
+  });
+
+  it('reports a refused handshake as refused, not as unreachable', async () => {
+    const { deps, ui } = baseDeps({
+      discoverPeer: () => Promise.resolve(MANIFEST),
+      sendHighlight: () =>
+        Promise.resolve<SendHighlightResult>({
+          kind: 'unauthorized',
+          error: new Error('unauthorized: refused'),
+        }),
+    });
+    const outcome = await whatDrivesThis(deps);
+    expect(outcome).toEqual({ kind: 'unauthorized', path: 'alarm_r' });
+    expect(ui.infoMessages).toEqual([netCruxUnauthorizedMessage()]);
+    expect(ui.infoMessages).not.toContain(netCruxUnreachableMessage());
   });
 });
 

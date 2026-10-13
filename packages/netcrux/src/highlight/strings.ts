@@ -31,6 +31,17 @@ export function netCruxAckTimeoutMessage(): string {
   return vscode.l10n.t('NetCrux did not respond in time. It may be busy — try again in a moment.');
 }
 
+/**
+ * NetCrux answered and refused this window's handshake, even after its
+ * discovery file was read again and the dial retried. It is running, so
+ * "could not reach" would be the wrong diagnosis.
+ */
+export function netCruxUnauthorizedMessage(): string {
+  return vscode.l10n.t(
+    'NetCrux is running but refused the connection from this window. Restart NetCrux and try again.',
+  );
+}
+
 /** The peer's manifest was found but the socket could not be reached. */
 export function netCruxUnreachableMessage(): string {
   return vscode.l10n.t('Could not reach NetCrux. It may have just closed.');

@@ -46,6 +46,7 @@
   "NetCrux could not show {0}: {1}": "NetCrux 无法显示 {0}：{1}",
   "NetCrux did not respond in time. It may be busy — try again in a moment.": "NetCrux 未能及时响应。它可能正忙——请稍后重试。",
   "Could not reach NetCrux. It may have just closed.": "无法连接到 NetCrux。它可能刚刚关闭。",
+  "NetCrux is running but refused the connection from this window. Restart NetCrux and try again.": "NetCrux 正在运行，但拒绝了来自此窗口的连接。请重新启动 NetCrux 后重试。",
   "NetCrux Desktop is installed but not running. Launch it and {0} opens straight on the canvas.": "NetCrux Desktop 已安装但尚未运行。启动它，{0} 就会直接在画布上打开。",
   "Launch NetCrux": "启动 NetCrux",
   "Launching NetCrux — run this again once it is up to jump straight to the cone of influence.": "正在启动 NetCrux——待其启动完成后再次运行此命令，即可直接跳转到影响锥(cone of influence)。",
@@ -60,5 +61,6 @@
   "This file could not be opened.": "无法打开此文件。",
   "This window has no live connection to that app right now.": "此窗口当前与该应用没有实时连接。",
   "That app is no longer running.": "该应用已不再运行。",
-  "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。"
+  "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。"
 }

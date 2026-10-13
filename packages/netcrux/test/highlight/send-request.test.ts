@@ -129,6 +129,28 @@ describe('sendHighlightToNetCrux', () => {
     expect(result.kind).toBe('unreachable');
   });
 
+  it('re-discovers NetCrux once after a refused handshake and retries with the fresh token', async () => {
+    const { manifest, server } = await startFakeNetCrux();
+    ackEveryHighlightWith(server, true);
+    // The manifest in hand predates a NetCrux restart: its token is stale.
+    const stale = { ...manifest, token: 'ab'.repeat(16) };
+    const result = await sendHighlightToNetCrux(stale, REQUEST, {
+      selfIdentity: SELF,
+      rediscover: () => Promise.resolve(manifest),
+    });
+    expect(result).toEqual({ kind: 'acked', honored: true });
+  });
+
+  it('resolves "unauthorized", not "unreachable", when NetCrux keeps refusing', async () => {
+    const { manifest } = await startFakeNetCrux();
+    const stale = { ...manifest, token: 'ab'.repeat(16) };
+    const result = await sendHighlightToNetCrux(stale, REQUEST, {
+      selfIdentity: SELF,
+      rediscover: () => Promise.resolve(stale),
+    });
+    expect(result.kind).toBe('unauthorized');
+  });
+
   it('sends the element kind and path exactly as given', async () => {
     const { manifest, server } = await startFakeNetCrux();
     const received: cxp.RequestHighlight[] = [];

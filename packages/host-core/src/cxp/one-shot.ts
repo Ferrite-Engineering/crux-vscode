@@ -23,18 +23,32 @@
  * mints the envelope internally and does not hand back its `message_id`. A
  * multiplexed connection would need both; this one deliberately is not.
  *
+ * ### A refused handshake is not an unreachable peer
+ *
+ * A handshake answered `unauthorized` (or, under wire 1.3, a `hello_ack`
+ * whose proof did not verify) means the socket was reached and something
+ * answered: the usual cause is a stale manifest, read just before its peer
+ * restarted with a new token. So the manifest is read again once and, if it
+ * now names different credentials, the dial is retried before anything is
+ * reported. A refusal that survives the retry is reported as
+ * `unauthorized`, never folded into `unreachable`, so the user is not sent
+ * to check whether a running app is running.
+ *
  * Extracted from NetCrux's `sendHighlightToNetCrux`, which was the first
  * caller and is now one of two — the second being the desktop artifact
  * handoff. A second copy of "dial, handshake, send, await, hang up" is
  * exactly the duplication host-core exists to hold.
  */
 import { cxpVersionHasMutualAuth } from './auth-token';
+import { readFile } from 'node:fs/promises';
 import { LocalCxpClient } from './client';
-import { CxpDialRefusedError } from './errors';
+import { CxpDialRefusedError, CxpHandshakeError } from './errors';
 import type { PeerIdentity } from './identity';
 import { CXP_NON_LOOPBACK_REFUSAL_REASON, cxpLoopbackDialAddress } from './loopback';
-import type { CxpPeerManifest } from './manifest';
+import { isJsonObject } from './json';
+import { decodeCxpPeerManifest, type CxpPeerManifest } from './manifest';
 import {
+  CxpErrorCode,
   CxpMessageKind,
   normaliseCxpErrorCode,
   type CxpErrorCodeName,
@@ -64,10 +78,17 @@ export type OneShotRequestResult =
   /** The socket connected and handshook but nothing came back in time. */
   | { readonly kind: 'ack-timeout' }
   /**
+   * The peer answered the dial and refused the handshake: `unauthorized`,
+   * because the manifest's token is not the one the peer's server holds, or
+   * because the process on the port did not prove it holds it (wire 1.3).
+   * Reported only after one re-read of the manifest and one retry.
+   */
+  | { readonly kind: 'unauthorized'; readonly error: unknown }
+  /**
    * The peer could not be reached at all — stale manifest, refused socket,
-   * a handshake refused `unauthorized` because the manifest's token is not
-   * the one the peer's server holds, or a [CxpDialRefusedError] because the
-   * manifest names a host that is not loopback (no socket was opened).
+   * a handshake that failed for any reason other than `unauthorized`, or a
+   * [CxpDialRefusedError] because the manifest names a host that is not
+   * loopback (no socket was opened).
    */
   | { readonly kind: 'unreachable'; readonly error: unknown };
 
@@ -81,6 +102,13 @@ export interface OneShotRequestOptions {
   readonly ackTimeoutMs?: number;
   /** Client factory, injectable for tests. */
   readonly clientFactory?: (self: PeerIdentity) => LocalCxpClient;
+  /**
+   * Find the peer's current manifest after a handshake refused
+   * `unauthorized`. A restarted peer usually writes a new file under a new
+   * peer id, so a caller that found the manifest by scanning should pass the
+   * same scan. Defaults to re-reading the refused manifest's own file.
+   */
+  readonly rediscover?: () => Promise<CxpPeerManifest | undefined>;
 }
 
 /**
@@ -93,6 +121,45 @@ export interface OneShotRequestOptions {
  * where an unhandled rejection is invisible to the user.
  */
 export async function sendOneShotRequest(
+  manifest: CxpPeerManifest,
+  message: CxpMessage,
+  options: OneShotRequestOptions,
+): Promise<OneShotRequestResult> {
+  const first = await attemptOneShot(manifest, message, options);
+  if (first.kind !== 'unauthorized') return first;
+
+  // The peer was reached and refused the credentials this manifest carried.
+  // The usual cause is a manifest read just before its peer restarted with
+  // a new token, so read it once more and retry once if it changed.
+  const rediscover = options.rediscover ?? ((): Promise<CxpPeerManifest | undefined> =>
+    rereadManifest(manifest.manifestPath));
+  const fresh = await rediscover().catch(() => undefined);
+  if (fresh === undefined || !credentialsDiffer(manifest, fresh)) return first;
+  return await attemptOneShot(fresh, message, options);
+}
+
+/** Whether [b] would be dialled differently from [a]. Never compares in a log. */
+function credentialsDiffer(a: CxpPeerManifest, b: CxpPeerManifest): boolean {
+  return (
+    a.host !== b.host ||
+    a.port !== b.port ||
+    a.token !== b.token ||
+    a.cxpVersion !== b.cxpVersion
+  );
+}
+
+async function rereadManifest(manifestPath: string): Promise<CxpPeerManifest | undefined> {
+  const json: unknown = JSON.parse(await readFile(manifestPath, 'utf8'));
+  return isJsonObject(json) ? decodeCxpPeerManifest(json, manifestPath) : undefined;
+}
+
+function isUnauthorizedRefusal(error: unknown): boolean {
+  return (
+    error instanceof CxpHandshakeError && error.code === CxpErrorCode.unauthorized
+  );
+}
+
+async function attemptOneShot(
   manifest: CxpPeerManifest,
   message: CxpMessage,
   options: OneShotRequestOptions,
@@ -126,7 +193,9 @@ export async function sendOneShotRequest(
     });
   } catch (error) {
     await client.dispose();
-    return { kind: 'unreachable', error };
+    return isUnauthorizedRefusal(error)
+      ? { kind: 'unauthorized', error }
+      : { kind: 'unreachable', error };
   }
 
   try {

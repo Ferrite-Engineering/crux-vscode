@@ -46,5 +46,6 @@
   "Opened in {0} Desktop.": "已在 {0} Desktop 中打开。",
   "{0} Desktop is running but would not open this — see the EDACrux output channel for what it said.": "{0} Desktop 正在运行，但未打开此项 — 详情请查看 EDACrux 输出通道。",
   "{0} Desktop is not answering, so this was opened with your system’s default application for it.": "{0} Desktop 没有响应，因此已使用系统默认应用程序打开。",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。",
   "This file could not be opened.": "无法打开此文件。"
 }

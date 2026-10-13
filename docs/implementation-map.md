@@ -862,6 +862,7 @@ Desktop". So `desktop-detect/artifact-handoff.ts` asks the running app first:
 | ack `honored: false` | report the refusal, **no** OS fallback | the app is running and has just said no; handing it to the OS then would launch whatever owns the extension — the exact defect being avoided |
 | `error_response` | `openExternal` | a build older than 1.1 answers `unknown_kind`; the request was not refused, it was not understood |
 | no ack in time | `openExternal` | no answer is not an answer |
+| handshake refused `unauthorized` | report it, **no** OS fallback | `sendOneShotRequest` has already re-read the manifest once and retried with any new credentials (the stale-token case); a refusal that survives that comes from a running app, so it is reported as refused, never as unreachable |
 | no peer / unreachable | `openExternal` | launching the app is still right when it is not running |
 
 The UI says which happened. "Opened in WaveCrux Desktop." and "WaveCrux

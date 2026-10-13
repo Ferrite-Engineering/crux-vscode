@@ -12,11 +12,16 @@
  * than some shipped builds, that is the *expected* answer from an old peer,
  * not an exotic one.
  */
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { LocalCxpClient } from '../../src/cxp/client';
+import { CxpHandshakeError } from '../../src/cxp/errors';
 import { LocalCxpServer } from '../../src/cxp/server';
-import { CxpMessageKind } from '../../src/cxp/messages';
+import { CxpErrorCode, CxpMessageKind } from '../../src/cxp/messages';
 import { sendOneShotRequest } from '../../src/cxp/one-shot';
-import type { CxpPeerManifest } from '../../src/cxp/manifest';
+import { encodeCxpPeerManifest, type CxpPeerManifest } from '../../src/cxp/manifest';
 import type { PeerIdentity } from '../../src/cxp/identity';
 
 const SELF: PeerIdentity = {
@@ -204,5 +209,92 @@ describe('sendOneShotRequest', () => {
       ackKind: CxpMessageKind.requestOpenArtifactAck,
     });
     expect(received).toEqual([REQUEST]);
+  });
+});
+
+describe('sendOneShotRequest after a refused handshake', () => {
+  /** Built by repetition so a secret scanner has nothing to flag. */
+  const STALE_TOKEN = 'ab'.repeat(16);
+
+  async function ackingPeer(): Promise<{ manifest: CxpPeerManifest; server: LocalCxpServer }> {
+    const peer = await startPeer();
+    peer.server.onInbound.listen(({ message, envelope, from }) => {
+      if (message.kind !== CxpMessageKind.requestOpenArtifact) return;
+      peer.server.sendTo(from.peerId, {
+        kind: CxpMessageKind.requestOpenArtifactAck,
+        inReplyTo: envelope.messageId,
+        honored: true,
+      });
+    });
+    return peer;
+  }
+
+  it('re-reads the manifest once and retries with the fresh token: the restarted-peer case', async () => {
+    const { manifest } = await ackingPeer();
+    let rediscovered = 0;
+    const result = await sendOneShotRequest({ ...manifest, token: STALE_TOKEN }, REQUEST, {
+      selfIdentity: SELF,
+      ackKind: CxpMessageKind.requestOpenArtifactAck,
+      rediscover: () => {
+        rediscovered += 1;
+        return Promise.resolve(manifest);
+      },
+    });
+    expect(result).toEqual({ kind: 'acked', honored: true });
+    expect(rediscovered).toBe(1);
+  });
+
+  it('by default re-reads the refused manifest from its own file', async () => {
+    const { manifest } = await ackingPeer();
+    const dir = await mkdtemp(join(tmpdir(), 'crux-one-shot-'));
+    cleanups.push(() => rm(dir, { recursive: true, force: true }));
+    const manifestPath = join(dir, `${manifest.identity.peerId}.json`);
+    // The file on disk is current; the copy in hand predates a restart.
+    await writeFile(manifestPath, JSON.stringify(encodeCxpPeerManifest(manifest)), 'utf8');
+    const result = await sendOneShotRequest(
+      { ...manifest, manifestPath, token: STALE_TOKEN },
+      REQUEST,
+      { selfIdentity: SELF, ackKind: CxpMessageKind.requestOpenArtifactAck },
+    );
+    expect(result).toEqual({ kind: 'acked', honored: true });
+  });
+
+  it('reports unauthorized, not unreachable, when the fresh manifest still does not match', async () => {
+    const { manifest } = await ackingPeer();
+    const stale = { ...manifest, token: STALE_TOKEN };
+    const result = await sendOneShotRequest(stale, REQUEST, {
+      selfIdentity: SELF,
+      ackKind: CxpMessageKind.requestOpenArtifactAck,
+      rediscover: () => Promise.resolve({ ...manifest, token: 'cd'.repeat(16) }),
+    });
+    expect(result.kind).toBe('unauthorized');
+    expect(
+      result.kind === 'unauthorized' &&
+        result.error instanceof CxpHandshakeError &&
+        result.error.code === CxpErrorCode.unauthorized,
+    ).toBe(true);
+  });
+
+  it('does not redial when the manifest has not changed, or is gone', async () => {
+    const { manifest } = await ackingPeer();
+    const stale = { ...manifest, token: STALE_TOKEN };
+    for (const rediscover of [
+      (): Promise<CxpPeerManifest | undefined> => Promise.resolve({ ...stale }),
+      (): Promise<CxpPeerManifest | undefined> => Promise.resolve(undefined),
+      (): Promise<CxpPeerManifest | undefined> => Promise.reject(new Error('ENOENT')),
+    ]) {
+      let dials = 0;
+      const result = await sendOneShotRequest(stale, REQUEST, {
+        selfIdentity: SELF,
+        ackKind: CxpMessageKind.requestOpenArtifactAck,
+        rediscover,
+        clientFactory: (self) => {
+          dials += 1;
+          return new LocalCxpClient({ selfIdentity: self });
+        },
+      });
+      expect(result.kind).toBe('unauthorized');
+      expect(dials, 'one dial: nothing new to retry with').toBe(1);
+    }
   });
 });

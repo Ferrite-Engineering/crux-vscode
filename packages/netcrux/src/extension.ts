@@ -184,6 +184,7 @@ async function runWhatDrivesThis(
             workspaceFolder: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
             productVersion: extensionVersion(context) ?? '0.0.0',
           }),
+          rediscover: discoverPeer,
         },
       ),
     locateInstalled: () =>

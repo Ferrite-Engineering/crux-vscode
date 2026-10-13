@@ -46,5 +46,6 @@
   "Opened in {0} Desktop.": "Opened in {0} Desktop.",
   "{0} Desktop is running but would not open this — see the EDACrux output channel for what it said.": "{0} Desktop is running but would not open this — see the EDACrux output channel for what it said.",
   "{0} Desktop is not answering, so this was opened with your system’s default application for it.": "{0} Desktop is not answering, so this was opened with your system’s default application for it.",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.",
   "This file could not be opened.": "This file could not be opened."
 }

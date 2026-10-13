@@ -46,5 +46,6 @@
   "Opened in {0} Desktop.": "{0} Desktop에서 열었습니다.",
   "{0} Desktop is running but would not open this — see the EDACrux output channel for what it said.": "{0} Desktop이 실행 중이지만 이 항목을 열지 않았습니다 — 자세한 내용은 EDACrux 출력 채널을 확인하세요.",
   "{0} Desktop is not answering, so this was opened with your system’s default application for it.": "{0} Desktop이 응답하지 않아 시스템 기본 애플리케이션으로 열었습니다.",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요.",
   "This file could not be opened.": "이 파일을 열 수 없습니다."
 }

@@ -46,6 +46,7 @@
   "NetCrux could not show {0}: {1}": "NetCrux could not show {0}: {1}",
   "NetCrux did not respond in time. It may be busy — try again in a moment.": "NetCrux did not respond in time. It may be busy — try again in a moment.",
   "Could not reach NetCrux. It may have just closed.": "Could not reach NetCrux. It may have just closed.",
+  "NetCrux is running but refused the connection from this window. Restart NetCrux and try again.": "NetCrux is running but refused the connection from this window. Restart NetCrux and try again.",
   "NetCrux Desktop is installed but not running. Launch it and {0} opens straight on the canvas.": "NetCrux Desktop is installed but not running. Launch it and {0} opens straight on the canvas.",
   "Launch NetCrux": "Launch NetCrux",
   "Launching NetCrux — run this again once it is up to jump straight to the cone of influence.": "Launching NetCrux — run this again once it is up to jump straight to the cone of influence.",
@@ -60,5 +61,6 @@
   "This file could not be opened.": "This file could not be opened.",
   "This window has no live connection to that app right now.": "This window has no live connection to that app right now.",
   "That app is no longer running.": "That app is no longer running.",
-  "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window."
+  "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again."
 }

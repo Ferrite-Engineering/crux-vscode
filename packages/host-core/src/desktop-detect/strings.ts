@@ -42,6 +42,18 @@ export function handoffRefusedByDesktopMessage(product: CruxDesktopProduct): str
 }
 
 /**
+ * The app answered on its port and refused this window's handshake, even
+ * after the discovery file was read again. The usual cause is a manifest
+ * that no longer matches the running app; restarting it rewrites the file.
+ */
+export function handoffHandshakeRefusedMessage(product: CruxDesktopProduct): string {
+  return vscode.l10n.t(
+    '{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.',
+    CRUX_PRODUCT_DISPLAY_NAMES[product],
+  );
+}
+
+/**
  * No peer answered, so the file went to the OS.
  *
  * Covers a genuinely absent app, a stale manifest, a peer too old to know

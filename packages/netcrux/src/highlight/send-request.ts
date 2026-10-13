@@ -31,6 +31,11 @@ export type SendHighlightResult =
   | { readonly kind: 'acked'; readonly honored: boolean; readonly reason?: string }
   /** The socket connected but no usable answer arrived within the timeout. */
   | { readonly kind: 'ack-timeout' }
+  /**
+   * The peer was reached and refused the handshake, after one fresh read of
+   * its manifest and one retry. Not "unreachable": NetCrux is running.
+   */
+  | { readonly kind: 'unauthorized'; readonly error: unknown }
   /** The peer could not be reached at all — dead manifest, refused connection. */
   | { readonly kind: 'unreachable'; readonly error: unknown };
 
@@ -42,6 +47,12 @@ export interface SendHighlightDeps {
   readonly ackTimeoutMs?: number;
   /** Client factory, injectable for tests. Defaults to a real `LocalCxpClient`. */
   readonly clientFactory?: (self: cxp.PeerIdentity) => cxp.LocalCxpClient;
+  /**
+   * Find NetCrux's current manifest after a refused handshake. Production:
+   * the same scan that found [manifest], since a restarted NetCrux writes a
+   * new file under a new peer id. Defaults to re-reading the refused file.
+   */
+  readonly rediscover?: () => Promise<cxp.CxpPeerManifest | undefined>;
 }
 
 /**
@@ -64,6 +75,7 @@ export async function sendHighlightToNetCrux(
     ackKind: cxp.CxpMessageKind.requestHighlightAck,
     ackTimeoutMs: deps.ackTimeoutMs ?? DEFAULT_ACK_TIMEOUT_MS,
     ...(deps.clientFactory !== undefined ? { clientFactory: deps.clientFactory } : {}),
+    ...(deps.rediscover !== undefined ? { rediscover: deps.rediscover } : {}),
   });
   switch (result.kind) {
     case 'acked':
@@ -75,6 +87,8 @@ export async function sendHighlightToNetCrux(
     case 'error-response':
     case 'ack-timeout':
       return { kind: 'ack-timeout' };
+    case 'unauthorized':
+      return { kind: 'unauthorized', error: result.error };
     case 'unreachable':
       return { kind: 'unreachable', error: result.error };
   }

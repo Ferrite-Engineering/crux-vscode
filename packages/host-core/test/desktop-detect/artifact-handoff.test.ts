@@ -1,5 +1,5 @@
 /**
- * The desktop handoff's five outcomes, and the one thing that makes them
+ * The desktop handoff's six outcomes, and the one thing that makes them
  * worth distinguishing: what the user is told.
  *
  * Before this, every product's handoff was one unconditional
@@ -9,6 +9,7 @@
  * the message.
  */
 import { describe, expect, it } from 'vitest';
+import { CxpHandshakeError } from '../../src/cxp/errors';
 import type { OneShotRequestResult } from '../../src/cxp/one-shot';
 import type { CxpPeerManifest } from '../../src/cxp/manifest';
 import type { PeerIdentity } from '../../src/cxp/identity';
@@ -16,6 +17,7 @@ import { CxpMessageKind } from '../../src/cxp/messages';
 import { openArtifactInDesktop } from '../../src/desktop-detect/artifact-handoff';
 import {
   handoffFailedMessage,
+  handoffHandshakeRefusedMessage,
   handoffLaunchedExternallyMessage,
   handoffOpenedInDesktopMessage,
   handoffRefusedByDesktopMessage,
@@ -227,6 +229,21 @@ describe('openArtifactInDesktop — falling back to the OS', () => {
       result: { kind: 'unreachable', error: new Error('ECONNREFUSED') },
     });
     expect(await outcome).toMatchObject({ kind: 'launched-externally', why: 'unreachable' });
+  });
+
+  it('reports a refused handshake as such, and does not hand the file to the OS', async () => {
+    const { harness, outcome } = run({
+      peer: MANIFEST,
+      result: {
+        kind: 'unauthorized',
+        error: new CxpHandshakeError('unauthorized', 'refused'),
+      },
+    });
+    // The app is running; the OS handoff could open a second, different one.
+    expect(await outcome).toEqual({ kind: 'refused-handshake' });
+    expect(harness.opened).toEqual([]);
+    expect(harness.messages).toEqual([handoffHandshakeRefusedMessage('wavecrux')]);
+    expect(harness.logs.join('')).toContain('refused the handshake');
   });
 
   it('says so when even the OS cannot open it', async () => {
