@@ -98,18 +98,28 @@ describe('every extension declares capabilities.untrustedWorkspaces', () => {
     }
   });
 
-  it('makes SimCrux the only product disabled outright', () => {
-    // It is the only one that executes anything: `tasks.ts` builds a
-    // ShellExecution from `edacrux.sim.executable` and a workspace config
-    // path. The other three read and render.
-    expect(CRUX_UNTRUSTED_WORKSPACE_SUPPORT.simcrux).toBe(false);
-    // Sorted: this constant is a *set* of survivors and keeps
-    // `CRUX_DESKTOP_PRODUCTS`' order, which is not the election's.
+  it('disables no product outright, so none vanishes without a word', () => {
+    // SimCrux used to be the one `false`. A disabled extension is absent
+    // from the window, so nothing can tell the user that trusting the
+    // folder would bring it back. It is `limited` instead: present, and it
+    // refuses the one thing it must not do (see `simcrux/src/trust.ts`).
+    for (const product of CRUX_DESKTOP_PRODUCTS) {
+      expect(declaration(product).supported, product).toBe('limited');
+    }
     expect([...CRUX_RESTRICTED_MODE_PRODUCTS].sort()).toEqual([
       'lintcrux',
       'netcrux',
+      'simcrux',
       'wavecrux',
     ]);
+  });
+
+  it('explains in SimCrux\'s description that nothing is run until the folder is trusted', () => {
+    const english = nls('simcrux', '')['crux.untrustedWorkspaces.description'] ?? '';
+    expect(english).toMatch(/does not run anything/);
+    expect(english).toMatch(/trust the folder/i);
+    // The user-facing strings carry no em dash.
+    expect(english).not.toContain('\u2014');
   });
 });
 
@@ -222,8 +232,15 @@ describe('restrictedConfigurations', () => {
     }
   });
 
-  it('leaves the SimCrux settings alone, since SimCrux is not running', () => {
-    expect([...CRUX_RESTRICTED_CONFIGURATIONS.simcrux]).toEqual([]);
+  it('restricts all three SimCrux settings, since each is workspace-chosen', () => {
+    // `executable` names what to run; the project and results paths take
+    // absolute paths, so an untrusted folder could otherwise aim the test
+    // tree at any file on the machine.
+    expect([...CRUX_RESTRICTED_CONFIGURATIONS.simcrux].sort()).toEqual([
+      'edacrux.sim.executable',
+      'edacrux.sim.projectFile',
+      'edacrux.sim.resultsPath',
+    ]);
   });
 });
 
@@ -263,7 +280,9 @@ describe('the election in a restricted workspace', () => {
     // `undefined` from `getExtension` for an extension it disabled for
     // trust — not a handle with `isActive === false`. So the registry a
     // restricted window presents to the election is simply the installed
-    // set minus SimCrux, and no code path in `election.ts` is special.
+    // set minus any product that declares `false`, and no code path in
+    // `election.ts` is special. None does today; the mechanism is kept
+    // covered for the day one does.
     const extensions: ExtensionRegistryView = { getExtension: () => undefined };
     const role = await electCruxWindowRole({ self: 'lintcrux', extensions });
     expect(role.kind).toBe('host');
@@ -341,27 +360,24 @@ describe('the election in a restricted workspace', () => {
     for (const id of asked) expect(allowed, id).toContain(id);
   });
 
-  it('never elects SimCrux, even when SimCrux is installed', () => {
-    expect([...CRUX_RESTRICTED_MODE_HOST_ORDER]).not.toContain('simcrux');
-    expect([...CRUX_RESTRICTED_MODE_HOST_ORDER]).toEqual(['lintcrux', 'netcrux', 'wavecrux']);
+  it('elects the same host in a restricted workspace as in a trusted one', () => {
+    // No product is disabled by trust, so restricted mode changes nothing
+    // about who hosts. This is the property that would break if a product
+    // went back to `false` without the order being reconsidered.
+    expect([...CRUX_RESTRICTED_MODE_HOST_ORDER]).toEqual([...CRUX_WINDOW_HOST_ORDER]);
   });
 
-  it('hands SimCrux-only windows no host, which is correct rather than broken', () => {
-    // Nothing is left to host one: SimCrux is disabled, and a window with
-    // no EDACrux extension running should publish no CXP peer.
-    const surviving = CRUX_RESTRICTED_MODE_HOST_ORDER.filter((product) => product === 'simcrux');
-    expect(surviving).toEqual([]);
-  });
-
-  it('changes who hosts only where SimCrux would have won', () => {
-    // The pair that proves the declaration is doing something: trusted,
-    // SimCrux+WaveCrux is hosted by SimCrux; restricted, by WaveCrux.
-    const pair: readonly CruxDesktopProduct[] = ['simcrux', 'wavecrux'];
-    expect(CRUX_WINDOW_HOST_ORDER.find((product) => pair.includes(product))).toBe('simcrux');
-    expect(CRUX_RESTRICTED_MODE_HOST_ORDER.find((product) => pair.includes(product))).toBe(
-      'wavecrux',
-    );
-    // And nothing else moves: LintCrux still wins wherever it is installed.
-    expect(CRUX_RESTRICTED_MODE_HOST_ORDER[0]).toBe(CRUX_WINDOW_HOST_ORDER[0]);
+  it('still elects exactly one host when a product is trust-disabled', async () => {
+    // The mechanism, with SimCrux treated as absent (which is what VSCode
+    // makes a trust-disabled extension look like). Not today's manifests;
+    // a guard on `election.ts` for a product that declares `false`.
+    const hostApi = fakeApi(true, 'lintcrux');
+    const handles = new Map<string, ExtensionHandle>([
+      ['ferrite-engineering.lintcrux', fakeHandle('lintcrux', hostApi)],
+      ['ferrite-engineering.wavecrux', fakeHandle('wavecrux', fakeApi(false, 'lintcrux'))],
+    ]);
+    const extensions: ExtensionRegistryView = { getExtension: (id) => handles.get(id) };
+    const role = await electCruxWindowRole({ self: 'wavecrux', extensions });
+    expect(role.kind).toBe('guest');
   });
 });

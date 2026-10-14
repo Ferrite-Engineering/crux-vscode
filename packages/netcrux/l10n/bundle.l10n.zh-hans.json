@@ -62,5 +62,7 @@
   "This window has no live connection to that app right now.": "此窗口当前与该应用没有实时连接。",
   "That app is no longer running.": "该应用已不再运行。",
   "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。",
+  "NetCrux found no netlist index (a .stems file) in this workspace, so it cannot map this name to a design path. Create one in WaveCrux Desktop with Tools > Generate RTL Stems, save it inside this folder, then run this command again.": "NetCrux 在此工作区中未找到网表索引（.stems 文件），因此无法将此名称映射到设计路径。请在 WaveCrux Desktop 中通过“Tools > Generate RTL Stems”创建一个，将其保存在此文件夹内，然后再次运行此命令。",
+  "\"{0}\" is not in the netlist index (.stems) found in this workspace. Check that the index was generated from the design that contains it.": "在此工作区找到的网表索引（.stems）中没有“{0}”。请确认该索引是由包含它的设计生成的。"
 }

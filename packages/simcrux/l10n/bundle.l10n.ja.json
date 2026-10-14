@@ -102,5 +102,7 @@
   "This window has no live connection to that app right now.": "このウィンドウは現在そのアプリと接続されていません。",
   "That app is no longer running.": "そのアプリはすでに実行されていません。",
   "Cross-probing is unavailable in this window.": "このウィンドウではクロスプローブを利用できません。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。",
+  "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.": "SimCrux はシミュレーターを実行するため、信頼されたフォルダーが必要です。このフォルダーは信頼されていません。保存済みの結果は引き続き表示されますが、フォルダーを信頼するまで回帰テストは実行されません。",
+  "Manage Workspace Trust": "ワークスペースの信頼を管理"
 }

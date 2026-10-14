@@ -68,5 +68,10 @@
   "This window has no live connection to that app right now.": "이 창은 지금 해당 앱과 연결되어 있지 않습니다.",
   "That app is no longer running.": "해당 앱이 더 이상 실행되고 있지 않습니다.",
   "Cross-probing is unavailable in this window.": "이 창에서는 교차 프로브를 사용할 수 없습니다.",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요."
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요.",
+  "This editor opened a .vcd file as plain text. Make WaveCrux the default editor for .vcd files?": ".vcd 파일이 일반 텍스트로 열렸습니다. WaveCrux를 .vcd 파일의 기본 편집기로 설정하시겠습니까?",
+  "Make WaveCrux the default": "WaveCrux를 기본으로 설정",
+  "No thanks": "아니요",
+  "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "이제 WaveCrux가 .vcd 파일을 기본으로 엽니다. 변경하려면 설정에서 \"workbench.editorAssociations\"를 편집하세요.",
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux가 설정을 변경하지 못했습니다. .vcd 탭에서 \"편집기 다시 열기...\"를 사용한 다음 *.vcd의 기본 편집기를 구성하세요."
 }

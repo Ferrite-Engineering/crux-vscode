@@ -75,8 +75,42 @@ pack to get all four at once.
 
 1. Open any `.vcd`, `.fst`, `.ghw`, `.lxt` or `.lxt2` file in the explorer.
 2. It opens in a WaveCrux tab. Add signals from the hierarchy and navigate.
+   (If your editor opens a `.vcd` as plain text instead, see
+   [Default editor for `.vcd`](#default-editor-for-vcd).)
 3. Optional: run **EDACrux: Toggle RTL Value Annotation** with a Verilog or
    VHDL file open to see cursor values inline in your source.
+
+## Default editor for `.vcd`
+
+WaveCrux claims `.vcd` with default priority, which VSCode honours. Some VSCode
+forks that install from Open VSX open `.vcd` in the plain text editor anyway and
+list WaveCrux only under **Reopen Editor With...**. When that happens WaveCrux
+asks **once** whether to make it the default for `*.vcd`. Say yes and it writes
+`workbench.editorAssociations` in your user settings and reopens the tab; say no
+or dismiss the message and it never asks again. Where the default already works
+the question never appears, and an existing association for `.vcd` is left
+alone. You can always change it later in `workbench.editorAssociations`.
+
+## Language ids
+
+RTL annotation needs the editor to know a file is Verilog, SystemVerilog or
+VHDL. A fresh editor with no HDL language extension calls `.v` and `.sv` Plain
+Text, so this extension registers those three language ids for `.v` `.vh` `.sv`
+`.svh` `.vhd` `.vhdl`, and nothing else (no grammar, no highlighting). An HDL
+language extension you install keeps providing the highlighting; VSCode merges
+the registrations by id. If another extension also claims `.v`, choose with
+`files.associations`.
+
+## Selecting a signal, inside one window
+
+Selecting a signal in a waveform tab reveals its declaration in the editor when
+`edacrux.crossProbe.followWaveformSelection` is on. It is off by default, so
+nothing happens in the editor when you click. The other EDACrux extensions in
+the same window do not receive waveform selections: the window is one CXP peer,
+and a selection goes to a peer in another application only when you send it,
+from the Cross-Probe panel or with **EDACrux: Send Selection to Crux App**. The
+WaveCrux output channel says this once per session when a selection is not
+followed.
 
 ## Settings
 

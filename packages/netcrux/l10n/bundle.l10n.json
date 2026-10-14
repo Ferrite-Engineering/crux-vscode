@@ -62,5 +62,7 @@
   "This window has no live connection to that app right now.": "This window has no live connection to that app right now.",
   "That app is no longer running.": "That app is no longer running.",
   "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again."
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.",
+  "NetCrux found no netlist index (a .stems file) in this workspace, so it cannot map this name to a design path. Create one in WaveCrux Desktop with Tools > Generate RTL Stems, save it inside this folder, then run this command again.": "NetCrux found no netlist index (a .stems file) in this workspace, so it cannot map this name to a design path. Create one in WaveCrux Desktop with Tools > Generate RTL Stems, save it inside this folder, then run this command again.",
+  "\"{0}\" is not in the netlist index (.stems) found in this workspace. Check that the index was generated from the design that contains it.": "\"{0}\" is not in the netlist index (.stems) found in this workspace. Check that the index was generated from the design that contains it."
 }

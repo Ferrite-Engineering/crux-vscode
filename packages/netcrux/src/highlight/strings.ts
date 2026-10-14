@@ -14,6 +14,25 @@ export function noEditorSelectionMessage(): string {
   return vscode.l10n.t('Select an identifier in the editor first.');
 }
 
+/**
+ * An identifier is selected, but the workspace has no netlist index at all.
+ * Says what is missing and how to make it: WaveCrux Desktop writes the
+ * `.stems` file from the HDL sources (Tools, Generate RTL Stems).
+ */
+export function noStemsIndexMessage(): string {
+  return vscode.l10n.t(
+    'NetCrux found no netlist index (a .stems file) in this workspace, so it cannot map this name to a design path. Create one in WaveCrux Desktop with Tools > Generate RTL Stems, save it inside this folder, then run this command again.',
+  );
+}
+
+/** A netlist index exists, but it has no entry for [identifier]. */
+export function notInStemsIndexMessage(identifier: string): string {
+  return vscode.l10n.t(
+    '"{0}" is not in the netlist index (.stems) found in this workspace. Check that the index was generated from the design that contains it.',
+    identifier,
+  );
+}
+
 /** Reuses `editor/strings.ts`'s exact source string for the same quick-pick. */
 export function pickElementPlaceholder(): string {
   return vscode.l10n.t('Which element did you mean?');

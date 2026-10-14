@@ -65,7 +65,7 @@ pack to get all four at once.
 | `edacrux.lint.waiverAuthor` | *(empty)* | Author recorded on waivers; empty uses the OS user, as the app does |
 | `edacrux.crossProbe.revealSelection` | `true` | Bring the matching tab forward when a connected Crux app announces a selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
-| `edacrux.crossProbe.followWaveformSelection` | `false` | With WaveCrux installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
+| `edacrux.crossProbe.followWaveformSelection` | `false` | Contributed by WaveCrux, so it appears once WaveCrux is installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
 
 ## Commands
 

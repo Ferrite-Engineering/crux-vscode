@@ -68,5 +68,10 @@
   "This window has no live connection to that app right now.": "This window has no live connection to that app right now.",
   "That app is no longer running.": "That app is no longer running.",
   "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again."
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.",
+  "This editor opened a .vcd file as plain text. Make WaveCrux the default editor for .vcd files?": "This editor opened a .vcd file as plain text. Make WaveCrux the default editor for .vcd files?",
+  "Make WaveCrux the default": "Make WaveCrux the default",
+  "No thanks": "No thanks",
+  "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.",
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd."
 }

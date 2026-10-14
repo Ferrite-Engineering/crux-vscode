@@ -54,6 +54,7 @@ function baseDeps(overrides: Partial<WhatDrivesThisDeps> = {}): {
   const deps: WhatDrivesThisDeps = {
     currentSelection: () => SNAPSHOT,
     resolver: { resolve: () => [SNAPSHOT.identifier] },
+    indexAvailable: () => true,
     ui,
     discoverPeer: () => Promise.resolve(undefined),
     sendHighlight: () => Promise.resolve<SendHighlightResult>({ kind: 'ack-timeout' }),
@@ -105,11 +106,48 @@ describe('whatDrivesThis — selection and resolution', () => {
     expect(ui.infoMessages).toEqual(['Select an identifier in the editor first.']);
   });
 
-  it('reports no-candidates when the resolver finds nothing', async () => {
-    const { deps, ui } = baseDeps({ resolver: { resolve: () => Promise.resolve([]) } });
+  it('says the netlist index is missing, and how to make one, when there is none', async () => {
+    // The reported defect: an identifier IS selected, the workspace has no
+    // `*.stems` file, and the old message told the user to select an
+    // identifier they had already selected.
+    const { deps, ui } = baseDeps({
+      resolver: { resolve: () => Promise.resolve([]) },
+      indexAvailable: () => Promise.resolve(false),
+    });
+    const outcome = await whatDrivesThis(deps);
+    expect(outcome).toEqual({ kind: 'no-index' });
+    expect(ui.infoMessages).toHaveLength(1);
+    const [message] = ui.infoMessages;
+    expect(message).toContain('no netlist index');
+    expect(message).toContain('.stems');
+    expect(message).toContain('Generate RTL Stems');
+    expect(message).not.toContain('Select an identifier');
+  });
+
+  it('says the name is not in the index when an index exists but lacks it', async () => {
+    const { deps, ui } = baseDeps({
+      resolver: { resolve: () => Promise.resolve([]) },
+      indexAvailable: () => true,
+    });
     const outcome = await whatDrivesThis(deps);
     expect(outcome).toEqual({ kind: 'no-candidates' });
-    expect(ui.infoMessages).toEqual(['Select an identifier in the editor first.']);
+    expect(ui.infoMessages).toHaveLength(1);
+    expect(ui.infoMessages[0]).toContain(`"${SNAPSHOT.identifier}"`);
+    expect(ui.infoMessages[0]).toContain('not in the netlist index');
+    expect(ui.infoMessages[0]).not.toContain('Select an identifier');
+  });
+
+  it('does not ask about the index when the resolver found something', async () => {
+    let asked = 0;
+    const { deps } = baseDeps({
+      resolver: { resolve: () => Promise.resolve(['top.cpu.alarm_r']) },
+      indexAvailable: () => {
+        asked += 1;
+        return false;
+      },
+    });
+    await whatDrivesThis(deps);
+    expect(asked).toBe(0);
   });
 
   it('auto-picks a single candidate with no quick-pick', async () => {

@@ -55,6 +55,7 @@ import {
   deriveRunFilter,
 } from './tasks';
 import { SimTerminalLinkProvider } from './terminal-links';
+import { hintIfUntrusted, requireTrustToRun, vscodeTrustHost } from './trust';
 
 /** Re-read the results file and republish the tree. */
 export const REFRESH_COMMAND = 'simcrux.refreshResults';
@@ -224,6 +225,12 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
     selectedIds: readonly string[],
     token: vscode.CancellationToken,
   ): Promise<void> => {
+    // Before anything else: a regression is a process, and an untrusted
+    // folder does not get to start one. Says why, and offers the fix.
+    if (!(await requireTrustToRun(vscodeTrustHost))) {
+      log('   run refused: the workspace is not trusted');
+      return;
+    }
     const settings = readSimSettings();
     const config = configPath();
     if (config === undefined) {
@@ -319,6 +326,7 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
       new SimcruxTaskProvider({
         configPath,
         executable: () => readSimSettings().executable,
+        isTrusted: () => vscodeTrustHost.isTrusted(),
       }),
     ),
   );
@@ -421,7 +429,15 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
     }),
   );
 
+  // Granting trust changes which setting values apply (the restricted ones
+  // are ignored until then), so the tree is rebuilt from the effective ones.
+  context.subscriptions.push(vscode.workspace.onDidGrantWorkspaceTrust(() => refresh()));
+
   refresh();
+
+  // In an untrusted folder the extension is present but will not run
+  // anything. Say so up front, once, when there is a project to run.
+  void hintIfUntrusted(vscodeTrustHost, { hasProject: configPath() !== undefined });
 
   return membership.api;
 }

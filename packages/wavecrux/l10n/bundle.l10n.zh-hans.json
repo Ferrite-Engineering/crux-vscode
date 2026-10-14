@@ -68,5 +68,10 @@
   "This window has no live connection to that app right now.": "此窗口当前与该应用没有实时连接。",
   "That app is no longer running.": "该应用已不再运行。",
   "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。",
+  "This editor opened a .vcd file as plain text. Make WaveCrux the default editor for .vcd files?": "此编辑器将 .vcd 文件作为纯文本打开。是否将 WaveCrux 设为 .vcd 文件的默认编辑器？",
+  "Make WaveCrux the default": "将 WaveCrux 设为默认",
+  "No thanks": "不用了",
+  "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux 现在默认打开 .vcd 文件。如需更改，请在设置中编辑“workbench.editorAssociations”。",
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux 无法更改您的设置。请在 .vcd 标签页上使用“重新打开编辑器的方式…”，然后选择配置 *.vcd 的默认编辑器。"
 }

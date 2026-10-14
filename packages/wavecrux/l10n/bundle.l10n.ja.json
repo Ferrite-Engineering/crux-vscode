@@ -68,5 +68,10 @@
   "This window has no live connection to that app right now.": "このウィンドウは現在そのアプリと接続されていません。",
   "That app is no longer running.": "そのアプリはすでに実行されていません。",
   "Cross-probing is unavailable in this window.": "このウィンドウではクロスプローブを利用できません。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。",
+  "This editor opened a .vcd file as plain text. Make WaveCrux the default editor for .vcd files?": "このエディターは .vcd ファイルをプレーン テキストとして開きました。WaveCrux を .vcd ファイルの既定のエディターにしますか？",
+  "Make WaveCrux the default": "WaveCrux を既定にする",
+  "No thanks": "いいえ",
+  "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux が .vcd ファイルを既定で開くようになりました。変更するには、設定で「workbench.editorAssociations」を編集してください。",
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux は設定を変更できませんでした。.vcd のタブで「エディターを再度開く方法...」を使い、*.vcd の既定のエディターを構成してください。"
 }

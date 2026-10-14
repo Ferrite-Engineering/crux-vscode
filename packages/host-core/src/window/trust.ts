@@ -27,7 +27,7 @@
  * | `wavecrux` | `'limited'` | reads waveform bytes the user explicitly opens and `*.stems` from the workspace; renders in a strict-CSP webview. Nothing is executed. |
  * | `netcrux` | `'limited'` | reads stems, dials loopback to a peer it discovered through the shared manifest directory. Nothing is executed. |
  * | `lintcrux` | `'limited'` | reads a results file and writes a waiver file. Nothing is executed. |
- * | `simcrux` | `false` | its task provider builds a `ShellExecution` whose executable **and** whose config path are workspace-controlled (`edacrux.sim.executable`, `tasks.json`). That is code execution chosen by workspace content, which is the thing restricted mode exists to prevent. |
+ * | `simcrux` | `'limited'` | reads saved results into the Test Explorer, but its task provider builds a `ShellExecution` whose executable **and** whose config path are workspace-controlled (`edacrux.sim.executable`, `tasks.json`). That is code execution chosen by workspace content, which is the thing restricted mode exists to prevent, so every path that would start a process is refused while untrusted (`simcrux/src/trust.ts`), with a message saying to trust the folder. |
  *
  * The extension **pack** (`ferrite-engineering.edacrux`) declares
  * `true`: it has no `main`, contributes nothing, and its whole effect is to
@@ -35,21 +35,25 @@
  * A pack that reported "disabled in restricted mode" would be a lie in the
  * direction that matters — it reads as though its members were disabled too.
  *
- * ### What `false` costs the election, and why it is safe
+ * ### Why SimCrux is `'limited'` and not `false`
  *
- * SimCrux sits third in [CRUX_WINDOW_HOST_ORDER], so a restricted
- * workspace changes who hosts. The election survives it for one measured
- * reason: **a trust-disabled extension is `undefined` from
- * `vscode.extensions.getExtension`, exactly like one that is not installed
- * at all** — not an object with `isActive === false`. `election.ts`'s
- * "installed?" test is that same `!== undefined`, so SimCrux is simply not
- * a candidate and the first surviving product in the order hosts. No
- * `activate()` is attempted on it, so the "winner that cannot host is
- * excluded and the election re-runs" path is never even reached.
+ * `false` is the one answer a user cannot see: VSCode removes the extension
+ * from the window, so no tree, no status entry and no message exist to say
+ * that trusting the folder would bring them back.
+ * `'limited'` keeps the extension present, lets it show what it can show
+ * safely (the saved results), refuses the one thing it cannot do, and
+ * says so where the user is looking.
  *
- * The one case worth naming: a window with **only** SimCrux installed has
- * no peer host in a restricted workspace. That is correct rather than
- * broken — there is no extension left to host one.
+ * ### The election, and `false` as a future option
+ *
+ * No product declares `false` today, so a restricted workspace elects the
+ * same host a trusted one does. The mechanism for a product that does
+ * declare it is unchanged and stays covered by tests: a trust-disabled
+ * extension is `undefined` from `vscode.extensions.getExtension`, exactly
+ * like one that is not installed at all, not an object with
+ * `isActive === false`. `election.ts`'s "installed?" test is that same
+ * `!== undefined`, so such a product is simply not a candidate and the
+ * first surviving one in the order hosts, with no special case anywhere.
  */
 import { CRUX_DESKTOP_PRODUCTS, type CruxDesktopProduct } from '../desktop-detect';
 import { CRUX_WINDOW_HOST_ORDER } from './election';
@@ -77,7 +81,7 @@ export const CRUX_UNTRUSTED_WORKSPACE_SUPPORT: Readonly<
 > = {
   lintcrux: 'limited',
   netcrux: 'limited',
-  simcrux: false,
+  simcrux: 'limited',
   wavecrux: 'limited',
 };
 
@@ -122,16 +126,19 @@ export const CRUX_UNTRUSTED_WORKSPACE_SUPPORT: Readonly<
  *   unrestricted, does for a `source` element. It puts nothing into the
  *   user's source (unlike `rtlAnnotation.enabled`), redirects no read
  *   (unlike `lint.resultsPath`) and executes nothing.
- * - Everything under `edacrux.sim.*` — SimCrux is disabled outright in a
- *   restricted workspace, so restricting its settings would restrict
- *   nothing and would suggest the extension was still running.
+ *
+ * SimCrux restricts all three of its settings. `edacrux.sim.executable`
+ * names what to run. `edacrux.sim.projectFile` and `edacrux.sim.resultsPath`
+ * accept absolute paths, so an untrusted folder could otherwise choose any
+ * file on the machine to parse into the test tree, which is the
+ * `edacrux.lint.resultsPath` reasoning again.
  */
 export const CRUX_RESTRICTED_CONFIGURATIONS: Readonly<
   Record<CruxDesktopProduct, readonly string[]>
 > = {
   lintcrux: ['edacrux.lint.resultsPath'],
   netcrux: [],
-  simcrux: [],
+  simcrux: ['edacrux.sim.projectFile', 'edacrux.sim.resultsPath', 'edacrux.sim.executable'],
   wavecrux: ['edacrux.rtlAnnotation.enabled'],
 };
 

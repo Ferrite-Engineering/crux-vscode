@@ -62,5 +62,7 @@
   "This window has no live connection to that app right now.": "이 창은 지금 해당 앱과 연결되어 있지 않습니다.",
   "That app is no longer running.": "해당 앱이 더 이상 실행되고 있지 않습니다.",
   "Cross-probing is unavailable in this window.": "이 창에서는 교차 프로브를 사용할 수 없습니다.",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요."
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요.",
+  "NetCrux found no netlist index (a .stems file) in this workspace, so it cannot map this name to a design path. Create one in WaveCrux Desktop with Tools > Generate RTL Stems, save it inside this folder, then run this command again.": "NetCrux가 이 작업 영역에서 넷리스트 인덱스(.stems 파일)를 찾지 못해 이 이름을 설계 경로로 매핑할 수 없습니다. WaveCrux Desktop의 Tools > Generate RTL Stems로 인덱스를 만들어 이 폴더 안에 저장한 다음 이 명령을 다시 실행하세요.",
+  "\"{0}\" is not in the netlist index (.stems) found in this workspace. Check that the index was generated from the design that contains it.": "이 작업 영역에서 찾은 넷리스트 인덱스(.stems)에 \"{0}\"이(가) 없습니다. 해당 이름이 포함된 설계로 인덱스를 생성했는지 확인하세요."
 }

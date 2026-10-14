@@ -19,7 +19,7 @@
   "crux.configuration.sim.projectFile.description": "이 창이 대상으로 삼는 SimCrux 프로젝트 설정 파일을 각 작업 영역 폴더 기준 상대 경로(또는 절대 경로)로 지정합니다. CLI는 한 번의 실행에 하나의 설정 파일만 받고 테스트 트리·작업·전달이 모두 같은 파일을 가리켜야 하므로, 처음 발견된 것이 사용됩니다.",
   "crux.configuration.sim.resultsPath.description": "실행 결과를 읽어올 위치입니다. 비워 두면 자동으로 결정됩니다. 설정 파일이 `output.results_path`를 선언했으면 그것을, 아니면 설정 파일 옆의 `results.ndjson`을 사용합니다(이는 `simcrux <config> --ci`가 기록하는 경로입니다). 상대 경로는 설정 파일의 디렉터리를 기준으로 해석됩니다.",
   "crux.configuration.sim.executable.description": "리그레션 작업이 실행하는 SimCrux 바이너리입니다. 절대 경로를 지정하지 않으면 PATH에서 찾습니다.",
-  "crux.untrustedWorkspaces.description": "제한된 작업 영역에서는 SimCrux가 비활성화됩니다. 회귀 실행은 edacrux.sim.executable에 지정된 시뮬레이터를 작업 영역의 구성 파일과 함께 실행하며, 신뢰할 수 없는 폴더가 실행 대상을 정해서는 안 되기 때문입니다. 테스트 탐색기와 회귀 작업을 사용하려면 폴더를 신뢰하십시오.",
+  "crux.untrustedWorkspaces.description": "제한된 작업 영역에서 SimCrux는 저장된 결과로 테스트 트리를 표시하지만 아무것도 실행하지 않습니다. 회귀 실행은 edacrux.sim.executable에 지정된 시뮬레이터를 작업 영역의 구성 파일과 함께 실행하며, 신뢰할 수 없는 폴더가 실행 대상을 정해서는 안 되기 때문입니다. 폴더를 신뢰하기 전까지는 작업 영역에 지정된 SimCrux 설정값이 무시됩니다. 사용자 설정에서 지정하거나 폴더를 신뢰하여 회귀 테스트를 실행하십시오.",
   "crux.configuration.crossProbe.followWaveformSelection.description": "이 창의 WaveCrux 파형 패널에서 신호를 선택하면 해당 RTL 선언을 편집기에 표시합니다. 기본값은 꺼짐입니다. 파형에서의 클릭은 대부분 이동 요청이 아니라 읽기 위한 것입니다. stems 인덱스를 통해 해석하므로 도구가 기록한 선언에만 도달하며, 키보드 포커스는 파형에 남습니다.",
   "crux.color.rtlAnnotationForeground.description": "RTL 값 주석(소스 줄 끝에 표시되는 신호 값)의 색상입니다. 기본값은 CodeLens 전경색이라 테마에 자연스럽게 묻힙니다. 여기서 바꾸면 CodeLens 색상을 바꾸지 않고도 더 잘 보이게 할 수 있습니다.",
   "crux.color.rtlAnnotationAmbiguousForeground.description": "둘 이상의 신호와 일치하여 추측하지 않고 모호함으로 표시되는 이름의 RTL 주석 색상입니다. 기본값은 편집기 경고 전경색입니다."

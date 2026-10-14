@@ -102,11 +102,6 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
-        },
-        "edacrux.crossProbe.followWaveformSelection": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "%crux.configuration.crossProbe.followWaveformSelection.description%"
         }
       }
     }

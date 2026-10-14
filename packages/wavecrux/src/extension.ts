@@ -4,11 +4,13 @@ import * as hostCore from '@crux-vscode/host-core';
 import type { DiagnosticSink } from './webview/panel';
 import { openWaveCruxPanel } from './webview/panel';
 import { WaveformEditorProvider } from './editor/waveform-editor';
+import { offerDefaultEditor, vscodeDefaultEditorOfferHost } from './editor/default-editor-offer';
 import { WAVEFORM_VIEW_TYPE, waveformFormatFor } from './formats';
 import { registerWaveCruxStatusSurface } from './status/surface';
 import { registerRtlAnnotationSurface } from './annotate/surface';
 import { createWaveCruxSurface } from './surface';
 import type { WebviewHighlightTarget } from './webview/highlight-bridge';
+import { createFollowDisabledNotice } from './webview/follow-notice';
 import { WAVECRUX_PRODUCT, waveCruxCapabilityCopy } from './status/copy';
 
 /**
@@ -128,6 +130,57 @@ function activeWaveformUri(): vscode.Uri | undefined {
   return undefined;
 }
 
+/**
+ * Offer, once, to make WaveCrux the default for `.vcd` when one opens as
+ * plain text.
+ *
+ * Where the manifest's `priority: "default"` is honoured a `.vcd` opens as a
+ * custom editor and no text tab ever exists, so this never fires. See
+ * `editor/default-editor-offer.ts` for why it exists and what it will not do.
+ */
+function watchForTextVcd(context: vscode.ExtensionContext, log: (line: string) => void): void {
+  const host = vscodeDefaultEditorOfferHost(context, log);
+  let asking = false;
+  const consider = (tab: vscode.Tab): void => {
+    const input: unknown = tab.input;
+    if (!(input instanceof vscode.TabInputText)) return;
+    const uri = input.uri;
+    if (uri.scheme !== 'file' && uri.scheme !== 'vscode-remote') return;
+    // Several text tabs can arrive together (a restored window), and the
+    // offer is one question, not one per tab.
+    if (asking) return;
+    asking = true;
+    void offerDefaultEditor(host, {
+      path: uri.path,
+      viewType: WAVEFORM_VIEW_TYPE,
+      onAccepted: async () => {
+        await vscode.commands.executeCommand('vscode.openWith', uri, WAVEFORM_VIEW_TYPE, {
+          viewColumn: tab.group.viewColumn,
+        });
+        await vscode.window.tabGroups.close(tab);
+      },
+    }).finally(() => {
+      asking = false;
+    });
+  };
+  // The tab API is the one place this reaches for something a fork could
+  // lack or change, and an offer that cannot be made must never cost the
+  // extension its activation.
+  try {
+    context.subscriptions.push(
+      vscode.window.tabGroups.onDidChangeTabs((event) => {
+        for (const tab of event.opened) consider(tab);
+      }),
+    );
+    // Tabs restored with the window exist before any `opened` event fires.
+    for (const group of vscode.window.tabGroups.all) {
+      for (const tab of group.tabs) consider(tab);
+    }
+  } catch (error) {
+    log(`   default editor offer: tab events unavailable (${String(error)})`);
+  }
+}
+
 export function activate(context: vscode.ExtensionContext): hostCore.window.CruxWindowApi {
   const channel = vscode.window.createOutputChannel('WaveCrux');
   context.subscriptions.push(channel);
@@ -144,6 +197,7 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
   // several waveform tabs can be open, only the most recently opened is
   // worth asking, and closing the second of two must leave the first
   // answering.
+  const noteFollowDisabled = createFollowDisabledNotice((line) => sink.append(line));
   const highlightTargets: WebviewHighlightTarget[] = [];
   const adoptHighlightTarget = (target: WebviewHighlightTarget): (() => void) => {
     highlightTargets.push(target);
@@ -201,7 +255,14 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
       // when this line runs.
       crossProbe: () => membership.api.crossProbe?.(),
       onWaveformSelection: (designPath, panelColumn) => {
-        void followWaveformSelection(designPath, panelColumn, annotation.resolver, sink, client);
+        void followWaveformSelection(
+          designPath,
+          panelColumn,
+          annotation.resolver,
+          sink,
+          client,
+          noteFollowDisabled,
+        );
       },
       refreshAnnotations: () => {
         annotation.refreshAnnotations();
@@ -232,6 +293,8 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
       });
     }),
   );
+
+  watchForTextVcd(context, (line) => sink.append(line));
 
   if (process.env[AUTO_OPEN_ENV]) {
     void vscode.commands.executeCommand(OPEN_PANEL_COMMAND);
@@ -309,6 +372,7 @@ async function followWaveformSelection(
   resolver: hostCore.names.NameResolver,
   sink: DiagnosticSink,
   client: hostCore.telemetry.TelemetryClient,
+  noteFollowDisabled: () => void,
 ): Promise<void> {
   const outcome = await hostCore.editor.revealDesignPathInEditor(designPath, {
     resolver,
@@ -320,8 +384,11 @@ async function followWaveformSelection(
   });
   // `disabled` is the overwhelmingly common case — the setting is off by
   // default — and logging it would put a line in the output channel on
-  // every click in a waveform.
-  if (outcome.kind === 'disabled') return;
+  // every click in a waveform. It is said once, so the silence is explained.
+  if (outcome.kind === 'disabled') {
+    noteFollowDisabled();
+    return;
+  }
   if (outcome.kind === 'revealed') {
     sink.append(`   follow selection: revealed line ${outcome.lineNumber}`);
     client.record({

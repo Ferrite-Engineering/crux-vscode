@@ -115,7 +115,7 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
     watcher: hostCore.names.vscodeStemsWatcher(),
   });
   context.subscriptions.push(stems);
-  void scanStems(stems, log);
+  const initialScan = scanStems(stems, log);
   const resolver = new hostCore.names.NameResolver({
     index: stems.index,
     workspaceFolders: workspaceFolderPaths,
@@ -141,7 +141,16 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
 
   context.subscriptions.push(
     vscode.commands.registerTextEditorCommand(WHAT_DRIVES_THIS_COMMAND, (textEditor) => {
-      void runWhatDrivesThis(textEditor, resolver, context, client, log);
+      void runWhatDrivesThis(textEditor, resolver, context, client, log, async () => {
+        // The first scan may still be running when the command is invoked
+        // right after activation, so wait for it. An empty index then gets
+        // one more look before the answer is "there is no index", in case
+        // a stems file was saved after the first scan.
+        await initialScan;
+        if (!stems.index.isEmpty) return true;
+        await scanStems(stems, log);
+        return !stems.index.isEmpty;
+      });
     }),
   );
 
@@ -169,10 +178,12 @@ async function runWhatDrivesThis(
   context: vscode.ExtensionContext,
   client: hostCore.telemetry.TelemetryClient,
   log: (line: string) => void,
+  indexAvailable: () => Promise<boolean>,
 ): Promise<void> {
   const outcome = await whatDrivesThis({
     currentSelection: () => hostCore.editor.vscodeCurrentSelectionSnapshot(textEditor),
     resolver,
+    indexAvailable,
     ui: hostCore.editor.vscodeUserInterface,
     discoverPeer,
     sendHighlight: (manifest, element) =>
@@ -216,7 +227,12 @@ function extensionVersion(context: vscode.ExtensionContext): string | undefined 
 
 /** Record `feature.used` for any invocation that reached a real target — never for a dismissed pick. */
 function recordOutcome(outcome: WhatDrivesThisOutcome, client: hostCore.telemetry.TelemetryClient): void {
-  if (outcome.kind === 'no-selection' || outcome.kind === 'no-candidates' || outcome.kind === 'cancelled') {
+  if (
+    outcome.kind === 'no-selection' ||
+    outcome.kind === 'no-index' ||
+    outcome.kind === 'no-candidates' ||
+    outcome.kind === 'cancelled'
+  ) {
     return;
   }
   client.record({

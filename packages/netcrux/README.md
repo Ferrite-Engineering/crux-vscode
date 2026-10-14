@@ -27,10 +27,28 @@ Verilog, SystemVerilog and VHDL.
    `request_highlight`.
 
 Every branch is answered rather than left to fail silently: no selection, no
-candidate in the stems index, a peer that never acknowledges, a peer whose
-socket is unreachable, and a peer that declines all say what happened. If no
+netlist index in the workspace at all, a name the index does not contain, a peer
+that never acknowledges, a peer whose socket is unreachable, and a peer that
+declines all say what happened. If no
 NetCrux is running but it is installed, the extension **offers to launch it**.
 If it is not installed, you get one honest sentence and one link.
+
+### The netlist index
+
+The command needs a `*.stems` file in the workspace folder. Without one it says
+so, and says how to make one: in WaveCrux Desktop, **Tools > Generate RTL
+Stems**, then save the file inside the folder you have open. Run the command
+again and it is picked up.
+
+### Language ids
+
+The menu entry appears on files whose language is Verilog, SystemVerilog or
+VHDL. A fresh editor with no HDL language extension opens `.v` and `.sv` as
+Plain Text, so this extension registers those three language ids for `.v` `.vh`
+`.sv` `.svh` `.vhd` `.vhdl` (and nothing else: no grammar, no highlighting).
+An HDL language extension you install keeps providing the highlighting, and
+VSCode merges the registrations by id. If another extension also claims `.v`,
+for example a Coq one, choose with `files.associations` in your settings.
 
 ## Why this reaches outside your editor
 
@@ -56,7 +74,7 @@ pack to get all four at once.
 |---|---|---|
 | `edacrux.crossProbe.revealSelection` | `true` | Bring the matching tab forward when a connected Crux app announces a selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
-| `edacrux.crossProbe.followWaveformSelection` | `false` | With WaveCrux installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
+| `edacrux.crossProbe.followWaveformSelection` | `false` | Contributed by WaveCrux, so it appears once WaveCrux is installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
 
 ## Commands
 

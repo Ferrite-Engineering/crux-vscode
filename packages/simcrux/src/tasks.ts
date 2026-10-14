@@ -104,6 +104,12 @@ export interface SimcruxTaskProviderOptions {
   readonly configPath: () => string | undefined;
   /** The `simcrux` binary, from settings. */
   readonly executable: () => string;
+  /**
+   * Whether the workspace is trusted, read live. While it is not, the
+   * provider offers and resolves nothing: a task is a process, and an
+   * untrusted folder must not choose what gets executed (see `trust.ts`).
+   */
+  readonly isTrusted: () => boolean;
 }
 
 /**
@@ -119,6 +125,7 @@ export class SimcruxTaskProvider implements vscode.TaskProvider {
   constructor(private readonly options: SimcruxTaskProviderOptions) {}
 
   provideTasks(): vscode.Task[] {
+    if (!this.options.isTrusted()) return [];
     const configPath = this.options.configPath();
     if (configPath === undefined) return [];
     return [buildRegressionTask(this.options.executable(), configPath, undefined)];
@@ -134,6 +141,7 @@ export class SimcruxTaskProvider implements vscode.TaskProvider {
   resolveTask(task: vscode.Task): vscode.Task | undefined {
     const definition = task.definition as SimcruxTaskDefinition;
     if (definition.type !== SIMCRUX_TASK_TYPE) return undefined;
+    if (!this.options.isTrusted()) return undefined;
     const configPath = definition.config ?? this.options.configPath();
     if (configPath === undefined) return undefined;
     return buildRegressionTask(this.options.executable(), configPath, definition.filter);

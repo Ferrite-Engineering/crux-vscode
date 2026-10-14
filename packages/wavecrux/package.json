@@ -82,6 +82,38 @@
         "category": "%crux.command.category%"
       }
     ],
+    "languages": [
+      {
+        "id": "verilog",
+        "aliases": [
+          "Verilog"
+        ],
+        "extensions": [
+          ".v",
+          ".vh"
+        ]
+      },
+      {
+        "id": "systemverilog",
+        "aliases": [
+          "SystemVerilog"
+        ],
+        "extensions": [
+          ".sv",
+          ".svh"
+        ]
+      },
+      {
+        "id": "vhdl",
+        "aliases": [
+          "VHDL"
+        ],
+        "extensions": [
+          ".vhd",
+          ".vhdl"
+        ]
+      }
+    ],
     "configuration": {
       "title": "%crux.configuration.title%",
       "properties": {

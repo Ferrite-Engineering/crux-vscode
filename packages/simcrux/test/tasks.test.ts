@@ -120,6 +120,7 @@ describe('SimcruxTaskProvider', () => {
   const provider = new SimcruxTaskProvider({
     configPath: () => CONFIG,
     executable: () => 'simcrux',
+    isTrusted: () => true,
   });
 
   it('provides one task per project, not one per suite', () => {
@@ -132,6 +133,7 @@ describe('SimcruxTaskProvider', () => {
     const empty = new SimcruxTaskProvider({
       configPath: () => undefined,
       executable: () => 'simcrux',
+      isTrusted: () => true,
     });
     expect(empty.provideTasks()).toEqual([]);
   });
@@ -159,7 +161,41 @@ describe('SimcruxTaskProvider', () => {
     const empty = new SimcruxTaskProvider({
       configPath: () => undefined,
       executable: () => 'simcrux',
+      isTrusted: () => true,
     });
     expect(empty.resolveTask({ definition: { type: SIMCRUX_TASK_TYPE } } as never)).toBeUndefined();
+  });
+});
+
+describe('SimcruxTaskProvider in an untrusted workspace', () => {
+  // A task is a process. An untrusted folder chooses the config path and
+  // the executable setting, so it must be offered no task and be given no
+  // task to run, even for a definition written in its own tasks.json.
+  const untrusted = new SimcruxTaskProvider({
+    configPath: () => CONFIG,
+    executable: () => 'simcrux',
+    isTrusted: () => false,
+  });
+
+  it('provides no task', () => {
+    expect(untrusted.provideTasks()).toEqual([]);
+  });
+
+  it('resolves no task, even for a well-formed simcrux definition', () => {
+    expect(
+      untrusted.resolveTask({ definition: { type: SIMCRUX_TASK_TYPE, config: CONFIG } } as never),
+    ).toBeUndefined();
+  });
+
+  it('reads trust live, so granting it takes effect without a reload', () => {
+    let trusted = false;
+    const live = new SimcruxTaskProvider({
+      configPath: () => CONFIG,
+      executable: () => 'simcrux',
+      isTrusted: () => trusted,
+    });
+    expect(live.provideTasks()).toEqual([]);
+    trusted = true;
+    expect(live.provideTasks()).toHaveLength(1);
   });
 });

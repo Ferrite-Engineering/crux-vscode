@@ -573,20 +573,61 @@ comes from `getExtension(id).activate()` instead.
 | a **trust-disabled** extension is `undefined` from `getExtension` | not a handle with `isActive === false`. So restricted mode looks exactly like "not installed" to the election, and no code path in `election.ts` is special |
 | an `extensionPack` manifest with no `main` **never settles** `activate()` | `ferrite-engineering.edacrux`: handle returned, `isActive` false, `activate()` unresolved after 30 s, in a trusted *and* an untrusted workspace |
 
-### Where `edacrux.crossProbe.*` lives, and why
+### Where `edacrux.crossProbe.*` and the `edacrux.*` commands live, and why
 
-**All four manifests, identically.** The measured answer is above: the first
-registration of a configuration id wins, later ones are dropped with a warning,
-and the Settings UI shows exactly **one** row. So declaring in all four is safe,
-and it is the only arrangement where *every standalone install is correct* — a
-LintCrux-only user obeys these settings and must be able to find them. Because
-the surviving declaration is chosen by scan order,
+**Declared once only where that loses nothing.** The measured answer is above:
+the first registration of a configuration or command id wins, later ones are
+dropped with a warning or an info line, and the Settings UI and palette show
+exactly **one** row. Forks that install from Open VSX log the same notices.
+
+Any one of the four extensions can host a window, and the host is the one that
+obeys `edacrux.crossProbe.revealSelection`, `edacrux.crossProbe.openSourceFocusesEditor`
+and answers `edacrux.openCapabilitiesPanel`, `edacrux.sendSelectionToPeer` and
+`edacrux.highlightSelectionInPeer`. A static manifest cannot say "declare this
+only if the others are absent": every standalone install has to carry its own
+copy, and a set of declarers that covers every non-empty subset of four
+extensions is all four. So those two settings and three commands are contributed
+by **all four, identically**, and handled by the elected host alone. Because the
+surviving declaration is chosen by scan order,
 `host-core/test/window/manifest-contributions.test.ts` requires the four
-declarations to be **byte-identical** and to match `DEFAULT_CROSS_PROBE_SETTINGS`,
-so which one wins cannot matter. The same rule covers
-`edacrux.openCapabilitiesPanel`, `edacrux.sendSelectionToPeer` and
-`edacrux.highlightSelectionInPeer`: contributed by all four, *handled* by the
-elected host alone.
+declarations to be **byte-identical**, so which one wins cannot matter. The
+notices that remain are the cost of every standalone install being complete; a
+shared dependency extension would remove them and add a hard install
+dependency, which the `extensionDependencies` note above rules out.
+
+**`edacrux.crossProbe.followWaveformSelection` is WaveCrux's alone.** It is read
+in WaveCrux's own bundle, when a selection arrives from a waveform panel, so it
+has an effect only where WaveCrux is installed, and the extension that needs the
+row is the extension that declares it. The other three do not duplicate it.
+
+**Language ids** (`verilog`, `systemverilog`, `vhdl`) are contributed by NetCrux
+and WaveCrux, the two extensions that gate a feature on them, with the file
+extensions and aliases only: no grammar, no language configuration, no
+`filenames` or `firstLine`. VSCode unions `extensions` and `aliases` for
+entries that share an id and logs nothing, so a Verilog extension the user
+installs keeps providing highlighting and the two registrations merge. The same
+manifest test pins that they stay that minimal and identical.
+
+### A selection inside one window reaches the editor, not the other extensions
+
+A waveform selection leaves the webview as a `notify_selection` envelope and is
+claimed by `WaveformEditorProvider.acceptSelection`. Its one in-window consumer
+is `revealDesignPathInEditor`, behind `followWaveformSelection` (off by
+default). No other extension receives it, in VSCode or in a fork, because the
+window is one CXP peer: `CxpEditorDispatcher` handles `notify_selection` that
+arrives **from a peer in another application**, and the outbound path to such a
+peer is the Cross-Probe panel's Send or `edacrux.sendSelectionToPeer`. So "the
+selection reached no other extension" is the design, not a bridge fault. What
+was missing was an explanation, so WaveCrux logs one line per session when a
+selection is dropped because the setting is off (`webview/follow-notice.ts`).
+
+### Behaviour that differs in VSCode forks
+
+| Behaviour | Handling |
+|---|---|
+| a custom editor's `priority: "default"` is not honoured; the file opens as text | WaveCrux's manifest is correct (a test pins `default` and the selector). When a `.vcd` opens as a **text** tab, WaveCrux offers once to write `workbench.editorAssociations` for `*.vcd` (`wavecrux/src/editor/default-editor-offer.ts`). Consent only, user-level setting only, never when an association for `.vcd` already exists, never where the default works |
+| no HDL language extension, so `.v` / `.sv` / `.vhd` are Plain Text | NetCrux and WaveCrux contribute the language ids above |
+| duplicate manifest contributions are logged as errors | see the first subsection |
 
 ## 6e. Workspace trust — what each extension does in a restricted workspace
 
@@ -603,20 +644,29 @@ checked against (`test/window/untrusted-workspaces.test.ts`).
 | `wavecrux` | `"limited"` | `edacrux.rtlAnnotation.enabled` |
 | `netcrux` | `"limited"` | — |
 | `lintcrux` | `"limited"` | `edacrux.lint.resultsPath` |
-| `simcrux` | `false` | — |
+| `simcrux` | `"limited"` | `edacrux.sim.projectFile`, `edacrux.sim.resultsPath`, `edacrux.sim.executable` |
 | `edacrux` (pack) | `true` | — |
 
-**SimCrux is the only `false`**, and the only one that executes anything:
-`tasks.ts` builds a `ShellExecution` from `edacrux.sim.executable` and a config
-path, both workspace-controlled. The other three read files and render.
+**No extension is `false`.** A disabled extension is absent from the window, so
+nothing could tell the user that trusting the folder would bring it back. SimCrux
+is the one that executes anything: `tasks.ts` builds a `ShellExecution` from
+`edacrux.sim.executable` and a config path, both workspace-controlled. It
+therefore declares `"limited"` and **never starts a process while the folder is
+untrusted**: Run Regression, the Test Explorer run profile and the `simcrux`
+task provider all go through `simcrux/src/trust.ts`, which says the folder must
+be trusted and offers Workspace Trust. The test tree still renders from saved
+results, and a hint is shown once at activation when an untrusted folder holds a
+SimCrux project. The other three read files and render.
 
 **The pack declares `true`** because it has no `main` and contributes nothing;
 reporting it as disabled would read as though its members were, which is false
 for three of the four.
 
-**Two settings are restricted, and only two.** `edacrux.lint.resultsPath`
-accepts an *absolute* path, so an untrusted folder could otherwise choose any
-file on the machine and have it parsed into the Problems panel.
+**Five settings are restricted.** `edacrux.lint.resultsPath` accepts an
+*absolute* path, so an untrusted folder could otherwise choose any file on the
+machine and have it parsed into the Problems panel; `edacrux.sim.projectFile` and
+`edacrux.sim.resultsPath` are the same case for the test tree, and
+`edacrux.sim.executable` names what to run.
 `edacrux.rtlAnnotation.enabled` is the one boolean that qualifies: it puts text
 into the user's own source, and `toggleRtlAnnotationEnabled` writes it
 **globally** precisely because it is a reading preference rather than a
@@ -624,13 +674,11 @@ property of a repository. The `edacrux.crossProbe.*` toggles and
 `edacrux.lint.waiverAuthor` are deliberately not restricted — a workspace can
 only make cross-probing less eager, and an author name redirects nothing.
 
-**The election survives it** because a trust-disabled extension is `undefined`
-from `getExtension`, exactly like an uninstalled one. SimCrux is simply not a
-candidate, no `activate()` is attempted on it, and the first surviving product
-in `CRUX_WINDOW_HOST_ORDER` hosts. The one changed outcome is a
-SimCrux + WaveCrux window: SimCrux hosts it when trusted, WaveCrux when not. A
-SimCrux-only window has no peer host in a restricted workspace, which is
-correct — nothing is left to host one.
+**The election is unchanged by trust**, since no product is disabled. Were one
+to declare `false`, the election would still hold: a trust-disabled extension is
+`undefined` from `getExtension`, exactly like an uninstalled one, so it is not a
+candidate, no `activate()` is attempted on it, and the first surviving product in
+`CRUX_WINDOW_HOST_ORDER` hosts.
 
 ## 6f. The cross-probe loop, both directions
 
@@ -747,8 +795,9 @@ deliberate cross-probe per message — and default on. This one fires on every
 selection change inside a panel the user is already looking at, and most of
 those clicks are reading, not a request to go anywhere. Opt-in for the same
 reason `edacrux.rtlAnnotation.enabled` is: a feature that changes what the
-user's own source view shows has to be something they asked for. Declared
-byte-identically in all four manifests (`manifest-contributions.test.ts`).
+user's own source view shows has to be something they asked for. Declared by
+WaveCrux alone (`manifest-contributions.test.ts`), since it acts only in
+WaveCrux's own bundle.
 
 **Not in `restrictedConfigurations`**, and it is the one cross-probe toggle a
 workspace could make *more* eager. Turning it on can at most reveal a file

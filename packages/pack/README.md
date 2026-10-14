@@ -76,7 +76,7 @@ product extensions it hosts.
 | `edacrux.rtlAnnotation.enabled` | `false` | WaveCrux — inline signal values in Verilog/VHDL source |
 | `edacrux.crossProbe.revealSelection` | `true` | all — bring the matching tab forward on a peer's selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | all — move the cursor into the editor on `request_open_source` |
-| `edacrux.crossProbe.followWaveformSelection` | `false` | all, used by WaveCrux — reveal a signal's RTL declaration when you select it in a waveform tab |
+| `edacrux.crossProbe.followWaveformSelection` | `false` | WaveCrux — reveal a signal's RTL declaration when you select it in a waveform tab |
 | `edacrux.lint.resultsPath` | `lintcrux.sarif` | LintCrux — where results are read from |
 | `edacrux.lint.waiverAuthor` | *(empty)* | LintCrux — author recorded on waivers |
 | `edacrux.sim.projectFile` | `simcrux.yaml` | SimCrux — the project config this window works against |

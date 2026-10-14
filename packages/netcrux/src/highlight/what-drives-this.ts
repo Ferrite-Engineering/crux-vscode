@@ -35,6 +35,8 @@ import {
   netCruxUnauthorizedMessage,
   netCruxUnreachableMessage,
   noEditorSelectionMessage,
+  noStemsIndexMessage,
+  notInStemsIndexMessage,
   pickElementPlaceholder,
 } from './strings';
 
@@ -42,7 +44,9 @@ import {
 export type WhatDrivesThisOutcome =
   /** Nothing selected and no word under the caret. */
   | { readonly kind: 'no-selection' }
-  /** The stems index has no candidate path for the selection. */
+  /** The workspace has no netlist index (`*.stems`) at all, so nothing could resolve. */
+  | { readonly kind: 'no-index' }
+  /** A netlist index exists, but it has no candidate path for the selection. */
   | { readonly kind: 'no-candidates' }
   /** The user dismissed the element or the launch/boundary quick-pick. */
   | { readonly kind: 'cancelled' }
@@ -65,6 +69,13 @@ export interface WhatDrivesThisDeps {
   readonly currentSelection: () => editor.EditorSelectionSnapshot | undefined;
   /** Identifier resolution. Production: a `names.NameResolver` over the stems index. */
   readonly resolver: editor.ElementPathResolver;
+  /**
+   * Whether the workspace has a netlist index (`*.stems`) with anything in
+   * it. Asked only after the resolver found nothing, to tell "there is no
+   * index" from "the index does not know this name": the two need different
+   * advice and the first one is the one a new user hits.
+   */
+  readonly indexAvailable: () => boolean | Promise<boolean>;
   /** Quick-pick / info-toast surface for element disambiguation. */
   readonly ui: editor.UserInterface;
   /** The live NetCrux peer manifest, if any. Production: `discoverNetCruxPeer(...)`. */
@@ -106,7 +117,13 @@ export async function whatDrivesThis(deps: WhatDrivesThisDeps): Promise<WhatDriv
 
   const candidates = await deps.resolver.resolve(snapshot);
   if (candidates.length === 0) {
-    deps.ui.showInformationMessage(noEditorSelectionMessage());
+    // An identifier IS selected here, so "select an identifier" would be
+    // wrong advice. Say what is actually missing.
+    if (!(await deps.indexAvailable())) {
+      deps.ui.showInformationMessage(noStemsIndexMessage());
+      return { kind: 'no-index' };
+    }
+    deps.ui.showInformationMessage(notInStemsIndexMessage(snapshot.identifier));
     return { kind: 'no-candidates' };
   }
 

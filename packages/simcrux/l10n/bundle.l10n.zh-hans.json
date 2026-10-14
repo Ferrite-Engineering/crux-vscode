@@ -102,5 +102,7 @@
   "This window has no live connection to that app right now.": "此窗口当前与该应用没有实时连接。",
   "That app is no longer running.": "该应用已不再运行。",
   "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。",
+  "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.": "SimCrux 会运行您的仿真器，因此需要受信任的文件夹。此文件夹不受信任：仍会显示已保存的结果，但在您信任它之前不会运行任何回归测试。",
+  "Manage Workspace Trust": "管理工作区信任"
 }

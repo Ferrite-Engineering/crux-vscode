@@ -46,8 +46,13 @@
   ],
   "capabilities": {
     "untrustedWorkspaces": {
-      "supported": false,
-      "description": "%crux.untrustedWorkspaces.description%"
+      "supported": "limited",
+      "description": "%crux.untrustedWorkspaces.description%",
+      "restrictedConfigurations": [
+        "edacrux.sim.projectFile",
+        "edacrux.sim.resultsPath",
+        "edacrux.sim.executable"
+      ]
     }
   },
   "contributes": {
@@ -139,11 +144,6 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
-        },
-        "edacrux.crossProbe.followWaveformSelection": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "%crux.configuration.crossProbe.followWaveformSelection.description%"
         }
       }
     }

@@ -72,6 +72,38 @@
         "category": "%crux.command.category%"
       }
     ],
+    "languages": [
+      {
+        "id": "verilog",
+        "aliases": [
+          "Verilog"
+        ],
+        "extensions": [
+          ".v",
+          ".vh"
+        ]
+      },
+      {
+        "id": "systemverilog",
+        "aliases": [
+          "SystemVerilog"
+        ],
+        "extensions": [
+          ".sv",
+          ".svh"
+        ]
+      },
+      {
+        "id": "vhdl",
+        "aliases": [
+          "VHDL"
+        ],
+        "extensions": [
+          ".vhd",
+          ".vhdl"
+        ]
+      }
+    ],
     "menus": {
       "editor/context": [
         {
@@ -93,11 +125,6 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
-        },
-        "edacrux.crossProbe.followWaveformSelection": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "%crux.configuration.crossProbe.followWaveformSelection.description%"
         }
       }
     }

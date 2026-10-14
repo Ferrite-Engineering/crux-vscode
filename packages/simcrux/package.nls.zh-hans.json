@@ -19,7 +19,7 @@
   "crux.configuration.sim.projectFile.description": "本窗口所针对的 SimCrux 项目配置文件，相对于各工作区文件夹（也可为绝对路径）。CLI 每次运行只接受一个配置文件，且测试树、任务与移交都必须指向同一个，因此以第一个存在的匹配为准。",
   "crux.configuration.sim.resultsPath.description": "读取运行结果的位置。留空则自动推导：若配置文件声明了 `output.results_path` 就用它，否则用配置文件旁边的 `results.ndjson`——即 `simcrux <config> --ci` 写出的路径。相对路径相对于配置文件所在目录解析。",
   "crux.configuration.sim.executable.description": "回归测试任务所运行的 SimCrux 可执行文件。除非给出绝对路径，否则在 PATH 中查找。",
-  "crux.untrustedWorkspaces.description": "在受限工作区中，SimCrux 会被禁用。运行回归测试会启动 edacrux.sim.executable 指定的仿真器，并使用来自工作区的配置，而不受信任的文件夹不应决定执行什么。若要使用测试资源管理器和回归任务，请信任该文件夹。",
+  "crux.untrustedWorkspaces.description": "在受限工作区中，SimCrux 会根据已保存的结果显示测试树，但不会运行任何内容。运行回归测试会启动 edacrux.sim.executable 指定的仿真器，并使用来自工作区的配置，而不受信任的文件夹不应决定执行什么。在您信任该文件夹之前，工作区中的 SimCrux 设置值会被忽略；请在用户设置中配置，或信任该文件夹以运行回归测试。",
   "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。",
   "crux.color.rtlAnnotationForeground.description": "RTL 值注释（显示在源代码行末的信号值）的颜色。默认使用 CodeLens 前景色，以融入主题；在此处调整即可提高可见度，而不会改变 CodeLens 的颜色。",
   "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。"

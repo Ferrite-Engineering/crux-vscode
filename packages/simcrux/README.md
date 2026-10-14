@@ -65,7 +65,7 @@ pack to get all four at once.
 | `edacrux.sim.executable` | `simcrux` | The binary the regression task runs |
 | `edacrux.crossProbe.revealSelection` | `true` | Bring the matching tab forward when a connected Crux app announces a selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
-| `edacrux.crossProbe.followWaveformSelection` | `false` | With WaveCrux installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
+| `edacrux.crossProbe.followWaveformSelection` | `false` | Contributed by WaveCrux, so it appears once WaveCrux is installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
 
 ## Commands
 
@@ -88,8 +88,15 @@ pack to get all four at once.
 - **One config per window.** The CLI takes one config per run, so the test tree,
   the task and the counterexample handoff all agree on which — rather than
   quietly disagreeing.
-- **Restricted workspaces.** This extension declares no untrusted-workspace
-  support, so it stays inert until you trust the folder.
+- **Restricted workspaces.** It runs with limited support in a folder you
+  have not trusted. The test tree still shows the results already saved in the
+  folder, but nothing is run: Run Regression, the Test Explorer's run button
+  and the `simcrux` task each say that the folder must be trusted and offer to
+  open Workspace Trust. A workspace value for `edacrux.sim.projectFile`,
+  `edacrux.sim.resultsPath` or `edacrux.sim.executable` is ignored, because
+  those name what gets read and what gets executed and an untrusted folder
+  must not choose either. Set them in your own user settings, or trust the
+  folder.
 
 ## Telemetry
 
