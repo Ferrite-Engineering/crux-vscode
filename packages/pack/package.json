@@ -3,7 +3,7 @@
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
   "publisher": "ferrite-engineering",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "homepage": "https://edacrux.app/",
   "repository": {
