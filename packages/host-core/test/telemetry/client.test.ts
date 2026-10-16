@@ -23,6 +23,29 @@ function makeClient(
   return { client, sender, gate };
 }
 
+describe('TelemetryClient: no installation id while usage statistics are off', () => {
+  it('start() with the gate off forgets the id', () => {
+    let forgotten = 0;
+    const { client, gate } = makeClient({ forgetInstallationId: () => forgotten++ });
+    gate.set(false);
+    client.start();
+    expect(forgotten).toBe(1);
+    client.dispose();
+  });
+
+  it('start() with the gate on keeps it, and turning the gate off forgets it', () => {
+    let forgotten = 0;
+    const { client, gate } = makeClient({ forgetInstallationId: () => forgotten++ });
+    client.start();
+    expect(forgotten).toBe(0);
+    gate.set(false);
+    expect(forgotten).toBe(1);
+    gate.set(true);
+    expect(forgotten).toBe(1);
+    client.dispose();
+  });
+});
+
 describe('TelemetryClient — the consent gate', () => {
   it('no event is sent when isTelemetryEnabled is false', async () => {
     const { client, sender, gate } = makeClient();

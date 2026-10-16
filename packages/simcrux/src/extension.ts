@@ -93,6 +93,8 @@ function createTelemetryClient(
         : undefined,
     installationId: () =>
       hostCore.telemetry.readOrMintTelemetryInstallationId(context.globalState),
+    forgetInstallationId: () =>
+      hostCore.telemetry.forgetTelemetryInstallationId(context.globalState),
     locale: () => vscode.env.language,
     endpoint: hostCore.telemetry.telemetryEndpointFor(
       context.extensionMode !== vscode.ExtensionMode.Production,

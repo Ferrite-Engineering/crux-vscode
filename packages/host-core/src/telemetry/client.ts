@@ -78,6 +78,13 @@ export interface TelemetryClientOptions {
   readonly appVersion: () => string | undefined;
   /** This installation's persisted id — see `installation-id.ts`. */
   readonly installationId: () => string;
+  /**
+   * Deletes the persisted id. Called by [TelemetryClient.start] when the
+   * gate is off and whenever it turns off, so no identifier is kept while
+   * usage statistics are off; the next send mints a new one. See
+   * `forgetTelemetryInstallationId`.
+   */
+  readonly forgetInstallationId?: () => void;
   /** The tier to report. Defaults to reporting `'openCore'` — no VSCode license system exists yet. */
   readonly licenseTier?: () => TelemetryLicenseTier;
   /** `vscode.env.language`, unnormalized — this class normalizes it. */
@@ -200,11 +207,18 @@ export class TelemetryClient {
   /**
    * Arm the background flush timer and the consent-withdrawal listener.
    * Idempotent; a second call is a no-op.
+   *
+   * With the gate off, the persisted installation id is deleted now and
+   * again each time the gate turns off: no identifier is kept while usage
+   * statistics are off.
    */
   start(): void {
     if (this.timer !== undefined) return;
+    if (!this.options.gate.isEnabled()) this.options.forgetInstallationId?.();
     this.gateSubscription = this.options.gate.onDidChange((enabled) => {
-      if (!enabled) this.queue = [];
+      if (enabled) return;
+      this.queue = [];
+      this.options.forgetInstallationId?.();
     });
     this.timer = setInterval(() => {
       void this.flush();

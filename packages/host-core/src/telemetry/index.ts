@@ -78,6 +78,7 @@ export {
 export {
   InMemoryTelemetryInstallationIdStorage,
   TELEMETRY_INSTALLATION_ID_STORAGE_KEY,
+  forgetTelemetryInstallationId,
   readOrMintTelemetryInstallationId,
   type TelemetryInstallationIdStorage,
 } from './installation-id';

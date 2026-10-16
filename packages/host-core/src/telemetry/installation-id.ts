@@ -22,7 +22,8 @@ import { isValidTelemetryInstallationId } from './vocabulary';
 /** Where the minted id is persisted. Shaped like `vscode.Memento`'s subset this needs. */
 export interface TelemetryInstallationIdStorage {
   get(key: string): string | undefined;
-  update(key: string, value: string): void | Thenable<void>;
+  /** `undefined` deletes the key, as `vscode.Memento.update` does. */
+  update(key: string, value: string | undefined): void | Thenable<void>;
 }
 
 /** The `globalState` key the installation id is stored under. */
@@ -49,6 +50,18 @@ export function readOrMintTelemetryInstallationId(
   return minted;
 }
 
+/**
+ * Delete the persisted installation id from [storage], if there is one.
+ *
+ * Called while usage statistics are off: no identifier is kept then, and
+ * turning them back on mints a new one on the next send. Matches
+ * `crux_telemetry`, which removes the id whenever its gate settles closed.
+ */
+export function forgetTelemetryInstallationId(storage: TelemetryInstallationIdStorage): void {
+  if (storage.get(TELEMETRY_INSTALLATION_ID_STORAGE_KEY) === undefined) return;
+  void storage.update(TELEMETRY_INSTALLATION_ID_STORAGE_KEY, undefined);
+}
+
 /** In-memory [TelemetryInstallationIdStorage], for tests. */
 export class InMemoryTelemetryInstallationIdStorage implements TelemetryInstallationIdStorage {
   private readonly values = new Map<string, string>();
@@ -57,7 +70,11 @@ export class InMemoryTelemetryInstallationIdStorage implements TelemetryInstalla
     return this.values.get(key);
   }
 
-  update(key: string, value: string): void {
-    this.values.set(key, value);
+  update(key: string, value: string | undefined): void {
+    if (value === undefined) {
+      this.values.delete(key);
+    } else {
+      this.values.set(key, value);
+    }
   }
 }
