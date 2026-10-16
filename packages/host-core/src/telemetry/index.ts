@@ -90,6 +90,14 @@ export {
 } from './gate';
 
 export {
+  TELEMETRY_OPT_IN_COUNTRIES,
+  hostTelemetryRegionSignals,
+  telemetryCountriesInLocaleId,
+  telemetryRequiresOptIn,
+  type TelemetryRegionSignals,
+} from './region';
+
+export {
   RecordingTelemetrySender,
   fetchTelemetrySender,
   type TelemetrySender,

@@ -9,9 +9,14 @@
  * this interface exists to make structurally impossible: every caller
  * that wants to know "is telemetry on" calls [TelemetryGateHost.isEnabled]
  * fresh, and nothing in this module stores the answer anywhere.
+ *
+ * In the opt-in regions (`region.ts`) the gate is closed whatever the
+ * setting says: the extensions have no disclosure of their own to ask for
+ * consent with.
  */
 import * as vscode from 'vscode';
 import type { Disposable } from '../cxp/emitter';
+import { hostTelemetryRegionSignals, telemetryRequiresOptIn } from './region';
 
 /** The live consent signal, behind an interface so host-core stays testable without a real `vscode`. */
 export interface TelemetryGateHost {
@@ -21,13 +26,31 @@ export interface TelemetryGateHost {
   onDidChange(listener: (enabled: boolean) => void): Disposable;
 }
 
-/** The real [TelemetryGateHost], backed by `vscode.env`. */
+let optInRegion: boolean | undefined;
+
+/**
+ * Whether this machine is in an opt-in region (see `region.ts`). Decided
+ * once per extension host from signals that are read, used for this and
+ * discarded.
+ */
+function inOptInRegion(): boolean {
+  optInRegion ??= telemetryRequiresOptIn(hostTelemetryRegionSignals(vscode.env.language));
+  return optInRegion;
+}
+
+/**
+ * The real [TelemetryGateHost], backed by `vscode.env`, and closed for good
+ * in the opt-in regions, where the extensions have no disclosure to ask
+ * with and so send nothing.
+ */
 export const vscodeTelemetryGateHost: TelemetryGateHost = {
   isEnabled(): boolean {
-    return vscode.env.isTelemetryEnabled;
+    return vscode.env.isTelemetryEnabled && !inOptInRegion();
   },
   onDidChange(listener: (enabled: boolean) => void): Disposable {
-    const subscription = vscode.env.onDidChangeTelemetryEnabled(listener);
+    const subscription = vscode.env.onDidChangeTelemetryEnabled((enabled) => {
+      listener(enabled && !inOptInRegion());
+    });
     // Block body, not an expression arrow: `vscode.Disposable.dispose()` is
     // typed `any` in the real API, and returning that value (even
     // discarded) trips `@typescript-eslint/no-unsafe-return`.
