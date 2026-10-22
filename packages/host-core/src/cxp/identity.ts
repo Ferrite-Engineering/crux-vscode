@@ -32,6 +32,26 @@ export interface PeerIdentity {
    * (CXP §8.1).
    */
   readonly capabilities: readonly string[];
+  /**
+   * The file name of the design the window's active editor has open, for
+   * display only (CXP §8.1, since rev. 9). A label, never a path: only the
+   * last path component is ever put here ([activeDocumentLabel]). Kept
+   * current through the manifest, because a `hello` is fixed per connection.
+   */
+  readonly activeDocument?: string;
+}
+
+/**
+ * The `active_document` value for [fsPath]: its last path component and
+ * nothing else (CXP §8.1 and conformance item 27 forbid a directory in it),
+ * or `undefined` when there is no usable name. Both separator styles are
+ * split on, whatever platform this runs on.
+ */
+export function activeDocumentLabel(fsPath: string | undefined): string | undefined {
+  if (fsPath === undefined) return undefined;
+  const parts = fsPath.split(/[\\/]/);
+  const name = (parts[parts.length - 1] ?? '').trim();
+  return name.length === 0 ? undefined : name;
 }
 
 /**
@@ -62,7 +82,14 @@ export function decodePeerIdentity(json: JsonObject): PeerIdentity {
   for (const entry of asJsonArray(json['capabilities']) ?? []) {
     if (typeof entry === 'string' && !capabilities.includes(entry)) capabilities.push(entry);
   }
-  return { peerId, productName, productVersion, capabilities };
+  const activeDocument = asString(json['active_document']);
+  return {
+    peerId,
+    productName,
+    productVersion,
+    capabilities,
+    ...(activeDocument !== undefined ? { activeDocument } : {}),
+  };
 }
 
 /** Encode a [PeerIdentity] for a `hello`, `hello_ack` or manifest. */
@@ -72,6 +99,7 @@ export function encodePeerIdentity(identity: PeerIdentity): JsonObject {
     product_name: identity.productName,
     product_version: identity.productVersion,
     capabilities: [...identity.capabilities],
+    ...(identity.activeDocument !== undefined ? { active_document: identity.activeDocument } : {}),
   };
 }
 
@@ -81,6 +109,7 @@ export function peerIdentityEquals(a: PeerIdentity, b: PeerIdentity): boolean {
     a.peerId === b.peerId &&
     a.productName === b.productName &&
     a.productVersion === b.productVersion &&
+    a.activeDocument === b.activeDocument &&
     a.capabilities.length === b.capabilities.length &&
     a.capabilities.every((c) => b.capabilities.includes(c))
   );

@@ -169,6 +169,79 @@ describe('CruxWindowHost — one window, one manifest', () => {
   });
 });
 
+describe('CruxWindowHost — active_document (CXP §8.1, rev. 9)', () => {
+  function hostWithEditor(): {
+    host: CruxWindowHost;
+    setActive: (path: string | undefined) => void;
+  } {
+    let active: string | undefined;
+    let listener: (() => void) | undefined;
+    const host = new CruxWindowHost({
+      context: fakeContext(),
+      product: 'netcrux',
+      log: () => undefined,
+      record: () => undefined,
+      manifestDirectory: dir,
+      heartbeatIntervalMs: null,
+      peerStartDelayMs: 3_600_000,
+      workspaceFolder: () => '/Users/dev/active-document',
+      scanIntervalMs: 3_600_000,
+      retryIntervalMs: 3_600_000,
+      activeDocumentPath: () => active,
+      onActiveDocumentChange: (next) => {
+        listener = next;
+        return { dispose: () => undefined };
+      },
+    });
+    hosts.push(host);
+    return {
+      host,
+      setActive: (path) => {
+        active = path;
+        listener?.();
+      },
+    };
+  }
+
+  async function activeDocumentOf(): Promise<unknown> {
+    const manifest = JSON.parse(
+      await readFile(join(dir, (await manifests())[0] ?? ''), 'utf8'),
+    ) as { identity: { active_document?: unknown } };
+    return manifest.identity.active_document;
+  }
+
+  it('publishes the last path component of the active editor, never a directory', async () => {
+    const { host, setActive } = hostWithEditor();
+    setActive('/Users/dev/active-document/rtl/cpu_top.sv');
+    host.join({ surface: LINTCRUX });
+    await host.started();
+    expect(await activeDocumentOf()).toBe('cpu_top.sv');
+  });
+
+  it('omits the field when there is no active editor', async () => {
+    const { host } = hostWithEditor();
+    host.join({ surface: LINTCRUX });
+    await host.started();
+    expect(await activeDocumentOf()).toBeUndefined();
+  });
+
+  it('rewrites the manifest, under the same peer id, when the active editor changes', async () => {
+    const { host, setActive } = hostWithEditor();
+    host.join({ surface: LINTCRUX });
+    await host.started();
+    const before = await manifests();
+
+    setActive('/Users/dev/active-document/alu.v');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(await manifests()).toEqual(before);
+    expect(await activeDocumentOf()).toBe('alu.v');
+
+    setActive(undefined);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(await activeDocumentOf()).toBeUndefined();
+  });
+});
+
 /** A scripted sibling extension for the `joinCruxWindow` tests. */
 class FakeExtension implements ExtensionHandle {
   isActive = false;

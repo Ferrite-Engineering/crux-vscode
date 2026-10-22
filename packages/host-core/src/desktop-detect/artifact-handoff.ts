@@ -93,8 +93,9 @@ export interface ArtifactHandoffDeps {
   readonly product: CruxDesktopProduct;
   /**
    * The artifact kind, in the shared vocabulary the Dart producers use —
-   * `waveform` for a dump, `source` for HDL and for a product's project
-   * file. This is the one part of the handoff each product owns, because it
+   * `waveform` for a dump, `source` for one HDL file, `project` for a
+   * product's project file (CXP §9.10.2: a project file is never `source`).
+   * This is the one part of the handoff each product owns, because it
    * is the one part that differs: the receiver's handler keys on it
    * (WaveCrux opens only `waveform`, LintCrux only `source`).
    */

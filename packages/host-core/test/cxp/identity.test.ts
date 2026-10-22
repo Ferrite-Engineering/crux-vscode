@@ -7,6 +7,7 @@ import {
 } from '../../src/cxp/element-id';
 import { CxpFormatError } from '../../src/cxp/errors';
 import {
+  activeDocumentLabel,
   decodePeerIdentity,
   encodePeerIdentity,
   peerIdentityEquals,
@@ -55,6 +56,30 @@ describe('PeerIdentity', () => {
     const b = decodePeerIdentity({ ...wire, capabilities: ['y', 'x'] });
     expect(peerIdentityEquals(a, b)).toBe(true);
     expect(peerIdentityEquals(a, { ...a, peerId: 'other' })).toBe(false);
+  });
+
+  it('carries the optional active_document and omits it when absent (CXP §8.1, rev. 9)', () => {
+    const withDocument = { ...wire, active_document: 'cpu_top.sv' };
+    expect(decodePeerIdentity(withDocument).activeDocument).toBe('cpu_top.sv');
+    expect(encodePeerIdentity(decodePeerIdentity(withDocument))).toEqual(withDocument);
+    expect(Object.keys(encodePeerIdentity(decodePeerIdentity(wire)))).not.toContain(
+      'active_document',
+    );
+    const a = decodePeerIdentity(withDocument);
+    expect(peerIdentityEquals(a, { ...a, activeDocument: 'other.sv' })).toBe(false);
+  });
+});
+
+describe('activeDocumentLabel', () => {
+  it.each([
+    ['/work/cpu/rtl/cpu_top.sv', 'cpu_top.sv'],
+    ['C:\\work\\cpu\\cpu_top.sv', 'cpu_top.sv'],
+    ['cpu_top.sv', 'cpu_top.sv'],
+    ['/work/cpu/', undefined],
+    ['', undefined],
+    [undefined, undefined],
+  ])('keeps only the last path component of %s', (input, expected) => {
+    expect(activeDocumentLabel(input)).toBe(expected);
   });
 });
 

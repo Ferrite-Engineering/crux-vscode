@@ -88,6 +88,7 @@ export {
 } from './envelope';
 
 export {
+  activeDocumentLabel,
   decodeIdentityField,
   decodePeerIdentity,
   encodePeerIdentity,

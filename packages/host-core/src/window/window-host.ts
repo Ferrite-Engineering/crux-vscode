@@ -31,6 +31,7 @@ import * as vscode from 'vscode';
 import {
   CxpPeerHost,
   CxpWorkspaceStore,
+  activeDocumentLabel,
   createVscodePeerIdentity,
   sharedCxpManifestDirectory,
   sharedCxpWorkspaceDirectory,
@@ -118,6 +119,25 @@ export interface CruxWindowHostOptions {
   /** Scan/retry periods, passed to [cxp.CxpPeerHost]. Tests only. */
   readonly scanIntervalMs?: number;
   readonly retryIntervalMs?: number;
+  /**
+   * Absolute path of the file the window's active editor shows, or
+   * `undefined` for no editor or one that is not a file on disk. Only its
+   * last path component is ever published, as the identity's
+   * `active_document` (CXP §8.1). Defaults to the real active editor. Tests
+   * inject.
+   */
+  readonly activeDocumentPath?: () => string | undefined;
+  /**
+   * Subscribe to changes of the active editor. Defaults to
+   * `vscode.window.onDidChangeActiveTextEditor`. Tests inject.
+   */
+  readonly onActiveDocumentChange?: (listener: () => void) => Disposable;
+}
+
+/** The active editor's file when it is a file on disk. */
+function vscodeActiveDocumentPath(): string | undefined {
+  const uri = vscode.window.activeTextEditor?.document.uri;
+  return uri?.scheme === 'file' ? uri.fsPath : undefined;
 }
 
 /** One product's live contribution to the window. */
@@ -208,6 +228,20 @@ export class CruxWindowHost {
       options.log(`   window: capabilities = ${capabilities.join(', ')}`);
       void this.republish();
     });
+
+    // `active_document` rides in the manifest, which is the only place it can
+    // change after a connection's `hello` (CXP §8.1). A peer that is not
+    // running yet has no manifest, and `republish` is then a no-op: the first
+    // manifest reads the current value anyway.
+    const subscribe =
+      options.onActiveDocumentChange ??
+      ((listener: () => void): Disposable =>
+        vscode.window.onDidChangeActiveTextEditor(listener));
+    this.disposables.push(
+      subscribe(() => {
+        if (this.activeDocumentLabel() !== this.identity?.activeDocument) void this.republish();
+      }),
+    );
 
     const delay = options.peerStartDelayMs ?? CXP_WINDOW_PEER_START_DELAY_MS;
     this.startTimer = setTimeout(() => {
@@ -309,9 +343,16 @@ export class CruxWindowHost {
    */
   private currentIdentity(): PeerIdentity {
     const capabilities = this.registry.capabilities();
+    const activeDocument = this.activeDocumentLabel();
     const existing = this.identity;
     if (existing !== undefined) {
-      this.identity = { ...existing, capabilities };
+      this.identity = {
+        peerId: existing.peerId,
+        productName: existing.productName,
+        productVersion: existing.productVersion,
+        capabilities,
+        ...(activeDocument !== undefined ? { activeDocument } : {}),
+      };
       return this.identity;
     }
     const workspaceFolder =
@@ -321,7 +362,17 @@ export class CruxWindowHost {
       productVersion: this.extensionVersion(),
       capabilities,
     });
+    if (activeDocument !== undefined) this.identity = { ...this.identity, activeDocument };
     return this.identity;
+  }
+
+  /** The last path component of the active editor's file, or `undefined`. */
+  private activeDocumentLabel(): string | undefined {
+    try {
+      return activeDocumentLabel((this.options.activeDocumentPath ?? vscodeActiveDocumentPath)());
+    } catch {
+      return undefined;
+    }
   }
 
   private extensionVersion(): string {

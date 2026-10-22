@@ -3,10 +3,13 @@ import path from 'node:path';
 import * as vscode from 'vscode';
 import * as hostCore from '@crux-vscode/host-core';
 import {
-  NETCRUX_ARTIFACT_KIND,
   NETCRUX_DESIGN_GLOB,
+  NETCRUX_PROJECT_ARTIFACT_KIND,
+  NETCRUX_PROJECT_GLOB,
+  NETCRUX_SOURCE_ARTIFACT_KIND,
   openDesignInNetCrux,
-  pickNetCruxDesignFile,
+  pickNetCruxHandoffTarget,
+  type NetCruxArtifactKind,
 } from './handoff';
 import { discoverNetCruxPeer } from './highlight/discover-peer';
 import { locateNetCruxExecutable } from './highlight/locate-desktop';
@@ -257,25 +260,44 @@ async function handoffToDesktop(
   context: vscode.ExtensionContext,
   log: (line: string) => void,
 ): Promise<void> {
-  const outcome = await openDesignInNetCrux({
-    designFile: () =>
-      pickNetCruxDesignFile(activeEditorFile(), async () => {
-        const found = await vscode.workspace.findFiles(NETCRUX_DESIGN_GLOB, '**/node_modules/**', 1);
-        return found[0]?.fsPath;
-      }),
-    handOff: hostCore.desktopDetect.createVscodeArtifactHandoff({
+  const handOffAs = (artifactKind: NetCruxArtifactKind) =>
+    hostCore.desktopDetect.createVscodeArtifactHandoff({
       product: NETCRUX_PRODUCT,
-      artifactKind: NETCRUX_ARTIFACT_KIND,
+      artifactKind,
       context,
       log,
-    }),
+    });
+  const handOffs = {
+    [NETCRUX_PROJECT_ARTIFACT_KIND]: handOffAs(NETCRUX_PROJECT_ARTIFACT_KIND),
+    [NETCRUX_SOURCE_ARTIFACT_KIND]: handOffAs(NETCRUX_SOURCE_ARTIFACT_KIND),
+  };
+  const outcome = await openDesignInNetCrux({
+    target: () =>
+      pickNetCruxHandoffTarget({
+        activeFile: activeEditorFile(),
+        searchProjects: async () =>
+          (await vscode.workspace.findFiles(NETCRUX_PROJECT_GLOB, '**/node_modules/**', 50)).map(
+            (uri) => uri.fsPath,
+          ),
+        searchDesign: async () => {
+          const found = await vscode.workspace.findFiles(NETCRUX_DESIGN_GLOB, '**/node_modules/**', 1);
+          return found[0]?.fsPath;
+        },
+        resolveInWorkspace: async (fsPath) => {
+          const resolved = await hostCore.editor.resolveWorkspacePath(fsPath, {
+            workspaceFolders: workspaceFolderPaths(),
+          });
+          return resolved.ok ? resolved.fsPath : undefined;
+        },
+      }),
+    handOff: (kind, fsPath) => handOffs[kind](fsPath),
     showMessage: (message) => {
       void vscode.window.showInformationMessage(message);
     },
   });
   log(
     `   handoff: ${outcome.kind}` +
-      (outcome.kind === 'handed-off' ? ` (${outcome.handoff.kind})` : ''),
+      (outcome.kind === 'handed-off' ? ` ${outcome.artifactKind} (${outcome.handoff.kind})` : ''),
   );
 }
 
