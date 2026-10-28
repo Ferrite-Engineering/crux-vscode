@@ -147,7 +147,13 @@ function watchForTextVcd(context: vscode.ExtensionContext, log: (line: string) =
     const input: unknown = tab.input;
     if (!(input instanceof vscode.TabInputText)) return;
     const uri = input.uri;
-    if (uri.scheme !== 'file' && uri.scheme !== 'vscode-remote') return;
+    if (uri.scheme !== 'file' && uri.scheme !== 'vscode-remote') {
+      // Said for a waveform only: every other text tab is none of ours.
+      if (waveformFormatFor(uri.path) !== undefined) {
+        log(`   default editor offer: skipped a ${uri.scheme}: text tab`);
+      }
+      return;
+    }
     // Several text tabs can arrive together (a restored window), and the
     // offer is one question, not one per tab.
     if (asking) return;

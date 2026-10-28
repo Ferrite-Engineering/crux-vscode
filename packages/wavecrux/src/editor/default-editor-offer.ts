@@ -107,6 +107,12 @@ export function withVcdAssociation(
   return { ...(associations as Record<string, string> | undefined), [VCD_ASSOCIATION_PATTERN]: viewType };
 }
 
+/** The last segment of [path], for a log line that names no folder. */
+function basenameOf(path: string): string {
+  const segments = path.split(/[\\/]/);
+  return segments[segments.length - 1] ?? path;
+}
+
 /** Whether [path] names a `.vcd` file. Case-insensitive: Windows hands us `TOP.VCD`. */
 export function isVcdPath(path: string): boolean {
   return path.toLowerCase().endsWith('.vcd');
@@ -188,8 +194,17 @@ export async function offerDefaultEditor(
   },
 ): Promise<DefaultEditorOfferOutcome> {
   if (!isVcdPath(options.path)) return { kind: 'not-applicable' };
-  if (host.wasOffered()) return { kind: 'already-offered' };
+  // From here on every branch leaves one line in the output channel. A
+  // `.vcd` in the text editor is the case the issue reports cannot see
+  // from outside (a toast on a remote desktop, a profile that already
+  // answered), so the channel has to say which way it went.
+  host.log(`   default editor offer: ${basenameOf(options.path)} opened as text`);
+  if (host.wasOffered()) {
+    host.log('   default editor offer: not asked, already offered on this installation');
+    return { kind: 'already-offered' };
+  }
   if (hasVcdAssociation(asEditorAssociations(host.effectiveAssociations()))) {
+    host.log('   default editor offer: not asked, workbench.editorAssociations already names an editor for .vcd');
     return { kind: 'already-configured' };
   }
 
@@ -197,6 +212,7 @@ export async function offerDefaultEditor(
   // that is dismissed, ignored or lost to a window reload still counts as
   // having asked, because this is a one-time offer and not a nag.
   await host.markOffered();
+  host.log('   default editor offer: asking');
 
   const choice = await host.showMessage(offerMessage(), acceptLabel(), declineLabel());
   if (choice !== acceptLabel()) {

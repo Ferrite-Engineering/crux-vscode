@@ -179,6 +179,39 @@ describe('offerDefaultEditor', () => {
     expect(recorder.messages).toHaveLength(1);
   });
 
+  it('logs nothing for a file that is not a .vcd', async () => {
+    const { host, recorder } = fakeHost();
+    await offerDefaultEditor(host, { ...OPTIONS, path: '/w/notes.md' });
+    expect(recorder.logs).toEqual([]);
+  });
+
+  // crux-vscode#8: a .vcd opened from the command line on Windows came up as
+  // text and no offer was seen, and nothing in the output channel said
+  // whether the offer ran, was skipped, or was shown where nobody looked.
+  it('says in the output channel which way every .vcd went', async () => {
+    const asked = fakeHost({ answer: undefined });
+    await offerDefaultEditor(asked.host, { ...OPTIONS, path: 'C:\\sim\\all5_basic.vcd' });
+    expect(asked.recorder.logs).toEqual([
+      '   default editor offer: all5_basic.vcd opened as text',
+      '   default editor offer: asking',
+      '   default editor offer: declined',
+    ]);
+
+    const again = await offerDefaultEditor(asked.host, OPTIONS);
+    expect(again).toEqual({ kind: 'already-offered' });
+    expect(asked.recorder.logs.slice(3)).toEqual([
+      '   default editor offer: top.vcd opened as text',
+      '   default editor offer: not asked, already offered on this installation',
+    ]);
+
+    const configured = fakeHost({ effective: { '*.vcd': 'default' } });
+    await offerDefaultEditor(configured.host, OPTIONS);
+    expect(configured.recorder.logs).toEqual([
+      '   default editor offer: top.vcd opened as text',
+      '   default editor offer: not asked, workbench.editorAssociations already names an editor for .vcd',
+    ]);
+  });
+
   it('stays silent when an editor is already chosen for .vcd', async () => {
     const { host, recorder } = fakeHost({
       answer: acceptLabel(),
