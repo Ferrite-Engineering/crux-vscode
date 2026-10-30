@@ -314,9 +314,10 @@ whichever comes first, with a 30 second fallback. As in §2.2,
 
 The netlist travels as one string in one message. The viewer's string handling
 was measured in headless Chromium up to a 257 MB netlist (about 12 seconds from
-message to loaded); what bounds the preview in VS Code is the leg through the
-editor's own IPC, which has not been measured at the top of the range. Hence
-the default limit of 32 MB (`netcrux.preview.maxFileSizeMB`, 1 to 256).
+message to loaded). The leg through the editor's own IPC was then measured in
+VS Code on macOS: an 86 MB netlist (100,085 cells, 91 modules) went from
+"Open Schematic Preview" to loaded in one to two seconds. Hence the default
+limit of 100 MB (`netcrux.preview.maxFileSizeMB`, 1 to 256).
 
 ### 7.2 A worker cannot start from the resource origin
 

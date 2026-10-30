@@ -10,7 +10,7 @@
  */
 
 /** Default threshold in MiB, the `netcrux.preview.maxFileSizeMB` setting's default. */
-export const DEFAULT_MAX_FILE_SIZE_MB = 32;
+export const DEFAULT_MAX_FILE_SIZE_MB = 100;
 
 /** The setting's bounds. Above the upper one the viewer's string handling is not trusted. */
 export const MIN_MAX_FILE_SIZE_MB = 1;

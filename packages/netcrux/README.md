@@ -58,7 +58,7 @@ a design of any size.
 ### Large netlists
 
 The preview reads the whole netlist into the editor's memory, so it stops at
-**32 MB** by default. Above that it does not load the file; it offers **Open in
+**100 MB** by default. Above that it does not load the file; it offers **Open in
 NetCrux** instead. Raise the limit, up to 256 MB, with
 `netcrux.preview.maxFileSizeMB`.
 
@@ -122,7 +122,7 @@ pack to get all four at once.
 |---|---|---|
 | `edacrux.crossProbe.revealSelection` | `true` | Bring the matching tab forward when a connected Crux app announces a selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
-| `netcrux.preview.maxFileSizeMB` | `32` | The largest netlist, in MB, the schematic preview loads; a larger one is offered to NetCrux Desktop instead (1 to 256) |
+| `netcrux.preview.maxFileSizeMB` | `100` | The largest netlist, in MB, the schematic preview loads; a larger one is offered to NetCrux Desktop instead (1 to 256) |
 | `edacrux.crossProbe.followWaveformSelection` | `false` | Contributed by WaveCrux, so it appears once WaveCrux is installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
 
 ## Commands

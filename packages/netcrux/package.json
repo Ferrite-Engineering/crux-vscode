@@ -188,7 +188,7 @@
         },
         "netcrux.preview.maxFileSizeMB": {
           "type": "integer",
-          "default": 32,
+          "default": 100,
           "minimum": 1,
           "maximum": 256,
           "markdownDescription": "%crux.configuration.preview.maxFileSizeMB.description%"

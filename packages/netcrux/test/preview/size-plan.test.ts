@@ -30,9 +30,10 @@ describe('planNetlist', () => {
     expect(planNetlist(50 * MIB, 16)).toEqual({ kind: 'too-large', limitMb: 16 });
   });
 
-  it('defaults to 32 MB', () => {
-    expect(DEFAULT_MAX_FILE_SIZE_MB).toBe(32);
-    expect(planNetlist(33 * MIB, undefined)).toEqual({ kind: 'too-large', limitMb: 32 });
+  it('defaults to 100 MB', () => {
+    expect(DEFAULT_MAX_FILE_SIZE_MB).toBe(100);
+    expect(planNetlist(100 * MIB, undefined)).toEqual({ kind: 'preview' });
+    expect(planNetlist(101 * MIB, undefined)).toEqual({ kind: 'too-large', limitMb: 100 });
   });
 });
 
