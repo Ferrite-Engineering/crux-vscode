@@ -16,6 +16,7 @@ import { locateNetCruxExecutable } from './highlight/locate-desktop';
 import { sendHighlightToNetCrux } from './highlight/send-request';
 import { whatDrivesThis, type WhatDrivesThisOutcome } from './highlight/what-drives-this';
 import { NETCRUX_PRODUCT, netCruxCapabilityCopy } from './status/copy';
+import { registerSchematicPreview } from './preview/register';
 import { NETCRUX_SURFACE } from './surface';
 
 /**
@@ -172,6 +173,50 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
     handoff: () => handoffToDesktop(context, log),
   });
   context.subscriptions.push(statusSurface);
+
+  // The schematic preview: a custom editor that draws a Yosys JSON netlist with
+  // the NetCrux web viewer, and "Open in NetCrux" for the desktop app.
+  registerSchematicPreview({
+    context,
+    log,
+    recordFeature: (feature) =>
+      client.record({
+        name: hostCore.telemetry.TELEMETRY_EVENTS.featureUsed,
+        properties: { feature },
+      }),
+    peerRunning: async () => (await discoverPeer()) !== undefined,
+    handOff: async (fsPath, fallback, showMessage) => {
+      let workspace: hostCore.cxp.CxpWorkspaceStore | undefined;
+      let discover: () => Promise<hostCore.cxp.CxpPeerManifest | undefined> = () =>
+        Promise.resolve(undefined);
+      try {
+        const manifestDirectory = hostCore.cxp.sharedCxpManifestDirectory();
+        discover = () =>
+          hostCore.desktopDetect.discoverDesktopPeer({ product: NETCRUX_PRODUCT, manifestDirectory });
+        workspace = new hostCore.cxp.CxpWorkspaceStore({
+          workspaceDirectory: hostCore.cxp.sharedCxpWorkspaceDirectory(),
+        });
+      } catch (error) {
+        log(`   handoff: CXP discovery unavailable (${String(error)})`);
+      }
+      return await hostCore.desktopDetect.openArtifactInDesktop({
+        product: NETCRUX_PRODUCT,
+        // The netlist is a design source NetCrux loads as it is: a pre-built
+        // JSON is opened without running Yosys.
+        artifactKind: NETCRUX_SOURCE_ARTIFACT_KIND,
+        artifactPath: fsPath,
+        selfIdentity: hostCore.cxp.createVscodePeerIdentity({
+          workspaceFolder: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+          productVersion: extensionVersion(context) ?? '0.0.0',
+        }),
+        discoverPeer: discover,
+        ...(workspace !== undefined ? { workspace } : {}),
+        openPath: fallback,
+        showMessage,
+        log,
+      });
+    },
+  });
 
   return membership.api;
 }

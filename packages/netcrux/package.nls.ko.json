@@ -1,6 +1,6 @@
 {
   "extension.displayName": "NetCrux — 넷리스트 드라이버 추적",
-  "extension.description": "Verilog, SystemVerilog 또는 VHDL에서 신호를 선택해 무엇이 구동하는지 물으면, NetCrux가 stems 인덱스로 이름을 확인하고 NetCrux 데스크톱 회로도에서 강조합니다.",
+  "extension.description": "Yosys JSON 넷리스트를 VS Code 안에서 회로도로 미리 보고, 클릭으로 소스로 이동하며, 큰 설계는 NetCrux 데스크톱에서 열 수 있습니다. Verilog, SystemVerilog, VHDL에서 신호를 선택해 무엇이 구동하는지 물어볼 수도 있습니다.",
   "crux.command.category": "EDACrux",
   "crux.command.sendSelectionToPeer.title": "선택 항목을 Crux 앱으로 보내기",
   "crux.command.highlightSelectionInPeer.title": "Crux 앱에서 선택 항목 강조",
@@ -11,8 +11,12 @@
   "crux.command.toggleRtlAnnotation.title": "RTL 값 주석 전환",
   "crux.configuration.rtlAnnotation.enabled.description": "연결된 파형의 신호 값을 Verilog/VHDL 소스에 인라인 주석으로 표시하고 파형 커서를 따라갑니다. 기본값은 꺼짐입니다. stems 파일과 정확히 일치하는 신호만 주석하며, 이름이 모호하면 추측하지 않고 모호함을 표시합니다.",
   "crux.command.netcrux.whatDrivesThis.title": "이것을 구동하는 것은? (NetCrux)",
-  "crux.untrustedWorkspaces.description": "제한된 작업 영역에서도 크로스 프로빙을 사용할 수 있습니다. 이 확장은 사용자가 열은 소스 파일과 stems 파일을 읽고, 이 컴퓨터에서 이미 실행 중인 NetCrux 앱으로 선택 영역을 보냅니다. 작업 영역 내용이 지정한 프로그램을 실행하지 않으므로 여기서 제한되는 기능은 없습니다.",
+  "crux.untrustedWorkspaces.description": "제한된 작업 영역에서도 크로스 프로빙을 사용할 수 있습니다. 이 확장은 사용자가 열은 소스 파일과 stems 파일을 읽고, 이 컴퓨터에서 이미 실행 중인 NetCrux 앱으로 선택 영역을 보냅니다. 작업 영역 내용이 지정한 프로그램을 실행하지 않으므로 여기서 제한되는 기능은 없습니다.회로도 미리보기는 확장에 포함된 뷰어로 연 넷리스트를 그리며, '소스로 이동'은 열려 있는 폴더 안의 파일만 보여 줍니다.",
   "crux.configuration.crossProbe.followWaveformSelection.description": "이 창의 WaveCrux 파형 패널에서 신호를 선택하면 해당 RTL 선언을 편집기에 표시합니다. 기본값은 꺼짐입니다. 파형에서의 클릭은 대부분 이동 요청이 아니라 읽기 위한 것입니다. stems 인덱스를 통해 해석하므로 도구가 기록한 선언에만 도달하며, 키보드 포커스는 파형에 남습니다.",
   "crux.color.rtlAnnotationForeground.description": "RTL 값 주석(소스 줄 끝에 표시되는 신호 값)의 색상입니다. 기본값은 CodeLens 전경색이라 테마에 자연스럽게 묻힙니다. 여기서 바꾸면 CodeLens 색상을 바꾸지 않고도 더 잘 보이게 할 수 있습니다.",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "둘 이상의 신호와 일치하여 추측하지 않고 모호함으로 표시되는 이름의 RTL 주석 색상입니다. 기본값은 편집기 경고 전경색입니다."
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "둘 이상의 신호와 일치하여 추측하지 않고 모호함으로 표시되는 이름의 RTL 주석 색상입니다. 기본값은 편집기 경고 전경색입니다.",
+  "crux.command.netcrux.openSchematicPreview.title": "회로도 미리보기 열기",
+  "crux.command.netcrux.openInNetCrux.title": "NetCrux에서 열기",
+  "crux.editor.netcrux.schematic.displayName": "NetCrux 회로도 미리보기",
+  "crux.configuration.preview.maxFileSizeMB.description": "회로도 미리보기가 불러오는 넷리스트의 최대 크기(MB)입니다. 미리보기는 파일 전체를 편집기 메모리에 읽으므로 더 큰 파일은 불러오지 않고, 대신 디스크에서 읽어 제한이 없는 NetCrux 데스크톱에서 여는 방법을 안내합니다. 기본값보다 큰 값은 편집기 창이 쓸 수 있는 메모리에 따라 달라집니다."
 }

@@ -1,6 +1,6 @@
 {
   "extension.displayName": "NetCrux — 网表驱动源追踪",
-  "extension.description": "在 Verilog、SystemVerilog 或 VHDL 中选中一个信号，问它由什么驱动——NetCrux 通过 stems 索引解析该名称，并在 NetCrux 桌面版原理图中高亮它。",
+  "extension.description": "在 VS Code 中将 Yosys JSON 网表预览为原理图，点击即可跳转到源代码，大型设计可在 NetCrux 桌面版中打开。在 Verilog、SystemVerilog 或 VHDL 中选择信号，询问它由什么驱动。",
   "crux.command.category": "EDACrux",
   "crux.command.sendSelectionToPeer.title": "将所选内容发送到 Crux 应用",
   "crux.command.highlightSelectionInPeer.title": "在 Crux 应用中高亮所选内容",
@@ -11,8 +11,12 @@
   "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",
   "crux.configuration.rtlAnnotation.enabled.description": "将已连接波形中的信号值以内联批注的形式显示在你的 Verilog/VHDL 源码中，并跟随波形游标。默认关闭；仅批注 stems 精确匹配的信号，名称有歧义时会显示为歧义而不会擅自猜测。",
   "crux.command.netcrux.whatDrivesThis.title": "是什么驱动了这个？(NetCrux)",
-  "crux.untrustedWorkspaces.description": "在受限工作区中交叉探测可正常使用：本扩展读取你打开的源文件和 stems 文件，并将选中内容发送给本机上已在运行的 NetCrux 应用。它从不执行由工作区内容指定的程序，因此这里没有任何功能被削减。",
+  "crux.untrustedWorkspaces.description": "在受限工作区中交叉探测可正常使用：本扩展读取你打开的源文件和 stems 文件，并将选中内容发送给本机上已在运行的 NetCrux 应用。它从不执行由工作区内容指定的程序，因此这里没有任何功能被削减。原理图预览使用扩展自带的查看器绘制你打开的网表，“转到源代码”只会显示你已打开的文件夹内的文件。",
   "crux.configuration.crossProbe.followWaveformSelection.description": "在本窗口的 WaveCrux 波形面板中选择信号时，在编辑器中显示其 RTL 声明位置。默认关闭：波形上的多数点击是查看而非导航请求。通过 stems 索引解析，因此只会跳到工具记录过的声明处；键盘焦点仍留在波形中。",
   "crux.color.rtlAnnotationForeground.description": "RTL 值注释（显示在源代码行末的信号值）的颜色。默认使用 CodeLens 前景色，以融入主题；在此处调整即可提高可见度，而不会改变 CodeLens 的颜色。",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。"
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。",
+  "crux.command.netcrux.openSchematicPreview.title": "打开原理图预览",
+  "crux.command.netcrux.openInNetCrux.title": "在 NetCrux 中打开",
+  "crux.editor.netcrux.schematic.displayName": "NetCrux 原理图预览",
+  "crux.configuration.preview.maxFileSizeMB.description": "原理图预览加载的最大网表大小（MB）。预览会将整个文件读入编辑器内存，因此更大的文件不会被加载，预览会改为提供在 NetCrux 桌面版中打开的选项（桌面版从磁盘读取，没有上限）。高于默认值的取值取决于编辑器窗口可用的内存。"
 }

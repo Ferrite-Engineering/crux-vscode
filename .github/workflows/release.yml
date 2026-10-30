@@ -124,6 +124,13 @@ jobs:
           - dir: simcrux
             pkg: simcrux
             build: true
+          # netcrux embeds the NetCrux web viewer (tool/build-netcrux-web.mjs,
+          # which needs Flutter, a Rust toolchain with wasm-pack, and a
+          # checkout of Ferrite-Engineering/netcrux). This runner has none of
+          # them, so this entry fails at `package` (its script refuses a
+          # missing or stale payload) until a job stages the viewer first.
+          # That is deliberate: it fails loudly instead of publishing a
+          # NetCrux that cannot draw its preview.
           - dir: netcrux
             pkg: netcrux
             build: true

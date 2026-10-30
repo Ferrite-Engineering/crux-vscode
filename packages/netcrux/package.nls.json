@@ -1,6 +1,6 @@
 {
   "extension.displayName": "NetCrux — Netlist Driver Tracing",
-  "extension.description": "Select a signal in Verilog, SystemVerilog or VHDL and ask what drives it — NetCrux resolves the name through the stems index and highlights it in the NetCrux desktop schematic.",
+  "extension.description": "Preview a Yosys JSON netlist as a schematic inside VS Code, click through to its source, and open it in NetCrux Desktop for large designs. Select a signal in Verilog, SystemVerilog or VHDL and ask what drives it.",
   "crux.command.category": "EDACrux",
   "crux.command.sendSelectionToPeer.title": "Send Selection to Crux App",
   "crux.command.highlightSelectionInPeer.title": "Highlight Selection in Crux App",
@@ -11,8 +11,12 @@
   "crux.command.toggleRtlAnnotation.title": "Toggle RTL Value Annotation",
   "crux.configuration.rtlAnnotation.enabled.description": "Render signal values from the connected waveform as inline decorations in your Verilog/VHDL source, following the waveform cursor. Off by default; only stems-exact matches are annotated, and an ambiguous name is shown as ambiguous rather than guessed.",
   "crux.command.netcrux.whatDrivesThis.title": "What Drives This? (NetCrux)",
-  "crux.untrustedWorkspaces.description": "Cross-probing works in a restricted workspace: this extension reads the source and stems files you open and sends selections to a NetCrux app already running on this machine. It never runs a program named by workspace content, so nothing here is held back.",
+  "crux.untrustedWorkspaces.description": "Cross-probing works in a restricted workspace: this extension reads the source and stems files you open and sends selections to a NetCrux app already running on this machine. It never runs a program named by workspace content, so nothing here is held back. The schematic preview draws a netlist you open with a viewer bundled in the extension, and 'Go to Source' only shows files inside folders you have opened.",
   "crux.configuration.crossProbe.followWaveformSelection.description": "Reveal a signal's RTL declaration in the editor when you select it in a WaveCrux waveform panel in this window. Off by default: most clicks in a waveform are reading, not a request to navigate. Resolved through the stems index, so it lands only on declarations a tool wrote down; keyboard focus stays in the waveform.",
   "crux.color.rtlAnnotationForeground.description": "Colour of an RTL value annotation: the signal value shown at the end of a source line. Defaults to the CodeLens foreground, so it recedes into your theme; raise it here without recolouring CodeLenses.",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "Colour of an RTL annotation for a name that matches more than one signal and is shown as ambiguous rather than guessed. Defaults to the editor warning foreground."
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "Colour of an RTL annotation for a name that matches more than one signal and is shown as ambiguous rather than guessed. Defaults to the editor warning foreground.",
+  "crux.command.netcrux.openSchematicPreview.title": "Open Schematic Preview",
+  "crux.command.netcrux.openInNetCrux.title": "Open in NetCrux",
+  "crux.editor.netcrux.schematic.displayName": "NetCrux Schematic Preview",
+  "crux.configuration.preview.maxFileSizeMB.description": "The largest netlist, in MB, that the schematic preview loads. The preview reads the whole file into the editor’s memory, so a larger file is not loaded and the preview offers to open it in NetCrux Desktop instead, which reads from disk and has no limit. Values above the default depend on the memory available to the editor’s window."
 }

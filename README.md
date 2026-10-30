@@ -44,7 +44,7 @@ may import `@crux-vscode/host-core`; `host-core` never imports from a
 product package. Each product package is a thin surface: it registers
 itself with host-core (a `CustomEditorProvider` for WaveCrux, a
 `DiagnosticCollection` for LintCrux, a `TestController` for SimCrux, a
-send/receive command surface for NetCrux) and otherwise defers.
+send/receive command surface and a schematic-preview `CustomReadonlyEditorProvider` for NetCrux) and otherwise defers.
 
 `packages/pack` is a manifest-only `extensionPack` — no code — that
 installs all four together as **EDACrux Suite**.
@@ -109,6 +109,16 @@ committed. `pnpm --filter wavecrux run build:web` stages it from a checkout of
 [WaveCrux](https://github.com/Ferrite-Engineering/wavecrux) — a sibling
 `../wavecrux` by default, or the path in `CRUX_WAVECRUX_REPO` — and needs a
 Flutter toolchain. See [`docs/webview-hosting.md`](docs/webview-hosting.md) §6.
+
+The `netcrux` extension embeds the NetCrux web viewer the same way:
+`pnpm --filter netcrux run build:web` stages it from a checkout of
+[NetCrux](https://github.com/Ferrite-Engineering/netcrux) (a sibling `../netcrux`,
+or `CRUX_NETCRUX_REPO`), and needs Flutter, a Rust toolchain with
+`wasm32-unknown-unknown` and `wasm-pack` (the viewer's layout engine is Rust
+compiled to WebAssembly). It always rebuilds the engine and the viewer, because
+the staged check cannot tell a current payload from an old one beyond the
+strings the editor-host bridge is made of. See
+[`docs/webview-hosting.md`](docs/webview-hosting.md) §7.
 
 ## Localization
 

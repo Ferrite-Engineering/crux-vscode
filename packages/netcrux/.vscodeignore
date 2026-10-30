@@ -1,3 +1,7 @@
+# What stays out of the VSIX. `media/netcrux-web/` is deliberately NOT here: it
+# is the NetCrux web viewer the preview loads, staged by
+# tool/build-netcrux-web.mjs, and the "package" script refuses to run without
+# a complete and current one.
 .vscode/**
 src/**
 test/**

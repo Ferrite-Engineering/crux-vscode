@@ -1,12 +1,14 @@
 # NetCrux — Netlist Driver Tracing
 
-**"What drives this?" is a question you ask with the cursor already on the
-signal.**
+**See a Yosys netlist as a schematic without leaving the editor, and ask "what
+drives this?" with the cursor already on the signal.**
 
-Select an identifier in Verilog, SystemVerilog or VHDL, run one command, and
-NetCrux resolves that name through the design's stems index and highlights it in
-a running NetCrux schematic — so you can follow the cone of influence back from
-exactly where you were reading.
+Open a Yosys JSON netlist and NetCrux draws it as a schematic next to your RTL:
+hierarchy, search, Cone View, and a click on any element to open its source line.
+Too big for the preview, or you want the Pro features? One click hands it to the
+NetCrux desktop app. Select an identifier in Verilog, SystemVerilog or VHDL, run
+one command, and NetCrux resolves that name through the design's stems index and
+highlights it in a running NetCrux schematic.
 
 - **Registries:** [Marketplace](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.netcrux)
   · [Open VSX](https://open-vsx.org/extension/ferrite-engineering/netcrux) (Cursor, Windsurf, VSCodium, Theia)
@@ -14,10 +16,56 @@ exactly where you were reading.
 
 ---
 
-## What it does
+## Schematic preview
 
-One gesture: **What Drives This? (NetCrux)**, on the editor context menu for
-Verilog, SystemVerilog and VHDL.
+Right-click a `.json` netlist (the file Yosys writes with `write_json`) in the
+Explorer or on its tab and choose **Open Schematic Preview**. You can also
+choose **Open With...** on the file and pick **NetCrux Schematic Preview**, or
+use the preview button in the title bar of a netlist open as text.
+
+It is never the default editor for `.json`: double-clicking a file still opens
+text, and the command checks the start of the file and tells you when it is not
+a Yosys netlist.
+
+In the preview:
+
+- **Navigate the hierarchy**: push into an instance, pop back out, and filter
+  the tree.
+- **Search** instances, cells and nets by substring, glob or regex, and trace
+  fan-in and fan-out one step at a time.
+- **Select** an element for its properties, then **Cone View** to see only
+  what drives it.
+- **Go to Source in Editor**, from the right-click menu on the schematic or the
+  Inspector, opens the RTL behind an element at its line. Relative paths are
+  looked for next to the netlist and in your open folders, and a path written on
+  another machine is matched by its file name. Only files inside the folders you
+  have opened are shown.
+- It follows your VS Code theme, reloads when a synthesis run rewrites the
+  netlist, and works offline: the viewer is bundled, nothing is fetched.
+
+The viewer is the same NetCrux web viewer that runs in a browser. Elaborating
+Verilog, SystemVerilog or VHDL into a netlist stays in the desktop app.
+
+### Open in NetCrux
+
+**Open in NetCrux**, in the preview's title bar and on the right-click menu,
+hands the netlist to the desktop app. It opens in a running NetCrux; if none is
+running but one is installed, it starts it with the netlist; if none is
+installed, it says so and links to the [download page](https://netcrux.app/).
+The desktop app has the Pro features and reads a netlist from disk, so it takes
+a design of any size.
+
+### Large netlists
+
+The preview reads the whole netlist into the editor's memory, so it stops at
+**32 MB** by default. Above that it does not load the file; it offers **Open in
+NetCrux** instead. Raise the limit, up to 256 MB, with
+`netcrux.preview.maxFileSizeMB`.
+
+## What the cursor question does
+
+**What Drives This? (NetCrux)**, on the editor context menu for Verilog,
+SystemVerilog and VHDL.
 
 1. Takes your selection — or the word under the caret.
 2. Resolves it to a hierarchical element path through the **stems index**, the
@@ -74,12 +122,15 @@ pack to get all four at once.
 |---|---|---|
 | `edacrux.crossProbe.revealSelection` | `true` | Bring the matching tab forward when a connected Crux app announces a selection |
 | `edacrux.crossProbe.openSourceFocusesEditor` | `true` | Move the cursor into the editor when a peer asks to open a source location |
+| `netcrux.preview.maxFileSizeMB` | `32` | The largest netlist, in MB, the schematic preview loads; a larger one is offered to NetCrux Desktop instead (1 to 256) |
 | `edacrux.crossProbe.followWaveformSelection` | `false` | Contributed by WaveCrux, so it appears once WaveCrux is installed: reveal a signal's RTL declaration when you select it in a waveform tab in this window |
 
 ## Commands
 
 | Command | Id |
 |---|---|
+| Open Schematic Preview | `netcrux.openSchematicPreview` |
+| Open in NetCrux | `netcrux.openInNetCrux` |
 | What Drives This? (NetCrux) | `netcrux.whatDrivesThis` |
 | Send Selection to Crux App | `edacrux.sendSelectionToPeer` |
 | Highlight Selection in Crux App | `edacrux.highlightSelectionInPeer` |
@@ -87,23 +138,25 @@ pack to get all four at once.
 
 ## What this extension does not do — stated plainly
 
-- **It does not draw schematics in VSCode.** There is no netlist canvas in this
-  extension and no netlist loaded in this window. It is a **sender**: it turns a
-  source selection into a question and routes it to a tool that can answer it.
-  If you want the schematic, you want [NetCrux Desktop](https://netcrux.app/) —
-  and this extension will offer to open it for you.
+- **It does not elaborate your RTL.** The preview draws a netlist that already
+  exists. Running Yosys over Verilog, SystemVerilog or VHDL, the Pro features
+  and anything past the preview's size limit are the job of
+  [NetCrux Desktop](https://netcrux.app/), and the extension offers to open it
+  for you.
 - **It advertises no inbound capabilities**, because a NetCrux-only VSCode
   window genuinely has nothing to highlight. It will not accept a request it
   cannot honour just to look well-connected.
 - **Restricted workspaces.** It runs with limited support in a folder you
-  have not trusted, and nothing is held back: it reads the source and stems
-  files you open and sends selections to a NetCrux app already running on this
-  machine. It never runs a program named by workspace content.
+  have not trusted, and nothing is held back: it reads the source, stems and
+  netlist files you open, draws a netlist with its own bundled viewer, and
+  sends selections to a NetCrux app already running on this machine. It never
+  runs a program named by workspace content.
 
 ## Telemetry
 
 Off unless *you* have VSCode telemetry on. The extension checks
-`vscode.env.isTelemetryEnabled` at send time, not once at startup.
+`vscode.env.isTelemetryEnabled` at send time, not once at startup. The viewer
+inside the preview sends nothing of its own and checks for no updates.
 
 ## Localization
 

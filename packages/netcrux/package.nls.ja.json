@@ -1,6 +1,6 @@
 {
   "extension.displayName": "NetCrux — ネットリストのドライバー追跡",
-  "extension.description": "Verilog / SystemVerilog / VHDL で信号を選択して「何が駆動しているか」を尋ねると、NetCrux が stems インデックスで名前を解決し、NetCrux デスクトップの回路図でハイライトします。",
+  "extension.description": "Yosys JSON ネットリストを VS Code 内で回路図としてプレビューし、クリックでソースへ移動、大規模な設計は NetCrux デスクトップで開けます。Verilog、SystemVerilog、VHDL で信号を選択して、何が駆動しているかを尋ねることもできます。",
   "crux.command.category": "EDACrux",
   "crux.command.sendSelectionToPeer.title": "選択内容を Crux アプリに送信",
   "crux.command.highlightSelectionInPeer.title": "選択内容を Crux アプリでハイライト",
@@ -11,8 +11,12 @@
   "crux.command.toggleRtlAnnotation.title": "RTL 値注釈の切り替え",
   "crux.configuration.rtlAnnotation.enabled.description": "接続中の波形の信号値を、Verilog/VHDL ソース内にインライン注釈として表示し、波形カーソルに追従させます。既定はオフです。stems ファイルで厳密に一致した信号のみを注釈し、名前が曖昧な場合は推測せず曖昧であることを示します。",
   "crux.command.netcrux.whatDrivesThis.title": "これを駆動しているのは?(NetCrux)",
-  "crux.untrustedWorkspaces.description": "制限付きワークスペースでもクロスプローブは利用できます。本拡張機能は開いたソースファイルと stems ファイルを読み取り、このマシンですでに実行中の NetCrux アプリへ選択内容を送信します。ワークスペースの内容が指定したプログラムを実行することはないため、ここで制限される機能はありません。",
+  "crux.untrustedWorkspaces.description": "制限付きワークスペースでもクロスプローブは利用できます。本拡張機能は開いたソースファイルと stems ファイルを読み取り、このマシンですでに実行中の NetCrux アプリへ選択内容を送信します。ワークスペースの内容が指定したプログラムを実行することはないため、ここで制限される機能はありません。回路図プレビューは、拡張機能に同梱のビューアーで開いたネットリストを描画し、「ソースへ移動」は開いているフォルダー内のファイルだけを表示します。",
   "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。",
   "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。",
+  "crux.command.netcrux.openSchematicPreview.title": "回路図プレビューを開く",
+  "crux.command.netcrux.openInNetCrux.title": "NetCrux で開く",
+  "crux.editor.netcrux.schematic.displayName": "NetCrux 回路図プレビュー",
+  "crux.configuration.preview.maxFileSizeMB.description": "回路図プレビューが読み込む最大のネットリストサイズ（MB）。プレビューはファイル全体をエディターのメモリに読み込むため、これより大きいファイルは読み込まれず、代わりに NetCrux デスクトップ（ディスクから読み込み、上限なし）で開く案内が表示されます。既定値より大きい値は、エディターのウィンドウが使えるメモリに依存します。"
 }

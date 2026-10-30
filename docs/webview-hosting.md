@@ -283,3 +283,96 @@ CI's `package` matrix,
 and the release workflow's `package-wavecrux` job fails loudly rather than
 publishing a VSIX without a viewer (see the comments in
 `.github/workflows/release.yml`).
+
+---
+
+## 7. The NetCrux viewer
+
+The `netcrux` extension hosts the NetCrux open-core web build the same way, for
+its schematic preview: a `CustomReadonlyEditorProvider` for view type
+`netcrux.schematic` (`packages/netcrux/src/preview/editor.ts`), registered with
+priority `option` so it is reached through **Open With...** and the **Open
+Schematic Preview** command and never takes a `.json` by default. Everything in
+§1 to §5 applies, with `tool/build-netcrux-web.mjs` in place of
+`tool/build-wavecrux-web.mjs`, `media/netcrux-web/` in place of
+`media/wavecrux-web/`, and `packages/netcrux/src/preview/html.ts` in place of
+`html.ts`. What is different:
+
+### 7.1 The protocol is smaller, and the viewer says when it is listening
+
+Frames are flat `{type: 'crux.netcrux', protocol: 1, kind, ...}` objects
+(`packages/netcrux/src/preview/messages.ts`; the other half is the viewer's
+`host_bridge_messages.dart`). The extension to the viewer: `open_netlist`
+`{name, text}`. The viewer to the extension: `ready`, `open_source` `{file,
+line, column?}` and `status`. The theme goes the other way round, from the page
+to the viewer, as in §2.4.
+
+The viewer posts `ready` once its `message` listener is installed, and the
+extension sends the netlist on `ready` or on the first-frame diagnostic,
+whichever comes first, with a 30 second fallback. As in §2.2,
+`resolveCustomEditor` does not wait for either.
+
+The netlist travels as one string in one message. The viewer's string handling
+was measured in headless Chromium up to a 257 MB netlist (about 12 seconds from
+message to loaded); what bounds the preview in VS Code is the leg through the
+editor's own IPC, which has not been measured at the top of the range. Hence
+the default limit of 32 MB (`netcrux.preview.maxFileSizeMB`, 1 to 256).
+
+### 7.2 A worker cannot start from the resource origin
+
+The viewer lays a scope out with elkrs as WebAssembly in a dedicated Web Worker,
+and the page's CSP (`worker-src blob:`) is why the worker has to come from a
+blob: a browser refuses `new Worker(url)` for a URL on another origin than the
+document, and the webview's resources are on
+`https://file+.vscode-resource.vscode-cdn.net`. A blob worker also cannot
+resolve a relative path, and `import(blobUrl)` inside it is refused by the
+CSP's `script-src`.
+
+So the page fetches the three files (`wasm/elk_wasm.js`, `wasm/elk_wasm_worker.js`,
+`wasm/elk_wasm_bg.wasm`) and composes **one** module from them: the glue's text,
+then a line defining `self.cruxLayoutHosted` (the glue's `__wbg_init` and
+`layoutJsonWithProgress`, and a blob URL for the wasm bytes), then the worker's
+script. The result is a blob URL, published as `window.cruxLayoutWorkerUrl`,
+which the viewer's `elk_web_solver_web.dart` starts the worker from. Because the
+glue and the worker share a module scope, the worker must not declare a
+top-level name the glue exports; `tool/build-netcrux-web.mjs --check` and a test
+in the NetCrux repository both pin that.
+
+Without this the viewer falls back to elkjs, which evaluates code, which the CSP
+does not allow, and the schematic is never drawn: the page still boots, the
+hierarchy fills in, and the canvas is empty.
+
+### 7.3 Offline
+
+`font-src` and `connect-src` name no origin but the webview's own. The engine's
+glyph fallback (`fontFallbackBaseUrl`, which defaults to `fonts.gstatic.com`)
+is pointed at a path inside the payload that holds nothing, so a glyph the
+bundled Roboto lacks, CJK included, renders as a placeholder instead of being
+fetched. The viewer's own text in the preview is English.
+
+### 7.4 A stale payload still passes `--check`
+
+`--check` proves the payload is complete and that its `main.dart.js` contains
+the bridge's names (`cruxEditorHost`, `cruxHostBridge`, `cruxLayoutWorkerUrl`,
+`crux.netcrux`, `open_netlist`, `open_source`), so a viewer built before the
+bridge existed fails it. It cannot tell a payload from last week from one built
+today. The full build is the only thing that refreshes it, it records the
+checkout's commit in `payload-info.json`, and `--check` prints it: read that
+line before packaging. A payload that boots into a blank canvas, as in §7.2, is
+caught by no gate; the output channel's `probe` lines and `layout-worker-staged`
+diagnostic are how to tell.
+
+### 7.5 What cannot be packaged in CI
+
+The viewer needs Flutter, a Rust toolchain with `wasm-pack`, and a checkout of
+the NetCrux repository, none of which the workflows install. `netcrux` is
+therefore absent from the CI `package` matrix, as `wavecrux` is, and its entry
+in the release workflow fails at `package` until a job stages the viewer first.
+Package it on a machine that has the toolchains:
+
+```bash
+CRUX_NETCRUX_REPO=<netcrux checkout> pnpm --filter netcrux run build:web
+pnpm --filter netcrux run build
+pnpm --filter netcrux run package
+```
+

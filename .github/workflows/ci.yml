@@ -104,7 +104,13 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        # wavecrux is deliberately absent. Its VSIX embeds the WaveCrux Flutter
+        # wavecrux and netcrux are deliberately absent. Each VSIX embeds a
+        # Flutter web build of its open-core app (netcrux's viewer also needs a
+        # Rust toolchain for its layout engine); the reasoning below is
+        # wavecrux's, and netcrux's is the same with the NetCrux repository
+        # and `tool/build-netcrux-web.mjs`.
+        #
+        # wavecrux: its VSIX embeds the WaveCrux Flutter
         # web build (docs/webview-hosting.md §6), which this job cannot
         # produce: it needs a Flutter toolchain and a checkout of the
         # open-core `Ferrite-Engineering/wavecrux` repo, and installs neither.
@@ -113,7 +119,7 @@ jobs:
         # adding it here would fail the job, not cover it. Re-add once the job
         # installs Flutter and checks out WaveCrux, so the payload can be
         # staged here (`pnpm --filter wavecrux run build:web`).
-        extension: [lintcrux, simcrux, netcrux]
+        extension: [lintcrux, simcrux]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0

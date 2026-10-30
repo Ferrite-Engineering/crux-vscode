@@ -26,6 +26,8 @@
   "keywords": [
     "netlist",
     "schematic",
+    "preview",
+    "json",
     "rtl",
     "verilog",
     "systemverilog",
@@ -51,6 +53,18 @@
   },
   "contributes": {
     "commands": [
+      {
+        "command": "netcrux.openSchematicPreview",
+        "title": "%crux.command.netcrux.openSchematicPreview.title%",
+        "category": "%crux.command.category%",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "netcrux.openInNetCrux",
+        "title": "%crux.command.netcrux.openInNetCrux.title%",
+        "category": "%crux.command.category%",
+        "icon": "$(link-external)"
+      },
       {
         "command": "netcrux.whatDrivesThis",
         "title": "%crux.command.netcrux.whatDrivesThis.title%",
@@ -110,6 +124,52 @@
           "command": "netcrux.whatDrivesThis",
           "when": "editorTextFocus && (resourceLangId == verilog || resourceLangId == systemverilog || resourceLangId == vhdl)",
           "group": "netcrux@1"
+        },
+        {
+          "command": "netcrux.openSchematicPreview",
+          "when": "netcrux.isYosysNetlist && resourceExtname == .json",
+          "group": "netcrux@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "netcrux.openSchematicPreview",
+          "when": "resourceExtname == .json",
+          "group": "netcrux@1"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "netcrux.openSchematicPreview",
+          "when": "resourceExtname == .json && activeCustomEditorId != netcrux.schematic",
+          "group": "netcrux@1"
+        },
+        {
+          "command": "netcrux.openInNetCrux",
+          "when": "resourceExtname == .json",
+          "group": "netcrux@2"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "netcrux.openSchematicPreview",
+          "when": "netcrux.isYosysNetlist && resourceExtname == .json",
+          "group": "navigation@1"
+        },
+        {
+          "command": "netcrux.openInNetCrux",
+          "when": "activeCustomEditorId == netcrux.schematic",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "netcrux.openSchematicPreview",
+          "when": "resourceExtname == .json || activeCustomEditorId == netcrux.schematic"
+        },
+        {
+          "command": "netcrux.openInNetCrux",
+          "when": "resourceExtname == .json || activeCustomEditorId == netcrux.schematic"
         }
       ]
     },
@@ -125,18 +185,38 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "%crux.configuration.crossProbe.openSourceFocusesEditor.description%"
+        },
+        "netcrux.preview.maxFileSizeMB": {
+          "type": "integer",
+          "default": 32,
+          "minimum": 1,
+          "maximum": 256,
+          "markdownDescription": "%crux.configuration.preview.maxFileSizeMB.description%"
         }
       }
-    }
+    },
+    "customEditors": [
+      {
+        "viewType": "netcrux.schematic",
+        "displayName": "%crux.editor.netcrux.schematic.displayName%",
+        "selector": [
+          {
+            "filenamePattern": "*.json"
+          }
+        ],
+        "priority": "option"
+      }
+    ]
   },
   "scripts": {
     "build": "node ../../tool/build-extension.mjs",
     "watch": "node ../../tool/build-extension.mjs --watch",
-    "package": "mkdir -p dist && vsce package --no-dependencies --out ./dist/",
+    "package": "node ../../tool/build-netcrux-web.mjs --check && mkdir -p dist && vsce package --no-dependencies --out ./dist/",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "clean": "rm -rf dist coverage .vitest-cache"
+    "clean": "rm -rf dist coverage .vitest-cache",
+    "build:web": "node ../../tool/build-netcrux-web.mjs"
   },
   "dependencies": {
     "@crux-vscode/host-core": "workspace:*"

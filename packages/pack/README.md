@@ -21,7 +21,7 @@ to, with capabilities composed from whatever you actually installed.
 | **[WaveCrux](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.wavecrux)** | Nine protocol decoders with a transaction table, X-trace, waveform diff, FSM state views, switching-activity analysis, multi-signal pattern search, cocotb log correlation and GTKWave `.gtkw` import — on `.vcd`, `.fst`, `.ghw`, `.lxt` and `.lxt2`, in an editor tab. Plus signal values rendered inline in your own Verilog/VHDL. |
 | **[LintCrux](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.lintcrux)** | Lint results as Problems-panel diagnostics in your own RTL, and a quick fix that files a waiver byte-identically to LintCrux Pro's own waiver store. |
 | **[SimCrux](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.simcrux)** | `simcrux.yaml` as a Test Explorer tree, regressions as a task, the five SymbiYosys verdicts kept distinct — and a failing proof's counterexample opening in a waveform tab beside it. |
-| **[NetCrux](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.netcrux)** | "What drives this?" on a source selection, resolved through the stems index and highlighted in a running NetCrux schematic. |
+| **[NetCrux](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.netcrux)** | A Yosys JSON netlist as a schematic inside VS Code, with a click through to its source and a hand-off to NetCrux Desktop for large designs; plus "what drives this?" on a source selection, highlighted in a running NetCrux schematic. |
 
 ## The handoff that only this suite does
 
@@ -53,6 +53,9 @@ Concretely, and only what is actually wired today:
 - A peer that announces a selection can bring the matching tab forward.
 - NetCrux turns a source selection into a `request_highlight` sent to a NetCrux
   desktop schematic.
+- NetCrux draws a Yosys JSON netlist as a schematic in an editor tab, opens an
+  element's RTL at its line, and hands the netlist to the desktop app when it is
+  too large for the preview.
 
 Everything the suite does not yet route is named in each extension's own
 listing, under "What this extension does not do". We would rather you find the
