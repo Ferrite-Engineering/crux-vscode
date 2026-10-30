@@ -377,3 +377,28 @@ pnpm --filter netcrux run build
 pnpm --filter netcrux run package
 ```
 
+### 7.6 A right-click has two claimants
+
+The viewer opens its own context menu on the release of the secondary button.
+VS Code's webview host page listens for `contextmenu` on the webview's window
+and, unless the event is already `defaultPrevented`, prevents it and asks the
+workbench for its own menu. The two menus then answer one click, and the
+workbench's can take the pointer from the viewer. The page therefore calls
+`preventDefault()` on `contextmenu` in the capture phase of the window, which
+runs before the host's listener; a prevented event is one the host leaves
+alone. The price is VS Code's Cut / Copy / Paste menu over the viewer. The
+keyboard shortcuts are unaffected.
+
+The page also reports the first five secondary clicks to the output channel
+(`context-menu`, with the position), so a right-click that opens nothing can be
+told from one that never arrived.
+
+`tool/webview-harness/rightclick.mjs` drives a real secondary click in headless
+Chrome against the staged payload, with a stand-in for the host page's listener,
+and asserts that the viewer's menu opens. It needs the payload and a browser, so
+it is not part of `pnpm test`; `packages/netcrux/test/preview/contextmenu.test.ts`
+is the part CI runs. Run the harness after a `build:web`, and any time the shim
+or the viewer's gesture handling changes. If it fails with the page's
+`context-menu` diagnostic present, the click arrived and the viewer failed to
+build its menu: the harness prints the exception it threw.
+

@@ -1,0 +1,262 @@
+{
+  "creator": "netcrux tool/generate_design_seed_fixture.dart",
+  "modules": {
+    "top": {
+      "attributes": {
+        "top": "00000000000000000000000000000001",
+        "src": "design_seed.v:5"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ]
+        },
+        "rst": {
+          "direction": "input",
+          "bits": [
+            3
+          ]
+        },
+        "dout": {
+          "direction": "output",
+          "bits": [
+            5
+          ]
+        }
+      },
+      "cells": {
+        "u_cpu": {
+          "hide_name": 0,
+          "type": "cpu",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "RST": "input",
+            "DOUT": "output"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "RST": [
+              3
+            ],
+            "DOUT": [
+              4
+            ]
+          }
+        },
+        "dma_reg": {
+          "hide_name": 0,
+          "type": "$dff",
+          "parameters": {
+            "WIDTH": "1",
+            "CLK_POLARITY": "1"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              4
+            ],
+            "Q": [
+              5
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "hide_name": 0,
+          "bits": [
+            2
+          ],
+          "attributes": {}
+        },
+        "rst": {
+          "hide_name": 0,
+          "bits": [
+            3
+          ],
+          "attributes": {}
+        },
+        "cpu_dout": {
+          "hide_name": 0,
+          "bits": [
+            4
+          ],
+          "attributes": {}
+        },
+        "dout": {
+          "hide_name": 0,
+          "bits": [
+            5
+          ],
+          "attributes": {}
+        }
+      }
+    },
+    "cpu": {
+      "attributes": {
+        "src": "design_seed.v:20"
+      },
+      "ports": {
+        "CLK": {
+          "direction": "input",
+          "bits": [
+            2
+          ]
+        },
+        "RST": {
+          "direction": "input",
+          "bits": [
+            3
+          ]
+        },
+        "DOUT": {
+          "direction": "output",
+          "bits": [
+            6
+          ]
+        }
+      },
+      "cells": {
+        "u_alu": {
+          "hide_name": 0,
+          "type": "alu",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              5
+            ],
+            "B": [
+              5
+            ],
+            "Y": [
+              6
+            ]
+          }
+        },
+        "pc_reg": {
+          "hide_name": 0,
+          "type": "$dff",
+          "parameters": {
+            "WIDTH": "1",
+            "CLK_POLARITY": "1"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              6
+            ],
+            "Q": [
+              5
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "pc_q": {
+          "hide_name": 0,
+          "bits": [
+            5
+          ],
+          "attributes": {}
+        },
+        "alu_y": {
+          "hide_name": 0,
+          "bits": [
+            6
+          ],
+          "attributes": {}
+        }
+      }
+    },
+    "alu": {
+      "attributes": {
+        "src": "design_seed.v:35"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [
+            2
+          ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [
+            3
+          ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [
+            4
+          ]
+        }
+      },
+      "cells": {
+        "xor0": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": "1",
+            "B_WIDTH": "1",
+            "Y_WIDTH": "1"
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2
+            ],
+            "B": [
+              3
+            ],
+            "Y": [
+              4
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "y": {
+          "hide_name": 0,
+          "bits": [
+            4
+          ],
+          "attributes": {}
+        }
+      }
+    }
+  }
+}

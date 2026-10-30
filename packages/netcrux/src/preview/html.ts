@@ -272,6 +272,25 @@ function bootScript(baseUri: string): string {
       });
     });
 
+    // The viewer draws its own context menu (Go to Source in Editor among its
+    // entries), so the page keeps VS Code's out of the way. VS Code's webview
+    // host listens for 'contextmenu' on this window and, unless the event is
+    // already defaultPrevented, prevents it and asks the workbench for its own
+    // menu. Two menus then answer one right-click, and the workbench's takes the
+    // pointer: the viewer opens its menu on the release of the secondary button,
+    // which a menu of the workbench's can take away. A capture-phase listener on
+    // the window runs before the host's, and a prevented event is one the host
+    // leaves alone. The cost is VS Code's Cut / Copy / Paste menu over the
+    // viewer; the keyboard shortcuts for them are unaffected.
+    var contextMenusReported = 0;
+    window.addEventListener('contextmenu', function (event) {
+      event.preventDefault();
+      if (contextMenusReported < 5) {
+        contextMenusReported += 1;
+        post('context-menu', { x: Math.round(event.clientX), y: Math.round(event.clientY) });
+      }
+    }, true);
+
     // Which engine files Flutter fetches is a runtime decision; report them,
     // and a 404 from over-pruning the payload.
     var nativeFetch = window.fetch.bind(window);
