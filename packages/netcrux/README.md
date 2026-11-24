@@ -123,8 +123,10 @@ the NetCrux desktop app opens, opens here too: as
 `vscode://ferrite-engineering.netcrux/open?…` with the same query, pasted into
 **EDACrux: Open NetCrux Link...**, or clicked in a terminal.
 
-A Yosys JSON netlist opens in the schematic preview; the preview does not
-select the cell or net, and NetCrux Desktop does. A Verilog, SystemVerilog or
+A Yosys JSON netlist opens in the schematic preview, which selects the cell or
+net and frames it once the netlist has loaded, finding the name as NetCrux
+Desktop does; a name the netlist does not have is said, and nothing is
+selected. A Verilog, SystemVerilog or
 VHDL source opens in the editor at the line the netlist index (`.stems`) gives
 for the cell or net, when the index places it in that file. The file must be a
 full local path to one of those kinds: a project, session, workspace,

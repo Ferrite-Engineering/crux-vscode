@@ -101,5 +101,8 @@
   "Open the link in NetCrux": "Open the link in NetCrux",
   "Paste a netcrux:// link, or the same link in its vscode:// form.": "Paste a netcrux:// link, or the same link in its vscode:// form.",
   "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.": "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.",
-  "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does.": "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does."
+  "Opened {0}, but it has no cell named {1}.": "Opened {0}, but it has no cell named {1}.",
+  "Opened {0}, but it has no net named {1}.": "Opened {0}, but it has no net named {1}.",
+  "NetCrux could not read {0}. The tab shows why.": "NetCrux could not read {0}. The tab shows why.",
+  "Opened {0}, but the schematic preview did not select {1}.": "Opened {0}, but the schematic preview did not select {1}."
 }

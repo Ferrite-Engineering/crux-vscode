@@ -101,5 +101,8 @@
   "Open the link in NetCrux": "在 NetCrux 中打开链接",
   "Paste a netcrux:// link, or the same link in its vscode:// form.": "粘贴 netcrux:// 链接，或同一链接的 vscode:// 形式。",
   "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.": "已打开 {0}，但此工作区中的网表索引（.stems）没有给出 {1} 在此文件中的位置。",
-  "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does.": "已打开 {0}。原理图预览不会根据链接选择单元或线网；NetCrux Desktop 会选择。"
+  "Opened {0}, but it has no cell named {1}.": "已打开 {0}，但其中没有名为 {1} 的单元。",
+  "Opened {0}, but it has no net named {1}.": "已打开 {0}，但其中没有名为 {1} 的线网。",
+  "NetCrux could not read {0}. The tab shows why.": "NetCrux 无法读取 {0}。标签页中显示了原因。",
+  "Opened {0}, but the schematic preview did not select {1}.": "已打开 {0}，但原理图预览未选择 {1}。"
 }

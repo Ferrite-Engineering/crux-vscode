@@ -2,17 +2,24 @@
  * Where a NetCrux link's cell or net is, in the file it opened.
  *
  * The desktop app elaborates the design and selects the element in its
- * schematic. Inside the editor there is no elaboration: an HDL source opens as
- * text, and the line that declares the element is found through the netlist
- * index (`.stems`) the "What drives this?" command already reads. The answer
- * is used only when the index places the element **in the file the link
- * opened**; an element the index puts in another file, or does not know, is
- * said, never guessed at. A Yosys JSON netlist opens in the schematic
- * preview, which has no way to be told to select an element.
+ * schematic. Inside the editor there are two cases:
+ *
+ * - **A Yosys JSON netlist** opens in the schematic preview, which runs the
+ *   NetCrux viewer. Once the preview reports the netlist loaded, it is sent a
+ *   `select` frame with the link's cell or net, and the viewer finds it by
+ *   the desktop app's own rules (the name rooted at the top or written from
+ *   just below it), selects and frames it, and says whether it found it.
+ * - **An HDL source** opens as text. There is no elaboration, so the line
+ *   that declares the element is found through the netlist index (`.stems`)
+ *   the "What drives this?" command already reads. The answer is used only
+ *   when the index places the element **in the file the link opened**; an
+ *   element the index puts in another file, or does not know, is said, never
+ *   guessed at.
  *
  * No `vscode` import: tested directly.
  */
 import { links } from '@crux-vscode/host-core';
+import { LINK_LOAD_TIMEOUT_MS, type NetlistLinkPanel } from './netlist-panels';
 
 /** What a link did once its file was open. */
 export type NetCruxPlacement =
@@ -20,10 +27,16 @@ export type NetCruxPlacement =
   | { readonly kind: 'opened' }
   /** The element's declaration is at [line] (1-based) of the opened source. */
   | { readonly kind: 'line'; readonly line: number }
-  /** The index does not place the element in this file. */
+  /** The index does not place the element in this source. */
   | { readonly kind: 'not-placed' }
-  /** A netlist in the schematic preview, which cannot select from a link. */
-  | { readonly kind: 'preview-cannot-select' };
+  /** The preview selected and framed the element; in a Cone View when [coneView]. */
+  | { readonly kind: 'selected'; readonly coneView: boolean }
+  /** The netlist has no such cell or net (or does not draw it). */
+  | { readonly kind: 'element-not-found' }
+  /** The preview could not show the netlist; its tab says why. */
+  | { readonly kind: 'load-failed' }
+  /** No preview, no load, or no answer in time. */
+  | { readonly kind: 'not-answered' };
 
 /** The index's answer for a name, as `names.NameResolver.sourceLocationFor` gives it. */
 export interface NetCruxNameLocator {
@@ -40,8 +53,36 @@ export function isNetlistPath(path: string): boolean {
 }
 
 /**
- * Place [link]'s element in [openedPath]. [sameFile] compares two paths by
- * file identity (defaults to host-core's link path key).
+ * Select [link]'s element in [panel], the schematic preview its netlist opened
+ * in (`undefined` when that preview never appeared), once the netlist has
+ * loaded.
+ */
+export async function placeNetCruxLinkInPreview(
+  link: { readonly kind?: 'cell' | 'net'; readonly name?: string },
+  panel: NetlistLinkPanel | undefined,
+  timeoutMs: number = LINK_LOAD_TIMEOUT_MS,
+): Promise<NetCruxPlacement> {
+  if (link.kind === undefined || link.name === undefined) return { kind: 'opened' };
+  if (panel === undefined) return { kind: 'not-answered' };
+  const load = await panel.load.wait(timeoutMs);
+  if (load === 'failed') return { kind: 'load-failed' };
+  if (load !== 'loaded') return { kind: 'not-answered' };
+  const answer = await panel.selector.select({ element: link.kind, name: link.name }, timeoutMs);
+  switch (answer.outcome) {
+    case 'selected':
+      return { kind: 'selected', coneView: answer.coneView };
+    case 'not-found':
+      return { kind: 'element-not-found' };
+    case 'no-design':
+      return { kind: 'load-failed' };
+    case 'unavailable':
+      return { kind: 'not-answered' };
+  }
+}
+
+/**
+ * Place [link]'s element in [openedPath], an HDL source. [sameFile] compares
+ * two paths by file identity (defaults to host-core's link path key).
  */
 export async function placeNetCruxLink(
   link: { readonly name?: string },
@@ -51,7 +92,9 @@ export async function placeNetCruxLink(
     (await links.linkPathKey(a)) === (await links.linkPathKey(b)),
 ): Promise<NetCruxPlacement> {
   if (link.name === undefined) return { kind: 'opened' };
-  if (isNetlistPath(openedPath)) return { kind: 'preview-cannot-select' };
+  // A netlist is placed by its preview (`placeNetCruxLinkInPreview`); the
+  // index places names in sources only.
+  if (isNetlistPath(openedPath)) return { kind: 'not-placed' };
   let location: Awaited<ReturnType<NetCruxNameLocator['sourceLocationFor']>>;
   try {
     location = await locator.sourceLocationFor(link.name);

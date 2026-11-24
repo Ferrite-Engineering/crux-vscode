@@ -39,11 +39,11 @@ describe('placeNetCruxLink', () => {
     expect(await placeNetCruxLink({ name: 'a' }, '/rtl/cpu.sv', index, sameSpelling)).toEqual({ kind: 'not-placed' });
   });
 
-  it('asks nothing for a link with no element, or for a netlist in the preview', async () => {
-    const index = locator({});
+  it('asks the index nothing for a link with no element, or for a netlist (its preview selects)', async () => {
+    const index = locator({ 'top.u': { fsPath: '/w/top.JSON', lineNumber: 3 } });
     expect(await placeNetCruxLink({}, '/rtl/cpu.sv', index, sameSpelling)).toEqual({ kind: 'opened' });
     expect(await placeNetCruxLink({ name: 'top.u' }, '/w/top.JSON', index, sameSpelling)).toEqual({
-      kind: 'preview-cannot-select',
+      kind: 'not-placed',
     });
     expect(index.asked).toEqual([]);
   });

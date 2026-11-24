@@ -44,6 +44,25 @@ export const OPEN_SOURCE_KIND = 'open_source';
 /** Viewer to host: where the document stands. */
 export const STATUS_KIND = 'status';
 
+/** Host to viewer: select a cell or net in the open netlist. */
+export const SELECT_KIND = 'select';
+
+/** Viewer to host: what a `select` did. */
+export const SELECT_RESULT_KIND = 'select_result';
+
+/** What a `select` names. */
+export type SelectElement = 'cell' | 'net';
+
+/** What a `select` did, as the extension spells it. */
+export type SelectOutcome = 'selected' | 'not-found' | 'no-design';
+
+/** The viewer's `outcome` values, by wire spelling. */
+const SELECT_OUTCOMES: ReadonlyMap<string, SelectOutcome> = new Map<string, SelectOutcome>([
+  ['selected', 'selected'],
+  ['not_found', 'not-found'],
+  ['no_design', 'no-design'],
+]);
+
 /** `type` of a diagnostic the page shim posts. */
 export const DIAGNOSTIC_TYPE = 'crux.webview.diagnostic';
 
@@ -76,6 +95,25 @@ export function openNetlistFrame(name: string, text: string): OpenNetlistFrame {
   return { type: FRAME_TYPE, protocol: PROTOCOL_VERSION, kind: OPEN_NETLIST_KIND, name, text };
 }
 
+/**
+ * The frame that asks the viewer to select [name], a cell or net written as a
+ * `netcrux://` link writes it (dot-separated, rooted at the top module or
+ * written from just below it). The viewer answers `select_result` with [id].
+ */
+export interface SelectFrame {
+  readonly type: typeof FRAME_TYPE;
+  readonly protocol: typeof PROTOCOL_VERSION;
+  readonly kind: typeof SELECT_KIND;
+  readonly element: SelectElement;
+  readonly name: string;
+  readonly id: number;
+}
+
+/** Build the frame that selects [name], numbered [id]. */
+export function selectFrame(element: SelectElement, name: string, id: number): SelectFrame {
+  return { type: FRAME_TYPE, protocol: PROTOCOL_VERSION, kind: SELECT_KIND, element, name, id };
+}
+
 /** One diagnostic from the page shim. */
 export interface WebviewDiagnostic {
   readonly kind: string;
@@ -99,6 +137,12 @@ export type WebviewMessage =
       readonly message: string | undefined;
       readonly modules: number | undefined;
       readonly cells: number | undefined;
+    }
+  | {
+      readonly type: 'select-result';
+      readonly id: number | undefined;
+      readonly outcome: SelectOutcome;
+      readonly coneView: boolean;
     }
   | { readonly type: 'notice-action'; readonly action: NoticeAction };
 
@@ -164,6 +208,12 @@ export function parseWebviewMessage(raw: unknown): WebviewMessage | undefined {
         modules: count(raw['modules']),
         cells: count(raw['cells']),
       };
+    }
+    case SELECT_RESULT_KIND: {
+      const wire = raw['outcome'];
+      const outcome = typeof wire === 'string' ? SELECT_OUTCOMES.get(wire) : undefined;
+      if (outcome === undefined) return undefined;
+      return { type: 'select-result', id: count(raw['id']), outcome, coneView: raw['coneView'] === true };
     }
     default:
       return undefined;

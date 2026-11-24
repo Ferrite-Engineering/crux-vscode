@@ -19,6 +19,7 @@ import { NETCRUX_PRODUCT, netCruxCapabilityCopy } from './status/copy';
 import { registerSchematicPreview } from './preview/register';
 import { NETCRUX_SURFACE } from './surface';
 import { registerNetCruxLinks } from './links/register';
+import { NetlistPanelRegistry, netlistPanelKey } from './links/netlist-panels';
 
 /**
  * NetCrux — cross-probe-send surface for schematic/netlist browsing.
@@ -176,10 +177,13 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
   context.subscriptions.push(statusSurface);
 
   // The schematic preview: a custom editor that draws a Yosys JSON netlist with
-  // the NetCrux web viewer, and "Open in NetCrux" for the desktop app.
+  // the NetCrux web viewer, and "Open in NetCrux" for the desktop app. Each
+  // preview registers under its file so a link to that netlist can select in it.
+  const linkPanels = new NetlistPanelRegistry();
   registerSchematicPreview({
     context,
     log,
+    adoptLinkPanel: (documentUri, panel) => linkPanels.adopt(netlistPanelKey(documentUri.fsPath), panel),
     recordFeature: (feature) =>
       client.record({
         name: hostCore.telemetry.TELEMETRY_EVENTS.featureUsed,
@@ -220,11 +224,12 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
   });
 
   // `netcrux://` links and `vscode://ferrite-engineering.netcrux/open?…`: the
-  // URI handler, NetCrux: Open Link, and links in a terminal. A cell or net is
-  // placed through the same stems index "what drives this" reads, once the
-  // first scan has finished.
+  // URI handler, NetCrux: Open Link, and links in a terminal. In a netlist the
+  // preview selects the cell or net; in an HDL source it is placed through the
+  // same stems index "what drives this" reads, once the first scan has finished.
   registerNetCruxLinks({
     context,
+    panels: linkPanels,
     locator: {
       sourceLocationFor: async (name) => {
         await initialScan;

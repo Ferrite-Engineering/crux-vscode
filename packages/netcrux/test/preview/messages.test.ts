@@ -9,12 +9,15 @@ import {
   OPEN_NETLIST_KIND,
   OPEN_SOURCE_KIND,
   READY_KIND,
+  SELECT_KIND,
+  SELECT_RESULT_KIND,
   STATUS_KIND,
   THEME_TOKENS_KIND,
   formatDiagnostic,
   isFailure,
   openNetlistFrame,
   parseWebviewMessage,
+  selectFrame,
 } from '../../src/preview/messages';
 
 const frame = (fields: Record<string, unknown>) => ({
@@ -37,6 +40,47 @@ describe('names shared with the NetCrux web viewer', () => {
     expect(READY_KIND).toBe('ready');
     expect(OPEN_SOURCE_KIND).toBe('open_source');
     expect(STATUS_KIND).toBe('status');
+    expect(SELECT_KIND).toBe('select');
+    expect(SELECT_RESULT_KIND).toBe('select_result');
+  });
+});
+
+describe('select', () => {
+  it('the frame carries the element, the name and the id', () => {
+    expect(selectFrame('net', 'top.u_cpu.alu_y', 3)).toEqual({
+      type: 'crux.netcrux',
+      protocol: 1,
+      kind: 'select',
+      element: 'net',
+      name: 'top.u_cpu.alu_y',
+      id: 3,
+    });
+  });
+
+  it('reads each outcome the viewer writes, and a cone view only when it says true', () => {
+    expect(parseWebviewMessage(frame({ kind: 'select_result', id: 3, outcome: 'selected', coneView: true }))).toEqual({
+      type: 'select-result',
+      id: 3,
+      outcome: 'selected',
+      coneView: true,
+    });
+    expect(parseWebviewMessage(frame({ kind: 'select_result', id: 4, outcome: 'not_found', coneView: 'yes' }))).toEqual({
+      type: 'select-result',
+      id: 4,
+      outcome: 'not-found',
+      coneView: false,
+    });
+    expect(parseWebviewMessage(frame({ kind: 'select_result', outcome: 'no_design' }))).toEqual({
+      type: 'select-result',
+      id: undefined,
+      outcome: 'no-design',
+      coneView: false,
+    });
+  });
+
+  it('refuses an outcome it does not know', () => {
+    expect(parseWebviewMessage(frame({ kind: 'select_result', id: 1, outcome: 'maybe' }))).toBeUndefined();
+    expect(parseWebviewMessage(frame({ kind: 'select_result', id: 1 }))).toBeUndefined();
   });
 });
 

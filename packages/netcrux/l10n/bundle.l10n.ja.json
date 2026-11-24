@@ -101,5 +101,8 @@
   "Open the link in NetCrux": "NetCrux でリンクを開く",
   "Paste a netcrux:// link, or the same link in its vscode:// form.": "netcrux:// リンク、または同じリンクの vscode:// 形式を貼り付けてください。",
   "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.": "{0} を開きましたが、このワークスペースのネットリストインデックス（.stems）には {1} のこのファイル内の位置がありません。",
-  "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does.": "{0} を開きました。回路図プレビューはリンクからセルやネットを選択しません。NetCrux Desktop では選択されます。"
+  "Opened {0}, but it has no cell named {1}.": "{0} を開きましたが、{1} という名前のセルはありません。",
+  "Opened {0}, but it has no net named {1}.": "{0} を開きましたが、{1} という名前のネットはありません。",
+  "NetCrux could not read {0}. The tab shows why.": "NetCrux は {0} を読み込めませんでした。理由はタブに表示されています。",
+  "Opened {0}, but the schematic preview did not select {1}.": "{0} を開きましたが、回路図プレビューは {1} を選択しませんでした。"
 }

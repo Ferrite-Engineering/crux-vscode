@@ -48,6 +48,7 @@ import {
   type NoticeAction,
 } from './messages';
 import { renderNotice, renderViewer, type DiagnosticSink } from './panel';
+import { NetlistLoadWatch, NetlistSelector, type NetlistLinkPanel } from '../links/netlist-panels';
 
 /** The custom editor's view type. */
 export const NETLIST_VIEW_TYPE = 'netcrux.schematic';
@@ -75,6 +76,11 @@ export interface NetlistEditorDependencies {
   readonly openInNetCrux: (netlist: vscode.Uri) => Promise<void>;
   /** Record that a preview opened. */
   readonly recordOpened: (outcome: 'preview' | 'too-large' | 'empty' | 'not-netlist') => void;
+  /**
+   * Register this preview for `netcrux://` links to its file; the result
+   * releases it. See `links/netlist-panels.ts`.
+   */
+  readonly adoptLinkPanel?: (documentUri: vscode.Uri, panel: NetlistLinkPanel) => () => void;
 }
 
 /** What the preview will do with one file. */
@@ -264,6 +270,11 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
     this.deps.recordOpened(document.disposition.kind);
 
     const state: PanelState = { mounted: false, ready: deferred(), disposed: false };
+    // What a `netcrux://` link to this file waits for (the viewer's `loaded`)
+    // and asks through (`select`). A notice settles the wait `failed` at once.
+    const load = new NetlistLoadWatch();
+    const selector = new NetlistSelector((frame) => panel.webview.postMessage(frame));
+    const releaseLinkPanel = this.deps.adoptLinkPanel?.(document.uri, { load, selector });
     // The ONE message listener for this panel. A webview delivers to every
     // registered listener, so a second one would act on each message twice.
     panel.webview.onDidReceiveMessage((raw: unknown) => {
@@ -285,7 +296,11 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
         case 'open-source':
           void this.deps.goToSource(document.uri, message.file, message.line, message.column);
           return;
+        case 'select-result':
+          selector.accept(message);
+          return;
         case 'status':
+          load.status(message.phase);
           sink.append(
             `   ${name}: ${message.phase}` +
               (message.modules !== undefined ? ` ${message.modules} module(s)` : '') +
@@ -302,6 +317,7 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
     const first = noticeFor(document);
     if (first !== undefined) {
       this.showNotice(panel, document, first);
+      load.markFailed();
     } else {
       void this.mountAndSend(panel, document, state);
     }
@@ -322,7 +338,7 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
       if (reloadTimer !== undefined) clearTimeout(reloadTimer);
       reloadTimer = setTimeout(() => {
         reloadTimer = undefined;
-        void this.reload(panel, document, state);
+        void this.reload(panel, document, state, load);
       }, RELOAD_DEBOUNCE_MS);
     };
     const subscriptions = [watcher?.onDidChange(reload), watcher?.onDidCreate(reload)];
@@ -333,6 +349,9 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
       for (const subscription of subscriptions) subscription?.dispose();
       watcher?.dispose();
       state.ready.resolve();
+      load.close();
+      selector.close();
+      releaseLinkPanel?.();
       sink.append(`   ${name}: panel disposed`);
     });
   }
@@ -376,6 +395,7 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
     panel: vscode.WebviewPanel,
     document: NetlistDocument,
     state: PanelState,
+    load: NetlistLoadWatch,
   ): Promise<void> {
     if (state.disposed) return;
     const { sizeBytes, disposition } = await classifyNetlist(document.uri, this.deps.maxFileSizeMb());
@@ -394,6 +414,7 @@ export class NetlistEditorProvider implements vscode.CustomReadonlyEditorProvide
     if (notice === undefined) return;
     state.mounted = false;
     this.showNotice(panel, document, notice);
+    load.markFailed();
   }
 
   private showNotice(

@@ -10,7 +10,13 @@ import path from 'node:path';
 import * as vscode from 'vscode';
 import * as hostCore from '@crux-vscode/host-core';
 import { locateNetCruxExecutable } from '../highlight/locate-desktop';
-import { classifyNetlist, NETLIST_VIEW_TYPE, NetlistEditorProvider, readNetlistHead } from './editor';
+import {
+  classifyNetlist,
+  NETLIST_VIEW_TYPE,
+  NetlistEditorProvider,
+  readNetlistHead,
+  type NetlistEditorDependencies,
+} from './editor';
 import { looksLikeYosysNetlist } from './netlist-detect';
 import { openInNetCrux, type OpenInNetCruxDeps } from './open-in-netcrux';
 import { DEFAULT_MAX_FILE_SIZE_MB } from './size-plan';
@@ -38,6 +44,8 @@ export interface PreviewRegistration {
   /** Hand a file to a running NetCrux over CXP, or fall back. See `open-in-netcrux.ts`. */
   readonly handOff: OpenInNetCruxDeps['handOff'];
   readonly peerRunning: OpenInNetCruxDeps['peerRunning'];
+  /** Register each preview for `netcrux://` links to its file. */
+  readonly adoptLinkPanel?: NetlistEditorDependencies['adoptLinkPanel'];
 }
 
 /** The setting, read live so a change applies to the next file opened. */
@@ -166,7 +174,7 @@ function launchDesktop(installed: string, fsPath: string): Promise<void> {
 
 /** Register everything. */
 export function registerSchematicPreview(registration: PreviewRegistration): void {
-  const { context, log, recordFeature, handOff, peerRunning } = registration;
+  const { context, log, recordFeature, handOff, peerRunning, adoptLinkPanel } = registration;
 
   const openInDesktop = async (netlist: vscode.Uri): Promise<void> => {
     if (netlist.scheme !== 'file') {
@@ -226,6 +234,7 @@ export function registerSchematicPreview(registration: PreviewRegistration): voi
       recordOpened: (outcome) => {
         if (outcome === 'preview') recordFeature(PREVIEW_FEATURES.preview);
       },
+      ...(adoptLinkPanel !== undefined ? { adoptLinkPanel } : {}),
     }),
   );
 

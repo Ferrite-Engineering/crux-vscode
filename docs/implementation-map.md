@@ -1084,8 +1084,13 @@ that suite).
   for an app that reads only that key. A time with no signal opens the file
   and says the cursor was not placed: the bridge reaches the cursor only
   through a highlighted element.
-- NetCrux: a Yosys JSON netlist opens in the schematic preview, which has no
-  frame to select an element, so the user is told. An HDL source opens as text
+- NetCrux: a Yosys JSON netlist opens in the schematic preview (`vscode.openWith`
+  focuses it when it is open), and that preview (`netcrux/src/links/netlist-panels.ts`,
+  by file) is asked once the viewer has reported `status` `loaded`: a `select`
+  frame (`{element: cell|net, name, id}`) that the viewer resolves by the
+  desktop link's name rules and answers with `select_result` (`selected`,
+  `not_found`, `no_design`, same `id`). Not found is said in the desktop's
+  words ("Opened {0}, but it has no cell named {1}."). An HDL source opens as text
   at the line the stems index gives for the name, only when the index places it
   in that same file.
 
