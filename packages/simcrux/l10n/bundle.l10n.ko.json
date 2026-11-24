@@ -104,5 +104,7 @@
   "Cross-probing is unavailable in this window.": "이 창에서는 교차 프로브를 사용할 수 없습니다.",
   "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요.",
   "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.": "SimCrux는 시뮬레이터를 실행하므로 신뢰할 수 있는 폴더가 필요합니다. 이 폴더는 신뢰되지 않았습니다. 저장된 결과는 계속 표시되지만 폴더를 신뢰하기 전에는 회귀 테스트가 실행되지 않습니다.",
-  "Manage Workspace Trust": "작업 영역 신뢰 관리"
+  "Manage Workspace Trust": "작업 영역 신뢰 관리",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} MCP 서버 설정을 클립보드에 복사했습니다. 이 편집기의 MCP 설정에 붙여넣으세요.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} MCP 서버 설정을 클립보드에 복사했지만 {0} 명령줄 프로그램을 찾지 못했습니다. {1}에 해당 경로를 설정한 다음 다시 복사하세요."
 }

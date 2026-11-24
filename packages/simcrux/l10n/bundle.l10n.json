@@ -104,5 +104,7 @@
   "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
   "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.",
   "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.": "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.",
-  "Manage Workspace Trust": "Manage Workspace Trust"
+  "Manage Workspace Trust": "Manage Workspace Trust",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again."
 }

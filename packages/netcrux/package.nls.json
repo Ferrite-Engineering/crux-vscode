@@ -5,6 +5,8 @@
   "crux.command.sendSelectionToPeer.title": "Send Selection to Crux App",
   "crux.command.highlightSelectionInPeer.title": "Highlight Selection in Crux App",
   "crux.configuration.title": "EDACrux",
+  "crux.command.netcrux.copyMcpConfig.title": "Copy NetCrux MCP Server Configuration",
+  "crux.configuration.net.executable.description": "Path to the NetCrux command-line program that serves the MCP server (`netcrux_pro` or `netcrux`, from the command-line archive). Empty means look it up on `PATH` and in the usual tool folders, preferring the Pro program. A machine setting: a workspace cannot change it.",
   "crux.configuration.crossProbe.revealSelection.description": "Bring the matching editor tab forward when a connected Crux app announces a selection. Keyboard focus stays where it is and the window is never raised.",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "Move the cursor into the editor when a connected Crux app asks to open a source location. The window itself is never raised.",
   "crux.command.openCapabilitiesPanel.title": "Open Capabilities Panel",
@@ -19,5 +21,6 @@
   "crux.command.netcrux.openSchematicPreview.title": "Open Schematic Preview",
   "crux.command.netcrux.openInNetCrux.title": "Open in NetCrux",
   "crux.editor.netcrux.schematic.displayName": "NetCrux Schematic Preview",
-  "crux.configuration.preview.maxFileSizeMB.description": "The largest netlist, in MB, that the schematic preview loads. The preview reads the whole file into the editor’s memory, so a larger file is not loaded and the preview offers to open it in NetCrux Desktop instead, which reads from disk and has no limit. Values above the default depend on the memory available to the editor’s window."
+  "crux.configuration.preview.maxFileSizeMB.description": "The largest netlist, in MB, that the schematic preview loads. The preview reads the whole file into the editor’s memory, so a larger file is not loaded and the preview offers to open it in NetCrux Desktop instead, which reads from disk and has no limit. Values above the default depend on the memory available to the editor’s window.",
+  "crux.configuration.mcp.enabled.description": "Register this extension's MCP server with the editor, so an agent in this window can find it without configuration. The server starts with the workspace folder as its root, and the editor asks you before it runs. Turn this off to register nothing; the copy command still works."
 }

@@ -68,6 +68,11 @@
         "category": "%crux.command.category%"
       },
       {
+        "command": "wavecrux.copyMcpConfig",
+        "title": "%crux.command.wavecrux.copyMcpConfig.title%",
+        "category": "%crux.command.category%"
+      },
+      {
         "command": "edacrux.openCapabilitiesPanel",
         "title": "%crux.command.openCapabilitiesPanel.title%",
         "category": "%crux.command.category%"
@@ -123,6 +128,17 @@
     "configuration": {
       "title": "%crux.configuration.title%",
       "properties": {
+        "edacrux.wave.mcp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.mcp.enabled.description%"
+        },
+        "edacrux.wave.executable": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "%crux.configuration.wave.executable.description%"
+        },
         "edacrux.rtlAnnotation.enabled": {
           "type": "boolean",
           "default": false,
@@ -145,6 +161,12 @@
         }
       }
     },
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "wavecrux.mcp",
+        "label": "WaveCrux"
+      }
+    ],
     "colors": [
       {
         "id": "edacrux.rtlAnnotationForeground",

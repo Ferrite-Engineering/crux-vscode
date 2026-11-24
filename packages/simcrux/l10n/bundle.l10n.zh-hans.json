@@ -104,5 +104,7 @@
   "Cross-probing is unavailable in this window.": "此窗口无法使用交叉探查。",
   "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop 正在运行，但拒绝了来自此窗口的连接。请重新启动 {0} Desktop 后重试。",
   "SimCrux runs your simulator, so it needs a trusted folder. This folder is not trusted: saved results are still shown, but no regression will run until you trust it.": "SimCrux 会运行您的仿真器，因此需要受信任的文件夹。此文件夹不受信任：仍会显示已保存的结果，但在您信任它之前不会运行任何回归测试。",
-  "Manage Workspace Trust": "管理工作区信任"
+  "Manage Workspace Trust": "管理工作区信任",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} 的 MCP 服务器配置已复制到剪贴板。请将其粘贴到此编辑器的 MCP 设置中。",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} 的 MCP 服务器配置已复制到剪贴板，但未找到 {0} 命令行程序。请将 {1} 设置为其路径，然后重新复制。"
 }

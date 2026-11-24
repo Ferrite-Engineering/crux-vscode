@@ -5,6 +5,8 @@
   "crux.command.sendSelectionToPeer.title": "選択内容を Crux アプリに送信",
   "crux.command.highlightSelectionInPeer.title": "選択内容を Crux アプリでハイライト",
   "crux.configuration.title": "EDACrux",
+  "crux.command.netcrux.copyMcpConfig.title": "NetCrux MCP サーバー設定をコピー",
+  "crux.configuration.net.executable.description": "MCP サーバーを提供する NetCrux コマンドラインプログラム (コマンドラインアーカイブの `netcrux_pro` または `netcrux`) のパス。空の場合は `PATH` と一般的なツールフォルダーから探し、Pro 版を優先します。マシン設定のため、ワークスペースでは変更できません。",
   "crux.configuration.crossProbe.revealSelection.description": "接続中の Crux アプリが選択内容を通知したときに、該当するエディタータブを前面に表示します。キーボードフォーカスは移動せず、ウィンドウが前面に出ることもありません。",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "接続中の Crux アプリがソース位置を開くよう要求したときに、カーソルをエディターへ移動します。ウィンドウ自体が前面に出ることはありません。",
   "crux.command.openCapabilitiesPanel.title": "機能パネルを開く",
@@ -19,5 +21,6 @@
   "crux.command.netcrux.openSchematicPreview.title": "回路図プレビューを開く",
   "crux.command.netcrux.openInNetCrux.title": "NetCrux で開く",
   "crux.editor.netcrux.schematic.displayName": "NetCrux 回路図プレビュー",
-  "crux.configuration.preview.maxFileSizeMB.description": "回路図プレビューが読み込む最大のネットリストサイズ（MB）。プレビューはファイル全体をエディターのメモリに読み込むため、これより大きいファイルは読み込まれず、代わりに NetCrux デスクトップ（ディスクから読み込み、上限なし）で開く案内が表示されます。既定値より大きい値は、エディターのウィンドウが使えるメモリに依存します。"
+  "crux.configuration.preview.maxFileSizeMB.description": "回路図プレビューが読み込む最大のネットリストサイズ（MB）。プレビューはファイル全体をエディターのメモリに読み込むため、これより大きいファイルは読み込まれず、代わりに NetCrux デスクトップ（ディスクから読み込み、上限なし）で開く案内が表示されます。既定値より大きい値は、エディターのウィンドウが使えるメモリに依存します。",
+  "crux.configuration.mcp.enabled.description": "この拡張機能の MCP サーバーをエディターに登録し、このウィンドウのエージェントが設定なしで見つけられるようにします。サーバーはワークスペースフォルダーをルートとして起動し、実行前にエディターが確認します。オフにすると何も登録されません。コピー用コマンドは引き続き使えます。"
 }

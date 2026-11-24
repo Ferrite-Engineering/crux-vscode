@@ -88,5 +88,7 @@
   "Opened {0}, but it has no signal named {1}.": "Opened {0}, but it has no signal named {1}.",
   "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.": "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.",
   "WaveCrux could not read {0}. The tab shows why.": "WaveCrux could not read {0}. The tab shows why.",
-  "Opened {0}, but the waveform panel did not select {1}.": "Opened {0}, but the waveform panel did not select {1}."
+  "Opened {0}, but the waveform panel did not select {1}.": "Opened {0}, but the waveform panel did not select {1}.",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again."
 }

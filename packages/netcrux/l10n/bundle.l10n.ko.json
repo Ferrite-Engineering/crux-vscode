@@ -104,5 +104,7 @@
   "Opened {0}, but it has no cell named {1}.": "{0} 파일을 열었지만 {1} 셀이 없습니다.",
   "Opened {0}, but it has no net named {1}.": "{0} 파일을 열었지만 {1} 넷이 없습니다.",
   "NetCrux could not read {0}. The tab shows why.": "NetCrux가 {0} 파일을 읽을 수 없습니다. 이유는 탭에 표시됩니다.",
-  "Opened {0}, but the schematic preview did not select {1}.": "{0} 파일을 열었지만 회로도 미리보기가 {1}을(를) 선택하지 않았습니다."
+  "Opened {0}, but the schematic preview did not select {1}.": "{0} 파일을 열었지만 회로도 미리보기가 {1}을(를) 선택하지 않았습니다.",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} MCP 서버 설정을 클립보드에 복사했습니다. 이 편집기의 MCP 설정에 붙여넣으세요.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} MCP 서버 설정을 클립보드에 복사했지만 {0} 명령줄 프로그램을 찾지 못했습니다. {1}에 해당 경로를 설정한 다음 다시 복사하세요."
 }

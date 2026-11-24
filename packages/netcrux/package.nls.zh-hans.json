@@ -5,6 +5,8 @@
   "crux.command.sendSelectionToPeer.title": "将所选内容发送到 Crux 应用",
   "crux.command.highlightSelectionInPeer.title": "在 Crux 应用中高亮所选内容",
   "crux.configuration.title": "EDACrux",
+  "crux.command.netcrux.copyMcpConfig.title": "复制 NetCrux MCP 服务器配置",
+  "crux.configuration.net.executable.description": "提供 MCP 服务器的 NetCrux 命令行程序（命令行压缩包中的 `netcrux_pro` 或 `netcrux`）的路径。留空表示在 `PATH` 和常用工具文件夹中查找，并优先使用 Pro 程序。这是机器级设置，工作区无法更改。",
   "crux.configuration.crossProbe.revealSelection.description": "当已连接的 Crux 应用通知其所选内容时,将对应的编辑器标签页置于前台。键盘焦点保持不变,且不会激活窗口。",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "当已连接的 Crux 应用请求打开源代码位置时,将光标移入编辑器。窗口本身不会被激活。",
   "crux.command.openCapabilitiesPanel.title": "打开功能面板",
@@ -19,5 +21,6 @@
   "crux.command.netcrux.openSchematicPreview.title": "打开原理图预览",
   "crux.command.netcrux.openInNetCrux.title": "在 NetCrux 中打开",
   "crux.editor.netcrux.schematic.displayName": "NetCrux 原理图预览",
-  "crux.configuration.preview.maxFileSizeMB.description": "原理图预览加载的最大网表大小（MB）。预览会将整个文件读入编辑器内存，因此更大的文件不会被加载，预览会改为提供在 NetCrux 桌面版中打开的选项（桌面版从磁盘读取，没有上限）。高于默认值的取值取决于编辑器窗口可用的内存。"
+  "crux.configuration.preview.maxFileSizeMB.description": "原理图预览加载的最大网表大小（MB）。预览会将整个文件读入编辑器内存，因此更大的文件不会被加载，预览会改为提供在 NetCrux 桌面版中打开的选项（桌面版从磁盘读取，没有上限）。高于默认值的取值取决于编辑器窗口可用的内存。",
+  "crux.configuration.mcp.enabled.description": "向编辑器注册此扩展的 MCP 服务器，使此窗口中的智能体无需配置即可找到它。服务器以工作区文件夹为根目录启动，运行前编辑器会先征求你的同意。关闭后不会注册任何内容；复制命令仍可使用。"
 }

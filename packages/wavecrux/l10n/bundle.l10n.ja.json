@@ -88,5 +88,7 @@
   "Opened {0}, but it has no signal named {1}.": "{0} を開きましたが、{1} という名前の信号はありません。",
   "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.": "{0} を開きました。エディターパネルでは、リンクが信号も指定している場合にのみカーソルを置きます。",
   "WaveCrux could not read {0}. The tab shows why.": "WaveCrux は {0} を読み込めませんでした。理由はタブに表示されています。",
-  "Opened {0}, but the waveform panel did not select {1}.": "{0} を開きましたが、波形パネルは {1} を選択しませんでした。"
+  "Opened {0}, but the waveform panel did not select {1}.": "{0} を開きましたが、波形パネルは {1} を選択しませんでした。",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} の MCP サーバー設定をクリップボードにコピーしました。このエディターの MCP 設定に貼り付けてください。",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} の MCP サーバー設定をクリップボードにコピーしましたが、{0} のコマンドラインプログラムが見つかりませんでした。{1} にそのパスを設定してから、もう一度コピーしてください。"
 }

@@ -104,5 +104,7 @@
   "Opened {0}, but it has no cell named {1}.": "Opened {0}, but it has no cell named {1}.",
   "Opened {0}, but it has no net named {1}.": "Opened {0}, but it has no net named {1}.",
   "NetCrux could not read {0}. The tab shows why.": "NetCrux could not read {0}. The tab shows why.",
-  "Opened {0}, but the schematic preview did not select {1}.": "Opened {0}, but the schematic preview did not select {1}."
+  "Opened {0}, but the schematic preview did not select {1}.": "Opened {0}, but the schematic preview did not select {1}.",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again."
 }

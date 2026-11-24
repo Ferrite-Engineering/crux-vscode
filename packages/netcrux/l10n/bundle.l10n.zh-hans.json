@@ -104,5 +104,7 @@
   "Opened {0}, but it has no cell named {1}.": "已打开 {0}，但其中没有名为 {1} 的单元。",
   "Opened {0}, but it has no net named {1}.": "已打开 {0}，但其中没有名为 {1} 的线网。",
   "NetCrux could not read {0}. The tab shows why.": "NetCrux 无法读取 {0}。标签页中显示了原因。",
-  "Opened {0}, but the schematic preview did not select {1}.": "已打开 {0}，但原理图预览未选择 {1}。"
+  "Opened {0}, but the schematic preview did not select {1}.": "已打开 {0}，但原理图预览未选择 {1}。",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} 的 MCP 服务器配置已复制到剪贴板。请将其粘贴到此编辑器的 MCP 设置中。",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} 的 MCP 服务器配置已复制到剪贴板，但未找到 {0} 命令行程序。请将 {1} 设置为其路径，然后重新复制。"
 }

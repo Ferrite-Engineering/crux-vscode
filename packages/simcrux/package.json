@@ -56,7 +56,18 @@
     }
   },
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "simcrux.mcp",
+        "label": "SimCrux"
+      }
+    ],
     "commands": [
+      {
+        "command": "simcrux.copyMcpConfig",
+        "title": "%crux.command.simcrux.copyMcpConfig.title%",
+        "category": "%crux.command.category%"
+      },
       {
         "command": "simcrux.refreshResults",
         "title": "%crux.command.simcrux.refresh.title%",
@@ -120,6 +131,11 @@
     "configuration": {
       "title": "%crux.configuration.title%",
       "properties": {
+        "edacrux.sim.mcp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.mcp.enabled.description%"
+        },
         "edacrux.sim.projectFile": {
           "type": "string",
           "default": "simcrux.yaml",

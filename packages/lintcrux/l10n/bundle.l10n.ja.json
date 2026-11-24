@@ -66,5 +66,7 @@
   "This window has no live connection to that app right now.": "このウィンドウは現在そのアプリと接続されていません。",
   "That app is no longer running.": "そのアプリはすでに実行されていません。",
   "Cross-probing is unavailable in this window.": "このウィンドウではクロスプローブを利用できません。",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。"
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop は実行中ですが、このウィンドウからの接続を拒否しました。{0} Desktop を再起動してからもう一度お試しください。",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} の MCP サーバー設定をクリップボードにコピーしました。このエディターの MCP 設定に貼り付けてください。",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} の MCP サーバー設定をクリップボードにコピーしましたが、{0} のコマンドラインプログラムが見つかりませんでした。{1} にそのパスを設定してから、もう一度コピーしてください。"
 }

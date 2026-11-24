@@ -5,6 +5,8 @@
   "crux.command.sendSelectionToPeer.title": "Send Selection to Crux App",
   "crux.command.highlightSelectionInPeer.title": "Highlight Selection in Crux App",
   "crux.configuration.title": "EDACrux",
+  "crux.command.lintcrux.copyMcpConfig.title": "Copy LintCrux MCP Server Configuration",
+  "crux.configuration.lint.executable.description": "Path to the LintCrux command-line program that serves the MCP server (`lintcrux_pro` or `lintcrux`, from the command-line archive). Empty means look it up on `PATH` and in the usual tool folders, preferring the Pro program. A machine setting: a workspace cannot change it.",
   "crux.configuration.crossProbe.revealSelection.description": "Bring the matching editor tab forward when a connected Crux app announces a selection. Keyboard focus stays where it is and the window is never raised.",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "Move the cursor into the editor when a connected Crux app asks to open a source location. The window itself is never raised.",
   "crux.command.openCapabilitiesPanel.title": "Open Capabilities Panel",
@@ -17,5 +19,6 @@
   "crux.untrustedWorkspaces.description": "Lint results become diagnostics in a restricted workspace and waivers can still be filed: this extension only reads and writes files, and never runs a program. A workspace-provided results path is ignored, because that setting accepts an absolute path and an untrusted folder must not choose what gets read — set it in your own settings, or trust the folder.",
   "crux.configuration.crossProbe.followWaveformSelection.description": "Reveal a signal's RTL declaration in the editor when you select it in a WaveCrux waveform panel in this window. Off by default: most clicks in a waveform are reading, not a request to navigate. Resolved through the stems index, so it lands only on declarations a tool wrote down; keyboard focus stays in the waveform.",
   "crux.color.rtlAnnotationForeground.description": "Colour of an RTL value annotation: the signal value shown at the end of a source line. Defaults to the CodeLens foreground, so it recedes into your theme; raise it here without recolouring CodeLenses.",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "Colour of an RTL annotation for a name that matches more than one signal and is shown as ambiguous rather than guessed. Defaults to the editor warning foreground."
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "Colour of an RTL annotation for a name that matches more than one signal and is shown as ambiguous rather than guessed. Defaults to the editor warning foreground.",
+  "crux.configuration.mcp.enabled.description": "Register this extension's MCP server with the editor, so an agent in this window can find it without configuration. The server starts with the workspace folder as its root, and the editor asks you before it runs. Turn this off to register nothing; the copy command still works."
 }

@@ -17,7 +17,8 @@
  *   desktop-detect/ desktop-peer presence detection + handoff
  *   l10n/           shared localization bundle access
  *   links/          wavecrux:// and netcrux:// links opened in the editor
- *   surface/        the registration interface product packages implement
+ *   mcp/            registers each product's MCP server with the editor
+ *   surface/       the registration interface product packages implement
  *   window/         the one-window election: which extension owns the peer
  */
 export * as annotate from './annotate';
@@ -30,5 +31,6 @@ export * as status from './status';
 export * as desktopDetect from './desktop-detect';
 export * as l10n from './l10n';
 export * as links from './links';
+export * as mcp from './mcp';
 export * as surface from './surface';
 export * as window from './window';

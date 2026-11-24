@@ -53,7 +53,18 @@
     }
   },
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "lintcrux.mcp",
+        "label": "LintCrux"
+      }
+    ],
     "commands": [
+      {
+        "command": "lintcrux.copyMcpConfig",
+        "title": "%crux.command.lintcrux.copyMcpConfig.title%",
+        "category": "%crux.command.category%"
+      },
       {
         "command": "lintcrux.refreshDiagnostics",
         "title": "%crux.command.lintcrux.refresh.title%",
@@ -83,6 +94,17 @@
     "configuration": {
       "title": "%crux.configuration.title%",
       "properties": {
+        "edacrux.lint.mcp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.mcp.enabled.description%"
+        },
+        "edacrux.lint.executable": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "%crux.configuration.lint.executable.description%"
+        },
         "edacrux.lint.resultsPath": {
           "type": "string",
           "default": "lintcrux.sarif",

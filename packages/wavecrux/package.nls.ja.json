@@ -5,6 +5,8 @@
   "crux.command.sendSelectionToPeer.title": "選択内容を Crux アプリに送信",
   "crux.command.highlightSelectionInPeer.title": "選択内容を Crux アプリでハイライト",
   "crux.configuration.title": "EDACrux",
+  "crux.command.wavecrux.copyMcpConfig.title": "WaveCrux MCP サーバー設定をコピー",
+  "crux.configuration.wave.executable.description": "MCP サーバーを提供する WaveCrux コマンドラインプログラム (コマンドラインアーカイブの `wavecrux_pro` または `wavecrux`) のパス。空の場合は `PATH` と一般的なツールフォルダーから探し、Pro 版を優先します。マシン設定のため、ワークスペースでは変更できません。",
   "crux.configuration.crossProbe.revealSelection.description": "接続中の Crux アプリが選択内容を通知したときに、該当するエディタータブを前面に表示します。キーボードフォーカスは移動せず、ウィンドウが前面に出ることもありません。",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "接続中の Crux アプリがソース位置を開くよう要求したときに、カーソルをエディターへ移動します。ウィンドウ自体が前面に出ることはありません。",
   "crux.command.wavecrux.openPanel.title": "波形パネルを開く",
@@ -16,5 +18,6 @@
   "crux.untrustedWorkspaces.description": "制限付きワークスペースでも、波形の表示・デコード・クロスプローブは通常どおり動作します。本拡張機能は開いたファイルを読み取るだけで、プログラムを実行することはありません。ワークスペース側で指定された「RTL 値のインライン注釈」の有効化設定は無視されます。信頼されていないフォルダーがソースコードに文字を挿入すべきではないためです。有効にする場合はユーザー設定で指定するか、フォルダーを信頼してください。",
   "crux.configuration.crossProbe.followWaveformSelection.description": "このウィンドウの WaveCrux 波形パネルで信号を選択したときに、その RTL 宣言をエディターに表示します。既定はオフです。波形上のクリックの多くは移動の要求ではなく参照のためです。stems インデックスを介して解決するため、ツールが記録した宣言のみに移動し、キーボードフォーカスは波形に残ります。",
   "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。",
+  "crux.configuration.mcp.enabled.description": "この拡張機能の MCP サーバーをエディターに登録し、このウィンドウのエージェントが設定なしで見つけられるようにします。サーバーはワークスペースフォルダーをルートとして起動し、実行前にエディターが確認します。オフにすると何も登録されません。コピー用コマンドは引き続き使えます。"
 }

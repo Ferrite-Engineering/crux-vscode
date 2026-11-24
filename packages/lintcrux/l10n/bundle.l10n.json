@@ -66,5 +66,7 @@
   "This window has no live connection to that app right now.": "This window has no live connection to that app right now.",
   "That app is no longer running.": "That app is no longer running.",
   "Cross-probing is unavailable in this window.": "Cross-probing is unavailable in this window.",
-  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again."
+  "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again."
 }

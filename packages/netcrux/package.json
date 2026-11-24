@@ -53,7 +53,18 @@
     }
   },
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "netcrux.mcp",
+        "label": "NetCrux"
+      }
+    ],
     "commands": [
+      {
+        "command": "netcrux.copyMcpConfig",
+        "title": "%crux.command.netcrux.copyMcpConfig.title%",
+        "category": "%crux.command.category%"
+      },
       {
         "command": "netcrux.openSchematicPreview",
         "title": "%crux.command.netcrux.openSchematicPreview.title%",
@@ -182,6 +193,17 @@
     "configuration": {
       "title": "%crux.configuration.title%",
       "properties": {
+        "edacrux.net.mcp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%crux.configuration.mcp.enabled.description%"
+        },
+        "edacrux.net.executable": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "%crux.configuration.net.executable.description%"
+        },
         "edacrux.crossProbe.revealSelection": {
           "type": "boolean",
           "default": true,

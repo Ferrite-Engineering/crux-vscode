@@ -196,6 +196,10 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
   context.subscriptions.push(channel);
   const sink = createSink(channel);
 
+  // The product's MCP server, registered with the editor, and the command
+  // that copies its configuration where the editor has no registration API.
+  hostCore.mcp.registerMcpForExtension(context, 'wavecrux', (line) => sink.append(line));
+
   const client = createTelemetryClient(context);
   client.start();
   context.subscriptions.push({ dispose: () => client.dispose() });

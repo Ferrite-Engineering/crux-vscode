@@ -47,5 +47,7 @@
   "{0} Desktop is running but would not open this — see the EDACrux output channel for what it said.": "{0} Desktop이 실행 중이지만 이 항목을 열지 않았습니다 — 자세한 내용은 EDACrux 출력 채널을 확인하세요.",
   "{0} Desktop is not answering, so this was opened with your system’s default application for it.": "{0} Desktop이 응답하지 않아 시스템 기본 애플리케이션으로 열었습니다.",
   "{0} Desktop is running but refused the connection from this window. Restart {0} Desktop and try again.": "{0} Desktop이 실행 중이지만 이 창의 연결을 거부했습니다. {0} Desktop을 다시 시작한 후 다시 시도하세요.",
-  "This file could not be opened.": "이 파일을 열 수 없습니다."
+  "This file could not be opened.": "이 파일을 열 수 없습니다.",
+  "The {0} MCP server configuration is on the clipboard. Paste it into this editor's MCP settings.": "{0} MCP 서버 설정을 클립보드에 복사했습니다. 이 편집기의 MCP 설정에 붙여넣으세요.",
+  "The {0} MCP server configuration is on the clipboard, but no {0} command-line program was found. Set {1} to its path, then copy again.": "{0} MCP 서버 설정을 클립보드에 복사했지만 {0} 명령줄 프로그램을 찾지 못했습니다. {1}에 해당 경로를 설정한 다음 다시 복사하세요."
 }

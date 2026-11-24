@@ -10,5 +10,6 @@
   "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",
   "crux.configuration.rtlAnnotation.enabled.description": "将已连接波形中的信号值以内联批注的形式显示在你的 Verilog/VHDL 源码中，并跟随波形游标。默认关闭；仅批注 stems 精确匹配的信号，名称有歧义时会显示为歧义而不会擅自猜测。",
   "crux.color.rtlAnnotationForeground.description": "RTL 值注释（显示在源代码行末的信号值）的颜色。默认使用 CodeLens 前景色，以融入主题；在此处调整即可提高可见度，而不会改变 CodeLens 的颜色。",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。"
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "匹配多个信号、因而不作猜测而显示为有歧义的名称的 RTL 注释颜色。默认使用编辑器警告前景色。",
+  "crux.configuration.mcp.enabled.description": "向编辑器注册此扩展的 MCP 服务器，使此窗口中的智能体无需配置即可找到它。服务器以工作区文件夹为根目录启动，运行前编辑器会先征求你的同意。关闭后不会注册任何内容；复制命令仍可使用。"
 }

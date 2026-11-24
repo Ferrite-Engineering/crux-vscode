@@ -13,6 +13,7 @@ describe('@crux-vscode/host-core barrel', () => {
         'editor',
         'l10n',
         'links',
+        'mcp',
         'names',
         'status',
         'surface',

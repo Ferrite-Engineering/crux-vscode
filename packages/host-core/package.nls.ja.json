@@ -10,5 +10,6 @@
   "crux.command.toggleRtlAnnotation.title": "RTL 値注釈の切り替え",
   "crux.configuration.rtlAnnotation.enabled.description": "接続中の波形の信号値を、Verilog/VHDL ソース内にインライン注釈として表示し、波形カーソルに追従させます。既定はオフです。stems ファイルで厳密に一致した信号のみを注釈し、名前が曖昧な場合は推測せず曖昧であることを示します。",
   "crux.color.rtlAnnotationForeground.description": "RTL 値注釈 (ソース行末に表示される信号値) の色。既定では CodeLens の前景色を使い、テーマに溶け込みます。ここで変更すれば CodeLens の色を変えずに見やすくできます。",
-  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。"
+  "crux.color.rtlAnnotationAmbiguousForeground.description": "複数の信号に一致するため、推測せずに曖昧として表示される名前の RTL 注釈の色。既定ではエディターの警告の前景色を使います。",
+  "crux.configuration.mcp.enabled.description": "この拡張機能の MCP サーバーをエディターに登録し、このウィンドウのエージェントが設定なしで見つけられるようにします。サーバーはワークスペースフォルダーをルートとして起動し、実行前にエディターが確認します。オフにすると何も登録されません。コピー用コマンドは引き続き使えます。"
 }
