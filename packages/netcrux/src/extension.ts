@@ -18,6 +18,7 @@ import { whatDrivesThis, type WhatDrivesThisOutcome } from './highlight/what-dri
 import { NETCRUX_PRODUCT, netCruxCapabilityCopy } from './status/copy';
 import { registerSchematicPreview } from './preview/register';
 import { NETCRUX_SURFACE } from './surface';
+import { registerNetCruxLinks } from './links/register';
 
 /**
  * NetCrux — cross-probe-send surface for schematic/netlist browsing.
@@ -216,6 +217,21 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
         log,
       });
     },
+  });
+
+  // `netcrux://` links and `vscode://ferrite-engineering.netcrux/open?…`: the
+  // URI handler, NetCrux: Open Link, and links in a terminal. A cell or net is
+  // placed through the same stems index "what drives this" reads, once the
+  // first scan has finished.
+  registerNetCruxLinks({
+    context,
+    locator: {
+      sourceLocationFor: async (name) => {
+        await initialScan;
+        return await resolver.sourceLocationFor(name);
+      },
+    },
+    log,
   });
 
   return membership.api;

@@ -1,5 +1,5 @@
 {
-  "$provenance": "The shared corpus for CXP's two containment rules, exercised through BOTH implementations: crux_cxp's isCxpLoopbackHost and CxpWorkspaceStore.isValidDesignId (via tool/dart-conformance/cxp_rules.dart) and the TypeScript ports in src/cxp/loopback.ts and src/cxp/workspace-store.ts, by test/cxp/dart-interop.test.ts. For `hosts` and `designIds` the two answer lists must be identical; their first entries are crux_cxp's own conformance vectors (dial_containment_test.dart, workspace_store_test.dart) and the rest are edges measured against it. `hostsDartParsesNatively` holds the spellings a platform C library reads as loopback (measured on macOS: every one) and CXP's closed loopback set does not. crux_cxp once parsed literals through that library (InternetAddress.tryParse); it now implements the set in pure Dart (cxpLoopbackDialAddress), so both implementations must refuse every one, on every machine, and the test requires identical answers here too. Add a case here, not in the test. Every character outside printable ASCII is written as a JSON unicode escape, so no raw control byte - a NUL above all - ever lands in this file. In designIds, {root} is replaced by a fresh temp directory and the workspace directory is {root}/nested/workspace, so every escape lands inside the temp root.",
+  "$provenance": "The shared corpus for CXP's two containment rules, exercised through BOTH implementations: crux_cxp's isCxpLoopbackHost and CxpWorkspaceStore.isValidDesignId (via tool/dart-conformance/cxp_rules.dart) and the TypeScript ports in src/cxp/loopback.ts and src/cxp/workspace-store.ts, by test/cxp/dart-interop.test.ts. For `hosts` and `designIds` the two answer lists must be identical; their first entries are crux_cxp's own conformance vectors (dial_containment_test.dart, workspace_store_test.dart) and the rest are edges measured against it. `hostsDartParsesNatively` holds the spellings a platform C library reads as loopback (measured on macOS: every one) and CXP's closed loopback set does not. crux_cxp once parsed literals through that library (InternetAddress.tryParse); it now implements the set in pure Dart (cxpLoopbackDialAddress), so both implementations must refuse every one, on every machine, and the test requires identical answers here too. Add a case here, not in the test. Every character outside printable ASCII is written as a JSON unicode escape, so no raw control byte - a NUL above all - ever lands in this file. In designIds, {root} is replaced by a fresh temp directory and the workspace directory is {root}/nested/workspace, so every escape lands inside the temp root. `linkPaths` runs through crux_cxp's CxpPathContainment with no roots (the floor a wavecrux:// or netcrux:// link's file is held to) and the TypeScript port in src/links/path-floor.ts, and the two must give the same reason, or both none, for every path on the host that runs them.",
   "hosts": [
     "127.0.0.1",
     "127.0.0.2",
@@ -96,5 +96,39 @@
     " ",
     "~/evil",
     "nested/../../workspace/d"
+  ],
+  "linkPaths": [
+    "/w/dump.vcd",
+    "/w/run 1/dump.vcd",
+    "/w/../etc/dump.vcd",
+    "//w/dump.vcd",
+    "/",
+    "",
+    " ",
+    "\t",
+    " /w/dump.vcd",
+    "/w/dump.vcd ",
+    "/w/dump.vcd\n",
+    "/w/dump.vcd\u00a0",
+    "/w/dump.vcd\u0085",
+    "/w/dump.vcd\u2028",
+    "/w/dump.vcd\u3000",
+    "\ufeff/w/dump.vcd",
+    "/w/dump.vcd\u200b",
+    "/w/a\u0000.vcd",
+    "w/dump.vcd",
+    "./dump.vcd",
+    "../dump.vcd",
+    "~/dump.vcd",
+    "dump.vcd",
+    "C:\\w\\dump.vcd",
+    "c:/w/dump.vcd",
+    "C:w\\dump.vcd",
+    "\\w\\dump.vcd",
+    "\\\\server\\share\\dump.vcd",
+    "\\\\?\\C:\\dump.vcd",
+    "\\\\.\\PhysicalDrive0",
+    "1:\\dump.vcd",
+    "file:///w/dump.vcd"
   ]
 }

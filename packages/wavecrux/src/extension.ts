@@ -12,6 +12,8 @@ import { createWaveCruxSurface } from './surface';
 import type { WebviewHighlightTarget } from './webview/highlight-bridge';
 import { createFollowDisabledNotice } from './webview/follow-notice';
 import { WAVECRUX_PRODUCT, waveCruxCapabilityCopy } from './status/copy';
+import { registerWaveCruxLinks } from './links/register';
+import { WaveformPanelRegistry, waveformPanelKey } from './links/waveform-panels';
 
 /**
  * WaveCrux — webview surface for VCD/FST waveforms.
@@ -246,6 +248,9 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
     log: (line) => sink.append(line),
   });
 
+  // The waveform tabs a link can land in, by file. See `links/waveform-panels.ts`.
+  const linkPanels = new WaveformPanelRegistry();
+
   context.subscriptions.push(
     WaveformEditorProvider.register({
       extensionUri: context.extensionUri,
@@ -256,6 +261,7 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
       markOpened: () => void context.globalState.update(FIRST_OPEN_STATE_KEY, true),
       adoptValueSource: (source) => annotation.adoptValueSource(source),
       adoptHighlightTarget,
+      adoptLinkPanel: (documentUri, panel) => linkPanels.adopt(waveformPanelKey(documentUri.fsPath), panel),
       // The window's cross-probe state, for the app's Cross-Probe dock tab.
       // Read per panel rather than captured: WaveCrux is deliberately last
       // in the host order, so in a multi-extension window this resolves
@@ -303,6 +309,10 @@ export function activate(context: vscode.ExtensionContext): hostCore.window.Crux
   );
 
   watchForTextVcd(context, (line) => sink.append(line));
+
+  // `wavecrux://` links and `vscode://ferrite-engineering.wavecrux/open?…`:
+  // the URI handler, WaveCrux: Open Link, and links in a terminal.
+  registerWaveCruxLinks({ context, panels: linkPanels, log: (line) => sink.append(line) });
 
   if (process.env[AUTO_OPEN_ENV]) {
     void vscode.commands.executeCommand(OPEN_PANEL_COMMAND);

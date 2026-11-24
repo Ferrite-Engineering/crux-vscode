@@ -73,5 +73,20 @@
   "Make WaveCrux the default": "WaveCrux を既定にする",
   "No thanks": "いいえ",
   "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux が .vcd ファイルを既定で開くようになりました。変更するには、設定で「workbench.editorAssociations」を編集してください。",
-  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux は設定を変更できませんでした。.vcd のタブで「エディターを再度開く方法...」を使い、*.vcd の既定のエディターを構成してください。"
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux は設定を変更できませんでした。.vcd のタブで「エディターを再度開く方法...」を使い、*.vcd の既定のエディターを構成してください。",
+  "Open a waveform from a link?": "リンクから波形を開きますか?",
+  "A link asks WaveCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.": "リンクが WaveCrux に {0} を開くよう求めています。このファイルはこのウィンドウで開かれていません。リンクの送信元を信頼できる場合にのみ開いてください。",
+  "Full path": "フルパス",
+  "Open": "開く",
+  "WaveCrux did not open the link because it is not a valid WaveCrux link.": "有効な WaveCrux リンクではないため、WaveCrux はリンクを開きませんでした。",
+  "WaveCrux did not open the link because the file is not given as a full local path.": "ファイルがローカルのフルパスで指定されていないため、WaveCrux はリンクを開きませんでした。",
+  "WaveCrux did not open the link because {0} is not a waveform file a link can open.": "{0} はリンクから開ける波形ファイルではないため、WaveCrux はリンクを開きませんでした。",
+  "WaveCrux did not open the link because {0} was not found.": "{0} が見つからないため、WaveCrux はリンクを開きませんでした。",
+  "Open the link in WaveCrux": "WaveCrux でリンクを開く",
+  "Paste a wavecrux:// link, or the same link in its vscode:// form.": "wavecrux:// リンク、または同じリンクの vscode:// 形式を貼り付けてください。",
+  "Opened {0}, but the cursor is not at the time the link gives. The WaveCrux output says why.": "{0} を開きましたが、カーソルはリンクが示す時刻にありません。理由は WaveCrux の出力に表示されています。",
+  "Opened {0}, but it has no signal named {1}.": "{0} を開きましたが、{1} という名前の信号はありません。",
+  "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.": "{0} を開きました。エディターパネルでは、リンクが信号も指定している場合にのみカーソルを置きます。",
+  "WaveCrux could not read {0}. The tab shows why.": "WaveCrux は {0} を読み込めませんでした。理由はタブに表示されています。",
+  "Opened {0}, but the waveform panel did not select {1}.": "{0} を開きましたが、波形パネルは {1} を選択しませんでした。"
 }

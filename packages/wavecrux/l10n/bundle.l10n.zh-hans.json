@@ -73,5 +73,20 @@
   "Make WaveCrux the default": "将 WaveCrux 设为默认",
   "No thanks": "不用了",
   "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux 现在默认打开 .vcd 文件。如需更改，请在设置中编辑“workbench.editorAssociations”。",
-  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux 无法更改您的设置。请在 .vcd 标签页上使用“重新打开编辑器的方式…”，然后选择配置 *.vcd 的默认编辑器。"
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux 无法更改您的设置。请在 .vcd 标签页上使用“重新打开编辑器的方式…”，然后选择配置 *.vcd 的默认编辑器。",
+  "Open a waveform from a link?": "从链接打开波形？",
+  "A link asks WaveCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.": "一个链接请求 WaveCrux 打开 {0}，此文件未在此窗口中打开。仅当您信任链接的来源时才打开它。",
+  "Full path": "完整路径",
+  "Open": "打开",
+  "WaveCrux did not open the link because it is not a valid WaveCrux link.": "WaveCrux 未打开该链接，因为它不是有效的 WaveCrux 链接。",
+  "WaveCrux did not open the link because the file is not given as a full local path.": "WaveCrux 未打开该链接，因为文件没有以完整的本地路径给出。",
+  "WaveCrux did not open the link because {0} is not a waveform file a link can open.": "WaveCrux 未打开该链接，因为 {0} 不是可以从链接打开的波形文件。",
+  "WaveCrux did not open the link because {0} was not found.": "WaveCrux 未打开该链接，因为找不到 {0}。",
+  "Open the link in WaveCrux": "在 WaveCrux 中打开链接",
+  "Paste a wavecrux:// link, or the same link in its vscode:// form.": "粘贴 wavecrux:// 链接，或同一链接的 vscode:// 形式。",
+  "Opened {0}, but the cursor is not at the time the link gives. The WaveCrux output says why.": "已打开 {0}，但光标不在链接给出的时间。WaveCrux 输出中说明了原因。",
+  "Opened {0}, but it has no signal named {1}.": "已打开 {0}，但其中没有名为 {1} 的信号。",
+  "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.": "已打开 {0}。在编辑器面板中，只有当链接同时指定信号时才会放置光标。",
+  "WaveCrux could not read {0}. The tab shows why.": "WaveCrux 无法读取 {0}。标签页中显示了原因。",
+  "Opened {0}, but the waveform panel did not select {1}.": "已打开 {0}，但波形面板未选择 {1}。"
 }

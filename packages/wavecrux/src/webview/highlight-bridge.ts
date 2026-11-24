@@ -71,6 +71,12 @@ export interface WebviewHighlightRequest {
   readonly element: { readonly kind: string; readonly path: string };
   readonly coordinate?: cxp.CxpStreamCoordinate;
   readonly metadata: cxp.JsonObject;
+  /**
+   * CXP's optional `time` (specification §9.3.3): where the cursor goes, in
+   * the link `t` grammar. Set by a link; a peer's highlight carries none
+   * through this bridge today.
+   */
+  readonly time?: string;
 }
 
 /** The app's answer to one [WebviewHighlightRequest]. */
@@ -164,6 +170,7 @@ export class WebviewHighlightTarget {
           ? { coordinate: cxp.encodeStreamCoordinate(request.coordinate) }
           : {}),
         ...(Object.keys(request.metadata).length > 0 ? { metadata: request.metadata } : {}),
+        ...(request.time !== undefined ? { time: request.time } : {}),
       },
     });
 

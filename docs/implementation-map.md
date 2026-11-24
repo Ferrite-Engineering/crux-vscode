@@ -71,6 +71,9 @@ Extension IDs are permanent: `ferrite-engineering.wavecrux`, `.lintcrux`,
 | `telemetry` | `isTelemetryEnabled` gate, envelope, Worker sender, webview relay (§7) |
 | `status` | one status-bar item + capabilities panel |
 | `desktop-detect` | peer-present → suppress advertising; the desktop handoff over `request_open_artifact` (`artifact-handoff`, §6g) |
+| `links/grammar`, `links/rewrite` | the `wavecrux://` / `netcrux://` link grammar, encoding and refusals (port of the desktop parsers), and the editor form `vscode://ferrite-engineering.<product>/open?…` rewritten to the desktop form (§6j) |
+| `links/path-floor`, `links/target` | the CXP receive floor with no roots (port of `CxpPathContainment`, held to it by the containment corpus) and the file check a link's file passes (§6j) |
+| `links/flow`, `links/vscode-links` | the order every link goes through (rewrite, parse, file check, confirm unless open in a tab, open), and the URI handler, Open Link command and terminal links that feed it (§6j) |
 | `l10n` | an empty placeholder: host-core's strings go through `vscode.l10n.t()` in each module's `strings.ts`, and live in `packages/host-core/l10n/` for `tool/sync-l10n.mjs` to copy outward (§6a) |
 | `surface` | the registration interface each product package implements |
 | `window` | the one-window election: which extension owns the peer, the registry, the status bar and the `edacrux.*` commands (§6d) |
@@ -89,6 +92,7 @@ the Dart products, and it is held to that code rather than re-derived:
 | `editor/*` inbound handlers | WaveCrux's `lib/services/remote/cxp/cxp_inbound_handlers.dart` |
 | `names/stems-parser` | WaveCrux's `lib/services/rtl_source/stems_parser.dart` |
 | `cxp/design-id` | `crux_cxp`'s `cxp_design_id.dart` (§6g) |
+| `links/*`, `wavecrux/src/links/wavecrux-link.ts`, `netcrux/src/links/netcrux-link.ts` | WaveCrux's `lib/services/links/wavecrux_link.dart` and `wavecrux_link_target.dart`, NetCrux's `netcrux_link.dart` and `netcrux_link_target.dart`, `crux_cxp`'s `CxpPathContainment` (§6j) |
 | `telemetry/*` | `crux_telemetry`'s `lib/src/telemetry_platform.dart` (§7) |
 
 ## 4. Wire-level surface the TypeScript peer must implement
@@ -628,6 +632,7 @@ selection is dropped because the setting is off (`webview/follow-notice.ts`).
 | a custom editor's `priority: "default"` is not honoured; the file opens as text | WaveCrux's manifest is correct (a test pins `default` and the selector). When a `.vcd` opens as a **text** tab, WaveCrux offers once to write `workbench.editorAssociations` for `*.vcd` (`wavecrux/src/editor/default-editor-offer.ts`). Consent only, user-level setting only, never when an association for `.vcd` already exists, never where the default works |
 | no HDL language extension, so `.v` / `.sv` / `.vhd` are Plain Text | NetCrux and WaveCrux contribute the language ids above |
 | duplicate manifest contributions are logged as errors | see the first subsection |
+| the URI handler's scheme is the fork's own (`cursor://`, `vscodium://`, `vscode-insiders://`) | a link in the `vscode://` form opens in whichever editor owns `vscode://` on the machine; the Open Link command and terminal links accept the editor form under any scheme (§6j) |
 
 ## 6e. Workspace trust — what each extension does in a restricted workspace
 
@@ -1039,6 +1044,57 @@ window host emits one snapshot explicitly after `peer.start()`, because
 The Dart half — how the panel controller chooses between the desktop CXP
 providers and the host's snapshot — is `WaveCruxCrossProbePanelController` in
 the WaveCrux open-core repo, `lib/features/remote/widgets/cross_probe_panel.dart`.
+
+## 6j. Links: `wavecrux://` and `netcrux://` inside the editor
+
+Documents carry one link per place, the desktop form
+(`wavecrux://open?file=…&signal=…&t=…`, `netcrux://open?file=…&cell=…`). The
+editor form `vscode://ferrite-engineering.<product>/open?…` takes the same
+query. Three ways in, one flow (`host-core/src/links/flow.ts`):
+
+| Way in | Rewrite |
+|---|---|
+| URI handler (`registerUriHandler`, `onUri`) | `desktopLinkFromEditorUri`: VS Code's `URI.parse` has decoded the query once, so each value is re-encoded with the link encoder; a value still holding `%XX` is refused (it cannot be told from a file name), and a decoded `&` or `#` makes the parser refuse, never misread |
+| `wavecrux.openLink` / `netcrux.openLink` (argument or input box) | `desktopLinkFromText`: the desktop form unchanged, or the editor form under any editor scheme, query as written |
+| terminal links (`findCruxLinks`) | as the command |
+
+Then, in order: the product's parser (the desktop parser's keys, bounds and
+refusals; NetCrux also refuses a path not absolute as written), the file check
+(`vetLinkTarget`: the CXP floor with no roots, Windows device and stream names,
+the product's extensions as named and after links resolve, a regular file), a
+modal confirmation naming the resolved path unless a tab in this window already
+holds the same file (compared after symbolic links, case folded where the
+filesystem folds it), and the open of the **resolved** path. "Opened before" is
+an open tab only: the editor keeps no recent list an extension can read, and
+the stricter reading can only cost a click.
+
+**The floor is a port, held to the original.** `links/path-floor.ts` restates
+`CxpPathContainment.refuse` with no roots, reason for reason; the `linkPaths`
+list in `test/fixtures/cxp-containment/corpus.json` runs through both in
+`test/cxp/dart-interop.test.ts` (dev machines; skipped on CI with the rest of
+that suite).
+
+**Placing what the link names.**
+
+- WaveCrux: `vscode.openWith` (focuses the tab when it is open), then the tab's
+  own panel (`wavecrux/src/links/waveform-panels.ts`, by file) is asked once
+  the app has acknowledged the waveform (`request_open_artifact_ack`): a
+  `request_highlight` for the signal carrying CXP's `time` (the link's `t`,
+  verbatim) and, when the time is a whole number of picoseconds, `crux.time_ps`
+  for an app that reads only that key. A time with no signal opens the file
+  and says the cursor was not placed: the bridge reaches the cursor only
+  through a highlighted element.
+- NetCrux: a Yosys JSON netlist opens in the schematic preview, which has no
+  frame to select an element, so the user is told. An HDL source opens as text
+  at the line the stems index gives for the name, only when the index places it
+  in that same file.
+
+**Forks.** The URI handler is VS Code's extension API, so a fork that keeps it
+routes `<its scheme>://ferrite-engineering.<product>/…` to the extension. The
+`vscode://` form opens in whichever editor owns `vscode://` on the machine.
+Cursor (`cursor://`) documents the same handler; its 3.14.7 release logged such
+links as handled without activating the extension when the Agents window was
+in front (Cursor forum, August 2026, fix announced for the next stable).
 
 ## 7. Telemetry
 

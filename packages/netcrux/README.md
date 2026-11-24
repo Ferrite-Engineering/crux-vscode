@@ -116,6 +116,22 @@ whatever is installed.
 Install the [**EDACrux Suite**](https://marketplace.visualstudio.com/items?itemName=ferrite-engineering.edacrux)
 pack to get all four at once.
 
+## Opening a link to a design
+
+A `netcrux://open?file=<path>&cell=<name>` (or `&net=<name>`) link, the link
+the NetCrux desktop app opens, opens here too: as
+`vscode://ferrite-engineering.netcrux/open?…` with the same query, pasted into
+**EDACrux: Open NetCrux Link...**, or clicked in a terminal.
+
+A Yosys JSON netlist opens in the schematic preview; the preview does not
+select the cell or net, and NetCrux Desktop does. A Verilog, SystemVerilog or
+VHDL source opens in the editor at the line the netlist index (`.stems`) gives
+for the cell or net, when the index places it in that file. The file must be a
+full local path to one of those kinds: a project, session, workspace,
+`.crux-project` manifest or `.f` filelist is refused, and nothing is opened in
+its place. A file that is not open in this window is opened only after you
+confirm it.
+
 ## Settings
 
 | Setting | Default | What it does |
@@ -132,6 +148,7 @@ pack to get all four at once.
 | Open Schematic Preview | `netcrux.openSchematicPreview` |
 | Open in NetCrux | `netcrux.openInNetCrux` |
 | What Drives This? (NetCrux) | `netcrux.whatDrivesThis` |
+| Open NetCrux Link... | `netcrux.openLink` |
 | Send Selection to Crux App | `edacrux.sendSelectionToPeer` |
 | Highlight Selection in Crux App | `edacrux.highlightSelectionInPeer` |
 | Open Capabilities Panel | `edacrux.openCapabilitiesPanel` |

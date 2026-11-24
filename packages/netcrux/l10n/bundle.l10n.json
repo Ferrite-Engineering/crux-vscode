@@ -89,5 +89,17 @@
   "Select a Yosys JSON netlist (a .json file written by write_json) to preview.": "Select a Yosys JSON netlist (a .json file written by write_json) to preview.",
   "Preview Anyway": "Preview Anyway",
   "{0} does not look like a Yosys netlist. The preview draws the JSON that Yosys writes with write_json.": "{0} does not look like a Yosys netlist. The preview draws the JSON that Yosys writes with write_json.",
-  "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux.": "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux."
+  "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux.": "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux.",
+  "Open a design from a link?": "Open a design from a link?",
+  "A link asks NetCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.": "A link asks NetCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.",
+  "Full path": "Full path",
+  "Open": "Open",
+  "NetCrux did not open the link because it is not a valid NetCrux link.": "NetCrux did not open the link because it is not a valid NetCrux link.",
+  "NetCrux did not open the link because the file is not given as a full local path.": "NetCrux did not open the link because the file is not given as a full local path.",
+  "NetCrux did not open the link because {0} is not a design file a link can open.": "NetCrux did not open the link because {0} is not a design file a link can open.",
+  "NetCrux did not open the link because {0} was not found.": "NetCrux did not open the link because {0} was not found.",
+  "Open the link in NetCrux": "Open the link in NetCrux",
+  "Paste a netcrux:// link, or the same link in its vscode:// form.": "Paste a netcrux:// link, or the same link in its vscode:// form.",
+  "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.": "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.",
+  "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does.": "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does."
 }

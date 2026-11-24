@@ -69,6 +69,7 @@ import { createVscodePeerIdentity } from '../../src/cxp/peer-id';
 import { LocalCxpServer } from '../../src/cxp/server';
 import { CxpWorkspaceStore } from '../../src/cxp/workspace-store';
 import { openArtifactInDesktop } from '../../src/desktop-detect/artifact-handoff';
+import { refuseLinkPath } from '../../src/links/path-floor';
 import { pollUntil, RawPeer } from './harness';
 
 const REPO_ROOT = fileURLToPath(new URL('../../../..', import.meta.url));
@@ -578,6 +579,7 @@ interface ContainmentCorpus {
   readonly hosts: readonly string[];
   readonly hostsDartParsesNatively: readonly string[];
   readonly designIds: readonly string[];
+  readonly linkPaths: readonly string[];
 }
 
 /**
@@ -601,23 +603,30 @@ describe.skipIf(!canRun)('containment rules against crux_cxp', () => {
   let root: string;
   let workspaceDirectory: string;
   let designIds: string[];
-  let dart: { readonly hosts: boolean[]; readonly nativeHosts: boolean[]; readonly designIds: boolean[] };
+  let dart: {
+    readonly hosts: boolean[];
+    readonly nativeHosts: boolean[];
+    readonly designIds: boolean[];
+    readonly linkPaths: (string | null)[];
+  };
 
   beforeAll(async () => {
     root = await mkdtemp(path.join(tmpdir(), 'crux-cxp-rules-'));
     workspaceDirectory = path.join(root, 'nested', 'workspace');
     designIds = corpus.designIds.map((id) => id.split('{root}').join(root));
-    const run = (hosts: readonly string[]): { hosts: boolean[]; designIds: boolean[] } =>
+    const run = (
+      hosts: readonly string[],
+    ): { hosts: boolean[]; designIds: boolean[]; linkPaths: (string | null)[] } =>
       JSON.parse(
         execFileSync('dart', ['run', `--packages=${CRUX_SHARED_PACKAGE_CONFIG}`, DART_RULES], {
-          input: JSON.stringify({ hosts, workspaceDirectory, designIds }),
+          input: JSON.stringify({ hosts, workspaceDirectory, designIds, linkPaths: corpus.linkPaths }),
           encoding: 'utf8',
           timeout: 120_000,
         }),
-      ) as { hosts: boolean[]; designIds: boolean[] };
+      ) as { hosts: boolean[]; designIds: boolean[]; linkPaths: (string | null)[] };
     const main = run(corpus.hosts);
     const native = run(corpus.hostsDartParsesNatively);
-    dart = { hosts: main.hosts, nativeHosts: native.hosts, designIds: main.designIds };
+    dart = { hosts: main.hosts, nativeHosts: native.hosts, designIds: main.designIds, linkPaths: main.linkPaths };
   }, 240_000);
 
   afterAll(async () => {
@@ -651,6 +660,12 @@ describe.skipIf(!canRun)('containment rules against crux_cxp', () => {
     const store = new CxpWorkspaceStore({ workspaceDirectory });
     expect(designIds.map((id) => ({ id, valid: store.isValidDesignId(id) }))).toEqual(
       designIds.map((id, k) => ({ id, valid: dart.designIds[k] })),
+    );
+  });
+
+  it("a link's path floor gives CxpPathContainment's reason for every path, on this host", () => {
+    expect(corpus.linkPaths.map((p) => ({ p, reason: refuseLinkPath(p) ?? null }))).toEqual(
+      corpus.linkPaths.map((p, k) => ({ p, reason: dart.linkPaths[k] })),
     );
   });
 });

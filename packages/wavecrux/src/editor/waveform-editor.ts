@@ -48,6 +48,7 @@ import { WebviewValueSource } from '../webview/value-query';
 import { WebviewHighlightTarget } from '../webview/highlight-bridge';
 import { designPathOf, parseWebviewSelection } from '../webview/selection-navigation';
 import { WebviewCrossProbeBridge } from '../webview/cross-probe';
+import { WaveformLoadWatch, type WaveformLinkPanel } from '../links/waveform-panels';
 
 /** How long to wait for the app's first frame before posting anyway. */
 export const FIRST_FRAME_WAIT_MS = 30_000;
@@ -90,6 +91,13 @@ export interface WaveformEditorDependencies {
    * one. Optional so the provider stays testable without a surface.
    */
   readonly adoptHighlightTarget?: (target: WebviewHighlightTarget) => () => void;
+  /**
+   * Register this tab under its file for links (`links/waveform-panels.ts`),
+   * and hand back a teardown for when the tab closes. A link has to talk to
+   * the tab that holds *its* file, which the adoption stack above cannot say.
+   * Optional so the provider stays testable without links.
+   */
+  readonly adoptLinkPanel?: (documentUri: vscode.Uri, panel: WaveformLinkPanel) => () => void;
   /**
    * A signal the user selected **in the waveform**, as its design path.
    *
@@ -231,6 +239,17 @@ export class WaveformEditorProvider implements vscode.CustomReadonlyEditorProvid
       panel.webview.options = { enableScripts: false };
       panel.webview.html = renderNoticeHtml(notice);
       this.deps.sink.append(`   ${document.displayName}: ${notice.logLine}`);
+      // A link to this file is told at once that nothing will load, rather
+      // than waiting out its timeout for an answer no app will send.
+      if (this.deps.adoptLinkPanel !== undefined) {
+        const refused = new WaveformLoadWatch();
+        refused.markFailed();
+        const release = this.deps.adoptLinkPanel(document.uri, {
+          highlights: { request: () => Promise.resolve({ outcome: 'unavailable' }) },
+          load: refused,
+        });
+        panel.onDidDispose(() => release());
+      }
       return;
     }
 
@@ -252,6 +271,11 @@ export class WaveformEditorProvider implements vscode.CustomReadonlyEditorProvid
       post: (frame) => panel.webview.postMessage(frame),
     });
     const releaseHighlightTarget = this.deps.adoptHighlightTarget?.(highlights);
+
+    // The app's "this waveform is open" answer, which a link waits for before
+    // it asks this tab to select anything. Same lifetime as the two above.
+    const load = new WaveformLoadWatch();
+    const releaseLinkPanel = this.deps.adoptLinkPanel?.(document.uri, { highlights, load });
 
     // The Cross-Probe dock tab's state. Constructed here, before the message
     // listener that routes into it, and subscribed from construction rather
@@ -279,6 +303,7 @@ export class WaveformEditorProvider implements vscode.CustomReadonlyEditorProvid
         // claimed frame, because the standing value query answers on every
         // cursor move and a line per answer would bury the output channel.
         onCxpEnvelope: (envelope) =>
+          load.accept(envelope) ||
           values.accept(envelope) ||
           highlights.accept(envelope) ||
           crossProbeBridge.accept(envelope) ||
@@ -302,6 +327,8 @@ export class WaveformEditorProvider implements vscode.CustomReadonlyEditorProvid
       // panel that is already gone.
       highlights.close();
       releaseHighlightTarget?.();
+      load.close();
+      releaseLinkPanel?.();
       // Releases the window-level cross-probe subscription, so a closed tab
       // stops costing a snapshot push on every peer change for the rest of
       // the session.
@@ -397,6 +424,8 @@ export class WaveformEditorProvider implements vscode.CustomReadonlyEditorProvid
           // waveform is open" instead of a five-second wait on a document
           // that no longer has a message listener.
           highlights.close();
+          // The rebuilt webview is sent the bytes again and answers again.
+          load.reset();
           this.deps.sink.append(`   ${document.displayName}: context released (hidden)`);
           return;
         }

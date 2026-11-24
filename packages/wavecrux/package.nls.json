@@ -8,6 +8,7 @@
   "crux.configuration.crossProbe.revealSelection.description": "Bring the matching editor tab forward when a connected Crux app announces a selection. Keyboard focus stays where it is and the window is never raised.",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "Move the cursor into the editor when a connected Crux app asks to open a source location. The window itself is never raised.",
   "crux.command.wavecrux.openPanel.title": "Open Waveform Panel",
+  "crux.command.wavecrux.openLink.title": "Open WaveCrux Link...",
   "crux.editor.wavecrux.waveform.displayName": "WaveCrux Waveform Viewer",
   "crux.command.openCapabilitiesPanel.title": "Open Capabilities Panel",
   "crux.command.toggleRtlAnnotation.title": "Toggle RTL Value Annotation",

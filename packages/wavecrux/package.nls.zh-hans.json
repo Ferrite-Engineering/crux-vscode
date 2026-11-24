@@ -8,6 +8,7 @@
   "crux.configuration.crossProbe.revealSelection.description": "当已连接的 Crux 应用通知其所选内容时,将对应的编辑器标签页置于前台。键盘焦点保持不变,且不会激活窗口。",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "当已连接的 Crux 应用请求打开源代码位置时,将光标移入编辑器。窗口本身不会被激活。",
   "crux.command.wavecrux.openPanel.title": "打开波形面板",
+  "crux.command.wavecrux.openLink.title": "打开 WaveCrux 链接...",
   "crux.editor.wavecrux.waveform.displayName": "WaveCrux 波形查看器",
   "crux.command.openCapabilitiesPanel.title": "打开功能面板",
   "crux.command.toggleRtlAnnotation.title": "切换 RTL 值批注",

@@ -8,6 +8,7 @@
   "crux.configuration.crossProbe.revealSelection.description": "接続中の Crux アプリが選択内容を通知したときに、該当するエディタータブを前面に表示します。キーボードフォーカスは移動せず、ウィンドウが前面に出ることもありません。",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "接続中の Crux アプリがソース位置を開くよう要求したときに、カーソルをエディターへ移動します。ウィンドウ自体が前面に出ることはありません。",
   "crux.command.wavecrux.openPanel.title": "波形パネルを開く",
+  "crux.command.wavecrux.openLink.title": "WaveCrux リンクを開く...",
   "crux.editor.wavecrux.waveform.displayName": "WaveCrux 波形ビューアー",
   "crux.command.openCapabilitiesPanel.title": "機能パネルを開く",
   "crux.command.toggleRtlAnnotation.title": "RTL 値注釈の切り替え",

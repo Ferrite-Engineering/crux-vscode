@@ -73,5 +73,20 @@
   "Make WaveCrux the default": "Make WaveCrux the default",
   "No thanks": "No thanks",
   "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.": "WaveCrux now opens .vcd files by default. To change this, edit \"workbench.editorAssociations\" in your settings.",
-  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd."
+  "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.": "WaveCrux could not change your settings. Use Reopen Editor With... on a .vcd tab, then choose to configure the default editor for *.vcd.",
+  "Open a waveform from a link?": "Open a waveform from a link?",
+  "A link asks WaveCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.": "A link asks WaveCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.",
+  "Full path": "Full path",
+  "Open": "Open",
+  "WaveCrux did not open the link because it is not a valid WaveCrux link.": "WaveCrux did not open the link because it is not a valid WaveCrux link.",
+  "WaveCrux did not open the link because the file is not given as a full local path.": "WaveCrux did not open the link because the file is not given as a full local path.",
+  "WaveCrux did not open the link because {0} is not a waveform file a link can open.": "WaveCrux did not open the link because {0} is not a waveform file a link can open.",
+  "WaveCrux did not open the link because {0} was not found.": "WaveCrux did not open the link because {0} was not found.",
+  "Open the link in WaveCrux": "Open the link in WaveCrux",
+  "Paste a wavecrux:// link, or the same link in its vscode:// form.": "Paste a wavecrux:// link, or the same link in its vscode:// form.",
+  "Opened {0}, but the cursor is not at the time the link gives. The WaveCrux output says why.": "Opened {0}, but the cursor is not at the time the link gives. The WaveCrux output says why.",
+  "Opened {0}, but it has no signal named {1}.": "Opened {0}, but it has no signal named {1}.",
+  "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.": "Opened {0}. In the editor panel a link places the cursor only when it also names a signal.",
+  "WaveCrux could not read {0}. The tab shows why.": "WaveCrux could not read {0}. The tab shows why.",
+  "Opened {0}, but the waveform panel did not select {1}.": "Opened {0}, but the waveform panel did not select {1}."
 }

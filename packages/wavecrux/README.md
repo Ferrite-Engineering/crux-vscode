@@ -112,6 +112,25 @@ from the Cross-Probe panel or with **EDACrux: Send Selection to Crux App**. The
 WaveCrux output channel says this once per session when a selection is not
 followed.
 
+## Opening a link to a waveform
+
+A `wavecrux://open?file=<path>&signal=<name>&t=<time>` link (the link the
+WaveCrux desktop app opens, and the one a CI log, a report or a coding agent
+writes) opens here too, in three ways:
+
+- `vscode://ferrite-engineering.wavecrux/open?…` with the same query opens in
+  VS Code. VS Code asks first whether WaveCrux may open the link.
+- **EDACrux: Open WaveCrux Link...** takes either form, pasted.
+- A `wavecrux://` link printed in a terminal is clickable.
+
+The file opens in the waveform editor (or its tab comes forward), the signal is
+added and selected, and the cursor goes to the time. The file must be a full
+local path to a `.vcd`, `.fst`, `.ghw`, `.lxt` or `.lxt2` file; anything else
+is refused with the reason, and nothing is opened in its place. A file that is
+not open in this window is opened only after you confirm it. In the editor
+panel a link with a time but no signal opens the file without moving the
+cursor.
+
 ## Settings
 
 | Setting | Default | What it does |
@@ -144,6 +163,7 @@ contrast (for a projector or a screen recording, say) in
 | Command | Id |
 |---|---|
 | Open Waveform Panel | `wavecrux.openPanel` |
+| Open WaveCrux Link... | `wavecrux.openLink` |
 | Toggle RTL Value Annotation | `edacrux.toggleRtlAnnotation` |
 | Send Selection to Crux App | `edacrux.sendSelectionToPeer` |
 | Highlight Selection in Crux App | `edacrux.highlightSelectionInPeer` |

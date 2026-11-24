@@ -8,6 +8,7 @@
   "crux.configuration.crossProbe.revealSelection.description": "연결된 Crux 앱이 선택 항목을 알릴 때 해당 편집기 탭을 앞으로 가져옵니다. 키보드 포커스는 그대로 유지되며 창이 앞으로 나오지 않습니다.",
   "crux.configuration.crossProbe.openSourceFocusesEditor.description": "연결된 Crux 앱이 소스 위치를 열도록 요청할 때 커서를 편집기로 이동합니다. 창 자체는 앞으로 나오지 않습니다.",
   "crux.command.wavecrux.openPanel.title": "파형 패널 열기",
+  "crux.command.wavecrux.openLink.title": "WaveCrux 링크 열기...",
   "crux.editor.wavecrux.waveform.displayName": "WaveCrux 파형 뷰어",
   "crux.command.openCapabilitiesPanel.title": "기능 패널 열기",
   "crux.command.toggleRtlAnnotation.title": "RTL 값 주석 전환",

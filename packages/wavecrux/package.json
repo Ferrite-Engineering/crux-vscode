@@ -43,7 +43,8 @@
   "main": "./dist/extension.js",
   "l10n": "./l10n",
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onUri"
   ],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -59,6 +60,11 @@
       {
         "command": "wavecrux.openPanel",
         "title": "%crux.command.wavecrux.openPanel.title%",
+        "category": "%crux.command.category%"
+      },
+      {
+        "command": "wavecrux.openLink",
+        "title": "%crux.command.wavecrux.openLink.title%",
         "category": "%crux.command.category%"
       },
       {

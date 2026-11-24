@@ -12,6 +12,7 @@ describe('@crux-vscode/host-core barrel', () => {
         'desktopDetect',
         'editor',
         'l10n',
+        'links',
         'names',
         'status',
         'surface',

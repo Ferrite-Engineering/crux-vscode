@@ -89,5 +89,17 @@
   "Select a Yosys JSON netlist (a .json file written by write_json) to preview.": "미리볼 Yosys JSON 넷리스트(write_json이 쓴 .json 파일)를 선택하세요.",
   "Preview Anyway": "그래도 미리보기",
   "{0} does not look like a Yosys netlist. The preview draws the JSON that Yosys writes with write_json.": "{0}은(는) Yosys 넷리스트로 보이지 않습니다. 미리보기는 Yosys가 write_json으로 쓰는 JSON을 그립니다.",
-  "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux.": "NetCrux에서 열 Yosys JSON 넷리스트(write_json이 쓴 .json 파일)를 선택하세요."
+  "Select a Yosys JSON netlist (a .json file written by write_json) to open in NetCrux.": "NetCrux에서 열 Yosys JSON 넷리스트(write_json이 쓴 .json 파일)를 선택하세요.",
+  "Open a design from a link?": "링크에서 설계를 여시겠습니까?",
+  "A link asks NetCrux to open {0}, which is not open in this window. Open it only if you trust where the link came from.": "링크가 NetCrux에 {0} 파일을 열도록 요청합니다. 이 파일은 이 창에서 열려 있지 않습니다. 링크의 출처를 신뢰하는 경우에만 여십시오.",
+  "Full path": "전체 경로",
+  "Open": "열기",
+  "NetCrux did not open the link because it is not a valid NetCrux link.": "유효한 NetCrux 링크가 아니므로 NetCrux가 링크를 열지 않았습니다.",
+  "NetCrux did not open the link because the file is not given as a full local path.": "파일이 전체 로컬 경로로 지정되지 않았으므로 NetCrux가 링크를 열지 않았습니다.",
+  "NetCrux did not open the link because {0} is not a design file a link can open.": "{0} 파일은 링크로 열 수 있는 설계 파일이 아니므로 NetCrux가 링크를 열지 않았습니다.",
+  "NetCrux did not open the link because {0} was not found.": "{0} 파일을 찾을 수 없으므로 NetCrux가 링크를 열지 않았습니다.",
+  "Open the link in NetCrux": "NetCrux에서 링크 열기",
+  "Paste a netcrux:// link, or the same link in its vscode:// form.": "netcrux:// 링크 또는 같은 링크의 vscode:// 형식을 붙여 넣으십시오.",
+  "Opened {0}, but the netlist index (.stems) in this workspace does not place {1} in it.": "{0} 파일을 열었지만 이 작업 영역의 넷리스트 인덱스(.stems)에 이 파일 안의 {1} 위치가 없습니다.",
+  "Opened {0}. The schematic preview does not select a cell or net from a link; NetCrux Desktop does.": "{0} 파일을 열었습니다. 회로도 미리보기는 링크에서 셀이나 넷을 선택하지 않습니다. NetCrux Desktop에서는 선택합니다."
 }
