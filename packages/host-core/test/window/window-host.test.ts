@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as vscode from 'vscode';
 import { CruxWindowHost } from '../../src/window/window-host';
 import { joinCruxWindow } from '../../src/window/join';
@@ -117,7 +117,10 @@ describe('CruxWindowHost — one window, one manifest', () => {
     const peerId = (await readManifest(before[0] ?? '')).identity.peer_id;
 
     host.join({ surface: SIMCRUX });
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await vi.waitFor(async () => {
+      const current = await readManifest((await manifests())[0] ?? '');
+      expect(current.identity.capabilities).toContain('simcrux.regression_results');
+    });
 
     const after = await manifests();
     expect(after).toEqual(before);
@@ -132,7 +135,10 @@ describe('CruxWindowHost — one window, one manifest', () => {
     const simcrux = host.join({ surface: SIMCRUX });
     await host.started();
     simcrux.dispose();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await vi.waitFor(async () => {
+      const current = await readManifest((await manifests())[0] ?? '');
+      expect(current.identity.capabilities).not.toContain('simcrux.regression_results');
+    });
 
     const manifest = await readManifest((await manifests())[0] ?? '');
     expect(manifest.identity.capabilities).not.toContain('simcrux.regression_results');
@@ -232,13 +238,15 @@ describe('CruxWindowHost — active_document (CXP §8.1, rev. 9)', () => {
     const before = await manifests();
 
     setActive('/Users/dev/active-document/alu.v');
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await vi.waitFor(async () => {
+      expect(await activeDocumentOf()).toBe('alu.v');
+    });
     expect(await manifests()).toEqual(before);
-    expect(await activeDocumentOf()).toBe('alu.v');
 
     setActive(undefined);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(await activeDocumentOf()).toBeUndefined();
+    await vi.waitFor(async () => {
+      expect(await activeDocumentOf()).toBeUndefined();
+    });
   });
 });
 
